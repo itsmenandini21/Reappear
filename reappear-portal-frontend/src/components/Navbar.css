@@ -1,0 +1,26 @@
+/* src/components/Navbar.css */
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2.5rem;
+  width: 100%;
+  position: fixed; /* Locks it to the top of the screen */
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  z-index: 1000;
+  /* Very subtle glass effect for the whole top bar */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff; /* This adds the solid white background */
+  padding: 8px 24px; /* Adds breathing room around the text */
+  border-radius: 50px; /* Rounds the corners perfectly like a pill */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); /* Adds a very soft drop shadow */
+}

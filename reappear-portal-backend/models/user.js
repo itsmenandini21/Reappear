@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-UserSchema.pre("save", async (next)=>{
+UserSchema.pre("save", async function(next){
   if(!this.isModified("password")) return next();
   try{
     const salt=await bcrypt.genSalt(10);

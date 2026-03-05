@@ -1,0 +1,113 @@
+.subjects-page {
+  max-width: 800px;
+  margin: 100px auto 40px;
+  padding: 0 20px;
+}
+
+.page-header-text {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Toggle Buttons */
+.tab-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.tab-button {
+  background: transparent;
+  border: 1px solid #333;
+  color: #333;
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-button.active-tab {
+  background: #333;
+  color: white;
+}
+
+/* The Card Layout inside the Animated List */
+.custom-subject-card {
+  /* This overrides the default item background to make your borders pop */
+  background-color: #170d27; 
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 6px solid transparent; /* The vibrant border */
+  display: flex;
+  flex-direction: column;
+}
+
+/* THE BORDER COLORS */
+.border-unfilled {
+  border-left-color: #ff2600 !important; /* Vibrant Red */
+}
+
+.border-pending {
+  border-left-color: #ffd700 !important; /* Yellow */
+}
+
+.border-cleared {
+  border-left-color: #00cc44 !important; /* Green */
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.title-group h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
+  color: #ffffff;
+}
+
+.sub-desc {
+  font-size: 0.85rem;
+  color: #a097b0;
+}
+
+.action-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.form-btn {
+  background: transparent;
+  color: #ff2600;
+  border: 1px solid #ff2600;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-btn:hover {
+  background: #ff2600;
+  color: white;
+}
+
+.date-text {
+  font-size: 0.8rem;
+  color: #ff2600;
+}
+
+/* Force the AnimatedList text wrapper to behave */
+.item-text {
+  width: 100%;
+  margin: 0 !important;
+}
