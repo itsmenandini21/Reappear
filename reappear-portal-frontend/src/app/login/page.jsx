@@ -25,7 +25,7 @@ function LoginPage() {
             router.push("/dashboard");
         }
         catch (error) {
-            toast.error(err.response?.data?.message || "Login failed");
+            toast.error(error.response?.data?.message || "Login failed");
         }
     }
 

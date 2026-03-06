@@ -1,0 +1,188 @@
+/* src/app/contacts/Contacts.css */
+
+.contacts-page-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 120px 20px 80px;
+  min-height: 100vh;
+}
+
+.contacts-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.contacts-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+
+.contacts-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.contact-category {
+  margin-bottom: 50px;
+}
+
+.category-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid #eaeaea;
+  padding-bottom: 15px;
+}
+
+.contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+/* --- Contact Card Styling --- */
+.contact-card {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The sleek top border line */
+.contact-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #1a1a1a;
+  transition: background 0.3s;
+}
+
+.contact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: #ff2600;
+}
+
+.contact-card:hover::before {
+  background: #ff2600;
+}
+
+/* Make urgent cards permanently red on top */
+.contact-card.urgent::before {
+  background: #ff2600;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.icon-box {
+  width: 50px;
+  height: 50px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a1a1a;
+  transition: all 0.3s;
+}
+
+.contact-card:hover .icon-box {
+  background: #fff0e6;
+  color: #ff2600;
+}
+
+.contact-card.urgent .icon-box {
+  background: #fff0e6;
+  color: #ff2600;
+}
+
+.contact-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.contact-role {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #666;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-grow: 1;
+}
+
+.detail-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: #444;
+  font-weight: 500;
+}
+
+.detail-icon {
+  color: #999;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.contact-action-btn {
+  background: #f8f9fa;
+  color: #1a1a1a;
+  border: 1px solid #eaeaea;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.contact-action-btn:hover {
+  background: #1a1a1a;
+  color: white;
+  border-color: #1a1a1a;
+}
+
+.contact-card.urgent .contact-action-btn {
+  background: #ff2600;
+  color: white;
+  border-color: #ff2600;
+}
+
+.contact-card.urgent .contact-action-btn:hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
