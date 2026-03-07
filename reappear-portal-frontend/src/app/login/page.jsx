@@ -18,8 +18,8 @@ function LoginPage() {
             const response = await api.post("auth/login", loginData);
             const { token, name } = response.data;
 
-            localStorage.setItem(token);
-            localStorage.setItem(name);
+            localStorage.setItem('token', token);
+            localStorage.setItem('name', name);
 
             toast.success(`Welcome Back ${name}`)
             router.push("/dashboard");

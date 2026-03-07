@@ -24,17 +24,6 @@ export default function MessagesPage() {
     },
     {
       id: 2,
-      name: "Prof. A. Sharma",
-      avatar: "👨‍🏫",
-      type: "faculty",
-      status: "Offline",
-      unread: 1,
-      messages: [
-        { id: 201, text: "Harsh, are you free to discuss your OS assignment?", sender: "them", time: "Yesterday" }
-      ]
-    },
-    {
-      id: 3,
       name: "Karan Verma",
       avatar: "👨‍🎓",
       type: "student",

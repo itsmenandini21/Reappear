@@ -122,16 +122,14 @@ export default function Faculty() {
                   <button
                     className="modern-contact-btn"
                     onClick={() => {
-                      // Encodes the name so spaces don't break the URL
-                      const query = new URLSearchParams({
-                        name: faculty.name,
-                        type: 'faculty',
-                        avatar: faculty.gender === 'M' ? '👨‍🏫' : '👩‍🏫'
-                      }).toString();
-                      router.push(`/dashboard/messages?${query}`);
+                      const profEmail = "professor@nitkkr.ac.in"; // Replace with actual faculty.email
+                      const subject = encodeURIComponent(`Reappear Exam Query - ${faculty.name}`);
+                      const body = encodeURIComponent(`Respected ${faculty.name},\n\nI am writing to you regarding my reappear examination for your subject...\n\nRoll No:\nBranch:`);
+
+                      window.location.href = `mailto:${profEmail}?subject=${subject}&body=${body}`;
                     }}
                   >
-                    Message Professor
+                    Email Professor
                   </button>
                 </motion.div>
               ))
