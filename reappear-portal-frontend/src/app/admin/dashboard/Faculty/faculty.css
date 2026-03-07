@@ -1,0 +1,234 @@
+
+
+:root {
+    --primary-red: #E3342F;
+    --primary-red-light: #fff1f0;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-900: #0f172a;
+    --white: #ffffff;
+}
+
+.admin-portal-container {
+    padding: 2.5rem 4rem;
+    background-color: var(--slate-50);
+    min-height: 100vh;
+}
+
+/* Header Section */
+.portal-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.header-info h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--slate-900);
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+}
+
+.header-info p {
+    color: var(--slate-600);
+    font-weight: 500;
+}
+
+/* Search Bar */
+.table-controls-row {
+    margin-bottom: 1.5rem;
+}
+
+.search-container-modern {
+    flex: 1;
+    background: var(--white);
+    border: 1px solid var(--slate-200);
+    border-radius: 14px;
+    padding: 0 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.search-container-modern:focus-within {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 4px rgba(227, 52, 47, 0.1);
+}
+
+.search-icon {
+    color: #94a3b8;
+    font-size: 1.2rem;
+}
+
+.search-container-modern input {
+    border: none;
+    padding: 1rem 0;
+    outline: none;
+    width: 100%;
+    font-weight: 600;
+    color: var(--slate-700);
+}
+
+/* Table Design */
+.data-card {
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--slate-200);
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.staff-table th {
+    background: var(--slate-50);
+    padding: 1.2rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--slate-600);
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--slate-200);
+}
+
+.table-row {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--slate-100);
+}
+
+.table-row:hover {
+    background-color: #fafafa;
+}
+
+.staff-table td {
+    padding: 1.2rem 1.5rem;
+    vertical-align: middle;
+}
+
+/* Fix for ID Double Line */
+.id-cell {
+    white-space: nowrap; /* Prevents ID from breaking into 2 lines */
+    width: 1%; /* Shrinks column to fit content */
+}
+
+.id-badge {
+    background: var(--slate-100);
+    color: var(--slate-700);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace; /* Professional look for IDs */
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 1px solid var(--slate-200);
+}
+
+.name-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.full-name {
+    font-weight: 700;
+    color: var(--slate-900);
+    font-size: 0.95rem;
+}
+
+.role-text {
+    font-size: 0.8rem;
+    color: var(--slate-600);
+    font-weight: 500;
+}
+
+.dept-tag {
+    background: var(--primary-red-light);
+    color: var(--primary-red);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* Action Buttons Styling */
+.action-btns-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-action-edit, .btn-action-delete {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+/* Update Button - Blueish Slate */
+.btn-action-edit {
+    background: var(--slate-100);
+    color: var(--slate-700);
+}
+
+.btn-action-edit:hover {
+    background: var(--slate-900);
+    color: var(--white);
+}
+
+/* Remove Button - Subtle Red */
+.btn-action-delete {
+    background: var(--white);
+    color: #ef4444;
+    border-color: #fee2e2;
+}
+
+.btn-action-delete:hover {
+    background: #ef4444;
+    color: var(--white);
+    border-color: #ef4444;
+}
+
+/* Helper Classes */
+.text-right { text-align: right; }
+
+.primary-action-btn {
+    background: var(--primary-red);
+    color: var(--white);
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.primary-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(227, 52, 47, 0.2);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -12,7 +12,7 @@ import mongoose from "mongoose"
         type:Boolean,
         deafault:false
     },
-    roomAllocation:{typ:String},
+    roomAllocation:{type:String},
     examDate:{
         type:Date
     },

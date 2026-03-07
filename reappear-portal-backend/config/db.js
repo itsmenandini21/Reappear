@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const connectDb= async ()=>{
     try{
         const encodedPassword=encodeURIComponent(process.env.Mongo_password)
-        const mongo_URL=`mongodb+srv://${process.env.Mongo_User}:${encodedPassword}@${process.env.Mongo_cluster}/${process.env.Mongo_Db}/?appName=${process.env.Mongo_app}`;
+        const mongo_URL=`mongodb+srv://${process.env.Mongo_User}:${encodedPassword}@${process.env.Mongo_cluster}/?appName=${process.env.Mongo_app}`;
         await mongoose.connect(mongo_URL);
         console.log("Database connected successfully");
     }

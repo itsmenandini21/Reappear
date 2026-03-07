@@ -1,5 +1,5 @@
 "use client"
-import { use, useState } from "react";
+import {useState } from "react";
 import api from "@/lib/api";
 import toast from 'react-hot-toast';
 import "./login.css"
@@ -18,14 +18,18 @@ function LoginPage() {
             const response = await api.post("auth/login", loginData);
             const { token, name } = response.data;
 
-            localStorage.setItem(token);
-            localStorage.setItem(name);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("token", token);
+              localStorage.setItem("name", name);
+            }
+            console.log("loggedin");
 
             toast.success(`Welcome Back ${name}`)
             router.push("/dashboard");
         }
         catch (error) {
-            toast.error(err.response?.data?.message || "Login failed");
+            toast.error(error.response?.data?.message || "Login failed");
+            console.log("failed");
         }
     }
 

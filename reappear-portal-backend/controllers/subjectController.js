@@ -36,23 +36,26 @@ const updateSubject=async (req,res)=>{
     }
 }
 
-//by student,admin
+//by student
 
-const getSubject=async (req,res)=>{
-    try{
-        const {subjectCode,branch,semester}=req.query;
-        let query={};
-        if(branch) query.branch=branch;
-        if(semester) query.semester=semester;
-        if(subjectCode) query.subjectCode=subjectCode;
+const getSubjects = async (req, res) => {
+  try {
+    const studentId = req.user.id;
 
-        const subjects=await Subject.find(query);
-        res.json(subjects);
-    }
-    catch(error){
-        res.status(500).json({message:error.message});
-    }
+    const activeBacklogs = await ReappearRecord.find({ 
+      studentId, 
+      status: "active" 
+    }).populate('subjectId');
 
-}
+    const clearedSubjects = await ReappearRecord.find({ 
+      studentId, 
+      status: "cleared" 
+    }).populate('subjectId');
 
-export {addSubject,updateSubject,getSubject};
+    res.json({ activeBacklogs, clearedSubjects });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export {addSubject,updateSubject,getSubjects};

@@ -1,0 +1,87 @@
+.notice-container {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.notice-flex {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.notice-form-section { flex: 1.5; }
+.notice-preview-section { 
+  flex: 1; 
+  background: #fdfdfd; 
+  padding: 25px; 
+  border-radius: 20px; 
+  border: 1px dashed #ddd;
+}
+
+.notice-preview-section h4 { margin-bottom: 20px; color: #666; font-size: 14px; text-transform: uppercase; }
+
+/* Form Elements Styling */
+.actual-form .input-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+.actual-form label { font-weight: 600; margin-bottom: 8px; color: #333; }
+.actual-form input, .actual-form select, .actual-form textarea {
+  padding: 14px;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.actual-form input:focus, .actual-form textarea:focus { border-color: var(--nit-red); outline: none; }
+
+/* LIVE PREVIEW CARD */
+.preview-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  border-left: 5px solid #ccc;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.preview-card.urgent { border-left-color: #ff3b30; }
+.preview-card.academic { border-left-color: #007aff; }
+.preview-card.fees { border-left-color: #34c759; }
+
+.preview-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0f0f0;
+  margin-bottom: 10px;
+}
+
+.preview-card h5 { font-size: 18px; margin-bottom: 10px; color: #1d1d1f; }
+.preview-card p { font-size: 14px; color: #666; line-height: 1.5; }
+
+.preview-footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #999;
+}
+
+.publish-btn {
+  width: 100%;
+  padding: 16px;
+  background: #1d1d1f; /* Dark button for contrast */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.publish-btn:hover { background: var(--nit-red); transform: scale(1.02); }

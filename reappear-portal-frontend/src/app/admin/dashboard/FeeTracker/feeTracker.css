@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+.ft-main-wrapper {
+    padding: 40px;
+    background-color: #f8fafc; /* Ultra light blue-grey background */
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Semester Header */
+.ft-sem-indicator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 20px;
+}
+
+.ft-sem-tag {
+    background: linear-gradient(135deg, #E3342F 0%, #b32420 100%);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 20px rgba(227, 52, 47, 0.2);
+    border: none;
+    text-transform: uppercase;
+}
+
+.ft-header-divider {
+    flex-grow: 1;
+    height: 2px;
+    background: linear-gradient(to right, #e2e8f0, transparent);
+}
+
+/* Branch Section */
+.ft-branch-group {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 50px;
+}
+
+/* Vertical line connecting branch students */
+.ft-branch-group::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #E3342F, #e2e8f0);
+    border-radius: 2px;
+}
+
+.ft-branch-label {
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ft-branch-label::after {
+    content: '';
+    height: 1px;
+    width: 30px;
+    background: #cbd5e1;
+}
+
+/* Vertical List of Students */
+.ft-vertical-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 650px; /* Kept focused to the left */
+}
+
+/* --- THE STUDENT CARD (BEAUTIFIED) --- */
+.ft-student-card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.ft-student-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    border-color: #E3342F;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Header Inside Card */
+.ft-card-header {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    z-index: 2;
+}
+
+.ft-student-name {
+    display: block;
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 16px;
+}
+
+.ft-student-roll {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+/* Mail Button Interaction */
+.ft-mail-action {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+.ft-mail-action:hover {
+    background: #E3342F;
+    color: white;
+    border-color: #E3342F;
+    box-shadow: 0 4px 12px rgba(227, 52, 47, 0.3);
+}
+
+/* --- DYNAMIC SUBJECT PANEL (EXPANDABLE) --- */
+.ft-subject-panel {
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    background: #fcfcfd;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-top: 0px solid transparent;
+}
+
+.ft-student-card:hover .ft-subject-panel {
+    max-height: 300px; /* Fits content perfectly */
+    opacity: 1;
+    visibility: visible;
+    padding: 20px 24px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.ft-panel-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ft-panel-title::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: #E3342F;
+    border-radius: 50%;
+}
+
+.ft-sub-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Tags Style for Subjects */
+.ft-sub-entry {
+    background: #1e293b; /* Dark Slate for premium contrast */
+    color: #f8fafc;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s ease;
+}
+
+.ft-sub-entry:hover {
+    transform: scale(1.05);
+    background: #0f172a;
+}
+
+.ft-sub-bullet {
+    width: 5px;
+    height: 5px;
+    background: #E3342F;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(227, 52, 47, 0.8);
+}

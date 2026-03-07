@@ -6,7 +6,7 @@ import './register.css';
 
 function RegisterPage() {
     const [formData, setFormData] = useState({
-        name: '', email: '', password: '', rollNumber: '', branch: ''
+        name: '', email: '', password: '', rollNumber: '', branch: 'CSE',currentSemester:''
     });
 
     const handleChange = (e) => {
