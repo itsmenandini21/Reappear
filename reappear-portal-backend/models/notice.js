@@ -1,10 +1,20 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const noticeSchema = new mongoose.Schema({
-    title: String,
-    content: String,
-    date: { type: Date, default: Date.now }
+    title: { 
+        type: String, 
+        required: true 
+    },
+    message: { 
+        type: String, 
+        required: true 
+    },
+    postedBy: { 
+        type: String, 
+        default: 'Exam Cell' // Automatically tags it as an official Exam Cell notice
+    }
+}, { 
+    timestamps: true // This will automatically create 'createdAt' and 'updatedAt' fields
 });
 
-const Notice=mongoose.model("Notice",noticeSchema);
-export default Notice;
+export default mongoose.model('Notice', noticeSchema);
