@@ -12,7 +12,6 @@ const registerUser = async (req, res) => {
     const { name, email, password, role, rollNumber, branch, currentSemester } = req.body;
     try {
         const userExists = await User.findOne({ email });
-console.log("USER EXISTS CHECK:", userExists); // add this
 if (userExists) {
     return res.status(400).json({ message: "User already exists" });
 }

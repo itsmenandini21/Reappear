@@ -124,3 +124,52 @@
 }
 
 .copyright-text { margin-top: 25px; color: #cbd5e0; font-size: 0.8rem; }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Black transparent */
+  backdrop-filter: blur(8px); /* <--- Yahi hai wo blur effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Beech wala bada box */
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  max-width: 400px;
+  width: 90%;
+}
+.Notsuccess-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+/* Loading bar animation */
+.loading-bar {
+  height: 4px;
+  background: #0070f3; /* NIT Blue color */
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 2px;
+  animation: progress 4s linear forwards;
+}
+
+@keyframes progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

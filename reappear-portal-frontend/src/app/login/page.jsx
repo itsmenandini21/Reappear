@@ -6,6 +6,8 @@ import "./login.css"
 import { useRouter } from "next/navigation"; //to directly navigate to the dashboard or any other page as soon as user login is successful
 
 function LoginPage() {
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [isNotSuccess,setisNotSuccess]=useState(false);
     const router=useRouter();
     const [loginData, setLoginData] = useState({ email: "", password: "" })
     function handleChange(e) {
@@ -22,14 +24,17 @@ function LoginPage() {
               localStorage.setItem("token", token);
               localStorage.setItem("name", name);
             }
-            console.log("loggedin");
-
-            toast.success(`Welcome Back ${name}`)
-            router.push("/dashboard");
+            setIsSuccess(true);
+            setTimeout(()=>{
+              router.push("/dashboard");
+            },2000);
         }
         catch (error) {
+          setisNotSuccess(true);
+          setTimeout(()=>{
+            setisNotSuccess(false);
+          },2000);
             toast.error(error.response?.data?.message || "Login failed");
-            console.log("failed");
         }
     }
 
@@ -81,6 +86,24 @@ function LoginPage() {
         </div>
       </div>
       <p className="copyright-text">Academic Portal 2026</p>
+      {isSuccess && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Login Successful! ✅</h2>
+
+            <div className="loading-bar"></div>
+            <p className="redirect-text">Redirecting to Dashboard...</p>
+          </div>
+        </div>
+      )}
+      {isNotSuccess && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="Notsuccess-icon">⚠️</div>
+            <h2>Incorrect email or password</h2>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

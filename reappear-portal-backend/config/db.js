@@ -20,6 +20,7 @@ const connectDb = async () => {
     try {
         // This will now look directly at the MONGO_URI in your .env file!
         await mongoose.connect(process.env.MONGO_URI);
+        console.log(process.env.MONGO_URI);
         console.log("Database connected successfully");
     }
     catch(error) {

@@ -1,14 +1,15 @@
 "use client";
 import { useState } from 'react';
 import api from '@/lib/api';
-import toast from 'react-hot-toast';
 import './register.css';
-import { useRouter } from 'next/navigation';  
+import { useRouter } from 'next/navigation';
 
 function RegisterPage() {
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isNotSuccess,setisNotSuccess]=useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '', email: '', password: '', rollNumber: '', branch: '', currentSemester: ''
+    name: '', email: '', password: '', rollNumber: '', branch: 'CSE', currentSemester: ''
   });
 
   const handleChange = (e) => {
@@ -17,17 +18,24 @@ function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await api.post('auth/register', formData);
-      toast.success("Account Created! Please Login.");
-      router.push("/dashboard"); // ✅ add this redirect
+      const response=await api.post('auth/register', formData);
+        setIsSuccess(true);
+        setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Registration Failed");
+      setisNotSuccess(true);
+      setTimeout(()=>{
+        setisNotSuccess(false);
+      },2000);
+      const errorMessage = err.response?.data?.message || "Registration Failed";
     }
   };
+
   return (
     <div className="reg-page-bg">
-      {/* Branding Header */}
       <div className="nit-badge">
         <span className="nit-dot"></span>
         <h1>NIT <span>Kurukshetra</span></h1>
@@ -61,7 +69,7 @@ function RegisterPage() {
 
           <div className="reg-input-group">
             <label>Branch</label>
-            <select name="branch" onChange={handleChange}>
+            <select name="branch" onChange={handleChange} value={formData.branch}>
               <option value="CSE">CSE</option>
               <option value="IT">IT</option>
               <option value="ECE">ECE</option>
@@ -76,8 +84,30 @@ function RegisterPage() {
 
           <button type="submit" className="reg-submit-btn">REGISTER</button>
         </form>
+        <div className="login-link">
+          Already registered? <a href="/login">Login</a>
+        </div>
       </div>
       <p className="reg-footer">NIT Kurukshetra • Reappear Portal 2026</p>
+      {isSuccess && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="success-icon">🚀</div>
+            <h2>Registration Successful!</h2>
+            <p>Welcome to NIT Kurukshetra Reappear Portal.</p>
+            <div className="loading-bar"></div>
+            <p className="redirect-text">Redirecting to login...</p>
+          </div>
+        </div>
+      )}
+      {isNotSuccess && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="Notsuccess-icon">⚠️</div>
+            <h2>User already exists</h2>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
