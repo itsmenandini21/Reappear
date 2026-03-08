@@ -11,7 +11,7 @@ import './dashboard.css';
 
 const dashboardData = [
   { id: 'subjects', title: 'My Subjects', desc: 'Check cleared & reappear subjects.', path: '/dashboard/subjects' },
-  { id: 'dates', title: 'Exam Dates', desc: 'Upcoming reappear schedules.', path: '/dashboard/dates' },
+  { id: 'dates', title: 'Exam Dates', desc: 'Upcoming reappear schedules.', path: '/dashboard/exams' },
   { id: 'faculty', title: 'Faculty Info', desc: 'Reach out to subject teachers.', path: '/dashboard/faculty' },
   { id: 'peers', title: 'Connect Peers', desc: 'Find students taking the same exam.', path: '/dashboard/peers' },
   { id: 'pyq', title: 'PYQs', desc: 'Download previous year question papers.', path: '/dashboard/pyq' }

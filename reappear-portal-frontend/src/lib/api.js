@@ -1,14 +1,15 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  // Changed 5000 to 5001!
+  baseURL: 'http://localhost:5001/api', 
 });
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-        //Every request will carry the token automatically instead of manual writing
-      config.headers.Authorization = `Bearer ${token}`; //token format
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

@@ -1,23 +1,38 @@
-import express from "express"
-import dotenv from "dotenv"
-import { configDotenv } from "dotenv";
-import cors from "cors"
-import connectDb from "./config/db.js";
-import router from "./routes/authRoutes.js";
+import express from 'express';
+import dotenv from 'dotenv';
+import connectDb from './config/db.js';
+import cors from 'cors'; 
 
-const app=express();
-configDotenv();
+// 1. IMPORT ALL YOUR ROUTES HERE
+import subjectRoutes from './routes/subjectRoutes.js';
+import examRoutes from './routes/examRoutes.js';
+import peerRoutes from './routes/peerRoutes.js'; 
+import pyqRoutes from './routes/pyqRoutes.js';   
+import facultyRoutes from './routes/facultyRoutes.js';
+import applicationRoutes from './routes/applicationRoutes.js';
+import authRoutes from './routes/authRoutes.js'; // <-- FIX 4: Imported your auth routes!
+
+dotenv.config();
 connectDb();
 
-app.use(cors())
-app.use(express.json());
-app.use("/api/auth",router);
+const app = express();
 
-app.get("/",(req,res)=>{
-    res.send("Reappear API is running")
-})
+// app.use(cors({
+//     origin: 'http://localhost:3000', 
+//     credentials: true
+// }));
+app.use(cors()); // Allow all origins for development. Adjust in production!
 
-const port=process.env.PORT || 5000;
-app.listen(port,()=>{
-    console.log(`server running on ${port}`);
-})
+app.use(express.json()); 
+
+// 2. TELL EXPRESS TO USE ALL YOUR ROUTES HERE
+app.use('/api/auth', authRoutes); // <-- FIX 4: Tells the server to use the routes!
+app.use('/api/subjects', subjectRoutes);
+app.use('/api/exams', examRoutes);
+app.use('/api/peers', peerRoutes); 
+app.use('/api/pyq', pyqRoutes);    
+app.use('/api/faculty', facultyRoutes);
+app.use('/api/applications', applicationRoutes);
+
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

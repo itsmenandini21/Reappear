@@ -1,26 +1,249 @@
 /* src/components/Navbar.css */
+
 .navbar-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2.5rem;
   width: 100%;
-  position: fixed; /* Locks it to the top of the screen */
+  position: fixed; 
   top: 0;
   left: 0;
   box-sizing: border-box;
   z-index: 1000;
-  /* Very subtle glass effect for the whole top bar */
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  background-color: #ffffff; /* This adds the solid white background */
-  padding: 8px 24px; /* Adds breathing room around the text */
-  border-radius: 50px; /* Rounds the corners perfectly like a pill */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); /* Adds a very soft drop shadow */
+  cursor: pointer;
+}
+
+.nav-brand {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #ff2600;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* --- THE RIGHT SIDE LAYOUT --- */
+.nav-right-side {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Space between links and the chat button */
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  padding: 6px 8px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  gap: 5px;
+}
+
+/* --- THE DYNAMIC HOVER EFFECT --- */
+.nav-item {
+  position: relative;
+  padding: 8px 24px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #333;
+  background: transparent;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden; /* Contains the sliding background */
+  transition: color 0.3s ease;
+  z-index: 1;
+}
+
+/* The sliding red background */
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ff2600;
+  z-index: -1;
+  border-radius: 50px;
+  transform: scaleX(0); /* Starts hidden */
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.nav-item:hover {
+  color: #ffffff;
+}
+
+/* Triggers the slide-in on hover */
+.nav-item:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Active Page State */
+.nav-item.active {
+  background: #ff2600;
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 38, 0, 0.2);
+}
+
+/* --- MESSAGE CENTER UI --- */
+.message-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.message-btn {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: #333;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  height: 45px;
+  width: 45px;
+  padding: 0;
+}
+
+.message-btn:hover {
+  color: #ff2600;
+  border-color: #ff2600;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 38, 0, 0.15);
+}
+
+.message-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ff2600;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+/* Dropdown UI stays the same */
+.messages-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 350px;
+  background: white;
+  border: 1px solid #eaeaea;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform-origin: top right;
+  z-index: 1001;
+}
+
+.dropdown-header {
+  padding: 15px 20px;
+  background: #fafafa;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  font-weight: 800;
+}
+
+.new-chat-btn {
+  background: none;
+  border: none;
+  color: #ff2600;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.messages-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.message-item {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f5f5f5;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.message-item:hover {
+  background: #fcfcfc;
+}
+
+.sender-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #fff0e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.message-content {
+  flex: 1;
+}
+
+.message-sender {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #999;
+}
+
+.message-preview {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.unread-text {
+  color: #1a1a1a;
+  font-weight: 700;
 }

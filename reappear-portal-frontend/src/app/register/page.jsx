@@ -3,26 +3,29 @@ import { useState } from 'react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import './register.css';
+import { useRouter } from 'next/navigation';  
 
 function RegisterPage() {
-    const [formData, setFormData] = useState({
-        name: '', email: '', password: '', rollNumber: '', branch: 'CSE',currentSemester:''
-    });
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    name: '', email: '', password: '', rollNumber: '', branch: '', currentSemester: ''
+  });
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await api.post('/auth/register', formData);
-            toast.success("Account Created! Please Login.");
-        } catch (err) {
-            toast.error(err.response?.data?.message || "Registration Failed");
-        }
-    };
-    return (
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('auth/register', formData);
+      toast.success("Account Created! Please Login.");
+      router.push("/dashboard"); // ✅ add this redirect
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Registration Failed");
+    }
+  };
+  return (
     <div className="reg-page-bg">
       {/* Branding Header */}
       <div className="nit-badge">

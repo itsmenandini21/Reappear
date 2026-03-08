@@ -1,0 +1,181 @@
+/* src/app/dashboard/exams/ExamDates.css */
+
+.exam-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eaeaea;
+  border-left: 6px solid #ff2600; /* Red by default */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.exam-card:hover {
+  border-left-color: #1a1a1a; /* Turns black on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(26, 26, 26, 0.08);
+}
+
+.exam-card-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.exam-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.exam-tag {
+  background: #fff0e6;
+  color: #ff2600;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.exam-subject {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.exam-faculty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.exam-right {
+  display: flex;
+  align-items: center;
+}
+
+.upcoming-action-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.upcoming-details {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.detail-pill {
+  background: #f8f9fa;
+  border: 1px solid #eaeaea;
+  color: #333;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Red Default -> Black Hover Buttons */
+.theme-btn {
+  background: #ff2600;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+  background: #1a1a1a;
+}
+
+/* Sliding Div Styles */
+.slider-container {
+  overflow: hidden; 
+}
+
+.slider-content {
+  background: #f8f9fa;
+  border: 1px dashed #cccccc;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.slider-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  min-width: 130px;
+}
+
+.slider-data {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 4px;
+  text-align: right;
+}
+
+.syllabus-text {
+  font-size: 1rem;
+  color: #444;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.marks-obtained {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ff2600;
+}
+
+.marks-total {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #666;
+}
+
+/* Tab Toggle Buttons (Red Default -> Black Hover) */
+.tab-button {
+  background: transparent;
+  border: 2px solid #eaeaea;
+  color: #666;
+  padding: 8px 30px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-button.active-tab {
+  background: #ff2600;
+  border-color: #ff2600;
+  color: white;
+}
+
+.tab-button.active-tab:hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
