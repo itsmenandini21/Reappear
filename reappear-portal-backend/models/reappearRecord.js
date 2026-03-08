@@ -1,22 +1,22 @@
-import mongoose from "mongoose"
- const reappearRecordSchema=new mongoose.Schema({
-    student:{type:mongoose.Schema.Types.ObjectId,ref:"user",required:true},
-    subject:{type:mongoose.Schema.Types.ObjectId,ref:"subject",required:true},
-    status:{
-        type:String,
-        enum:["cleared","pending","in-progress"],
-        default:"pending"
-    },
-    attemptCount:{type:Number,default:1},
-    feesPaid:{
-        type:Boolean,
-        deafault:false
-    },
-    roomAllocation:{type:String},
-    examDate:{
-        type:Date
-    },
- },{timestamps:true})
+import mongoose from "mongoose";
 
- const reappearRecord=mongoose.model("reappearRecord",reappearRecordSchema);
- export default reappearRecord;
+const reappearRecordSchema = new mongoose.Schema({
+    // Capitalized the refs to match standard Mongoose exports
+    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    subject: { type: mongoose.Schema.Types.ObjectId, ref: "Subject", required: true },
+    status: {
+        type: String,
+        enum: ["cleared", "pending", "in-progress"], // You used lowercase here, which is perfectly fine!
+        default: "pending"
+    },
+    attemptCount: { type: Number, default: 1 },
+    feesPaid: {
+        type: Boolean,
+        default: false // FIXED TYPO: deafault -> default
+    },
+    roomAllocation: { type: String },
+    examDate: { type: Date }
+}, { timestamps: true });
+
+const ReappearRecord = mongoose.model("ReappearRecord", reappearRecordSchema);
+export default ReappearRecord;
