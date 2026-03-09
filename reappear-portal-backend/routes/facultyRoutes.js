@@ -26,8 +26,8 @@ const router = express.Router();
 router.get('/', getFaculty);
 
 // The admin frontend will hit these routes to manage the list
-router.post('/', addFaculty);
-router.put('/:id', updateFaculty);
-router.delete('/:id', deleteFaculty);
+router.post('/add', addFaculty);
+router.put('/update', updateFaculty);
+router.delete('/delete/:id', deleteFaculty);
 
 export default router;

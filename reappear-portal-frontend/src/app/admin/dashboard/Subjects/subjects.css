@@ -360,3 +360,16 @@
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes bounceIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+/* --- Keep all your existing CSS and add these below --- */
+
+.modal-icon-info {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #3b82f6; /* Industry standard blue for info/confirmation */
+}
+
+/* Ensure modal buttons have proper spacing */
+.modal-actions .btn-primary {
+  box-shadow: 0 4px 12px rgba(227, 52, 47, 0.15);
+}

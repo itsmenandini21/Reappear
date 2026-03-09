@@ -101,7 +101,7 @@ export default function Faculty() {
                     <div className="avatar-circle">
                       <span className="emoji-large">{faculty.gender === 'M' ? '👨‍🏫' : '👩‍🏫'}</span>
                     </div>
-                    <div className="dept-tag">{faculty.dept}</div>
+                    <div className="dept-tag">{faculty.department}</div>
                   </div>
 
                   <div className="faculty-info">
@@ -115,7 +115,7 @@ export default function Faculty() {
                   <div className="contact-details-box">
                     <div className="detail-item">
                       <Phone size={14} />
-                      <span>{faculty.phone}</span>
+                      <span>{faculty.phoneNumber}</span>
                     </div>
                   </div>
 

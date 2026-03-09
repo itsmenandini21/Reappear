@@ -1,63 +1,110 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiArrowLeft, FiX, FiPlus, FiSave, FiUser, FiBriefcase, FiBook } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import api from '@/lib/api'; // API import
 import './updateFaculty.css';
 
 const UpdateFaculty = ({ facultyData, onBack }) => {
     const [showPicker, setShowPicker] = useState(false);
     const [activeSem, setActiveSem] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [selectedInModal, setSelectedInModal] = useState([]); // 1. Modal ke liye ek temporary selection state banayein (top level par)
+    const [selectedInModal, setSelectedInModal] = useState([]);
 
-    // Initial State: Simulating data already assigned to this faculty
-    const [tempWorkload, setTempWorkload] = useState({
-        1: ["Applied Physics", "Programming in C"],
-        3: ["Data Structures", "Discrete Mathematics"],
-        5: ["Operating Systems"]
+    // DB se data handle karne ke liye states
+    const [tempWorkload, setTempWorkload] = useState({});
+    const [globalSubjectRepo, setGlobalSubjectRepo] = useState({});
+    const [formData, setFormData] = useState({
+        name: facultyData?.name || "",
+        email: facultyData?.email || "",
+        phoneNumber: facultyData?.phoneNumber || "",
+        department: facultyData?.department || ""
     });
 
-    // Mock Repository of all subjects available in the college
-    const globalSubjectRepo = {
-        1: ["Engineering Drawing", "Mathematics-I", "Chemistry"],
-        3: ["Computer Organization", "Digital Logic", "Object Oriented Programming"],
-        5: ["Cloud Computing", "Machine Learning", "Theory of Computation"],
-        6: ["Compiler Design", "Software Engineering"]
+    // 1. Load Initial Data: Faculty ke subjects ko Sem-wise group karein
+    useEffect(() => {
+        if (facultyData?.subjects && Array.isArray(facultyData.subjects)) {
+            const grouped = {};
+            facultyData.subjects.forEach(sub => {
+                // Check if subject and semester exists
+                if (sub && sub.semester) {
+                    if (!grouped[sub.semester]) grouped[sub.semester] = [];
+                    grouped[sub.semester].push(sub);
+                }
+            });
+            setTempWorkload(grouped);
+        }
+        fetchGlobalSubjects();
+    }, [facultyData]);
+
+    // 2. Fetch Global Subjects for this Department
+    const fetchGlobalSubjects = async () => {
+        try {
+            const res = await api.get(`/subjects/dept?department=${facultyData?.department}`);
+            const grouped = {};
+            res.data.forEach(sub => {
+                if (!grouped[sub.semester]) grouped[sub.semester] = [];
+                grouped[sub.semester].push(sub);
+            });
+            setGlobalSubjectRepo(grouped);
+        } catch (err) {
+            console.error("Error loading subjects");
+        }
     };
 
-    const handleRemoveSubject = (sem, sub) => {
-        setTempWorkload(prev => ({
-            ...prev,
-            [sem]: prev[sem].filter(item => item !== sub)
-        }));
-        toast.error(`${sub} removed from view`, { icon: '🗑️' });
+    const handleRemoveSubject = (sem, subId) => {
+        setTempWorkload(prev => {
+            const updatedList = prev[sem].filter(item => item._id !== subId);
+            const newState = { ...prev, [sem]: updatedList };
+            // Agar semester khali ho jaye toh key delete kar do taaki UI se card hat jaye
+            if (updatedList.length === 0) delete newState[sem];
+            return newState;
+        });
+        toast.error(`Subject removed from view`, { icon: '🗑️' });
     };
 
-    // 2. handleAddSubjects ko modify karein
     const handleAddSubjects = () => {
         if (selectedInModal.length === 0) {
             toast.error("Please select at least one subject");
             return;
         }
 
+        const selectedObjs = globalSubjectRepo[activeSem].filter(s => selectedInModal.includes(s._id));
+
         setTempWorkload(prev => ({
             ...prev,
-            [activeSem]: [...(prev[activeSem] || []), ...selectedInModal]
+            [activeSem]: [...(prev[activeSem] || []), ...selectedObjs]
         }));
 
-        setSelectedInModal([]); // Selection clear karein
+        setSelectedInModal([]);
         setShowPicker(false);
         toast.success(`${selectedInModal.length} Subjects added to list`);
     };
 
-    // 3. Checkbox toggle function
-    const toggleSubjectSelection = (subject) => {
+    const toggleSubjectSelection = (subId) => {
         setSelectedInModal(prev =>
-            prev.includes(subject)
-                ? prev.filter(s => s !== subject)
-                : [...prev, subject]
+            prev.includes(subId) ? prev.filter(s => s !== subId) : [...prev, subId]
         );
     };
+
+    // 4. Final PUT Request to Database
+    const handleFinalDBUpdate = async () => {
+        const loadingToast = toast.loading("Updating Database...");
+        try {
+            const allSubjectIds = Object.values(tempWorkload).flat().map(s => s._id);
+
+            await api.put(`/faculty/update/${facultyData._id}`, {
+                ...formData,
+                subjects: allSubjectIds
+            });
+
+            toast.success("Updated Successfully", { id: loadingToast });
+            onBack();
+        } catch (error) {
+            toast.error("Update Failed", { id: loadingToast });
+        }
+    };
+
     return (
         <div className={`update-screen-wrapper ${showPicker || showConfirmModal ? 'body-blur' : ''}`}>
 
@@ -79,14 +126,10 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                 <section className="info-card">
                     <h3 className="card-heading"><FiUser /> Primary Credentials</h3>
                     <div className="grid-4-col">
-                        <div className="input-box"><label>Full Name</label><input type="text" defaultValue={facultyData?.name} /></div>
-                        <div className="input-box"><label>Employee ID</label><input type="text" defaultValue={facultyData?.id} disabled className="disabled-field" /></div>
-                        <div className="input-box"><label>Department</label><input type="text" defaultValue={facultyData?.dept} /></div>
-                        <div className="input-box"><label>Designation</label><input type="text" defaultValue={facultyData?.role} /></div>
-                    </div>
-                    <div className="grid-2-col" style={{ marginTop: '20px' }}>
-                        <div className="input-box"><label>Experience (Years)</label><input type="text" defaultValue="12 Years" /></div>
-                        <div className="input-box"><label>Highest Degree</label><input type="text" defaultValue="Ph.D. in Computer Science" /></div>
+                        <div className="input-box"><label>Full Name</label><input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} /></div>
+                        <div className="input-box"><label>Department</label><input type="text" value={formData.department} disabled className="disabled-field" /></div>
+                        <div className="input-box"><label>Email Address</label><input type="text" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} /></div>
+                        <div className="input-box"><label>Phone Number</label><input type="text" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} /></div>
                     </div>
                 </section>
 
@@ -95,26 +138,32 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                     <h3 className="card-heading"><FiBriefcase /> Assigned Academic Workload</h3>
 
                     <div className="semester-stack">
-                        {Object.keys(tempWorkload).map(sem => (
-                            tempWorkload[sem].length > 0 && (
+                        {/* Only map semesters that have assigned subjects */}
+                        {Object.keys(tempWorkload).length > 0 ? (
+                            Object.keys(tempWorkload).sort((a, b) => a - b).map(sem => (
                                 <div key={sem} className="sem-row-card">
                                     <div className="sem-row-header">
                                         <h4>Semester {sem}</h4>
-                                        <button className="btn-add-course" onClick={() => { setActiveSem(sem); setShowPicker(true) }}>
+                                        <button className="btn-add-course" onClick={() => { setActiveSem(Number(sem)); setShowPicker(true) }}>
                                             <FiPlus /> Add Course
                                         </button>
                                     </div>
                                     <div className="subject-pills-wrap">
                                         {tempWorkload[sem].map(sub => (
-                                            <div key={sub} className="subject-pill">
-                                                <span>{sub}</span>
-                                                <FiX className="pill-remove" onClick={() => handleRemoveSubject(sem, sub)} />
+                                            <div key={sub._id} className="subject-pill">
+                                                <span>{sub.subjectName} ({sub.subjectCode})</span>
+                                                <FiX className="pill-remove" onClick={() => handleRemoveSubject(sem, sub._id)} />
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                            )
-                        ))}
+                            ))
+                        ) : (
+                            <div className="no-workload-placeholder">
+                                <p>No active workload detected for this faculty.</p>
+                                <button onClick={() => { setActiveSem(1); setShowPicker(true) }} className="btn-add-course">Assign First Subject</button>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -137,22 +186,23 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                         </div>
 
                         <div className="picker-list">
-                            {/* Filter: Jo subjects pehle se assigned nahi hain wahi dikhenge */}
+                            {/* Filter: Jo subjects faculty abhi nahi pada raha wahi dikhenge usi semester ke */}
                             {globalSubjectRepo[activeSem]
-                                ?.filter(s => !tempWorkload[activeSem]?.includes(s))
+                                ?.filter(s => !tempWorkload[activeSem]?.some(assigned => assigned._id === s._id))
                                 .map(sub => (
-                                    <label key={sub} className={`picker-item ${selectedInModal.includes(sub) ? 'selected-row' : ''}`}>
+                                    <label key={sub._id} className={`picker-item ${selectedInModal.includes(sub._id) ? 'selected-row' : ''}`}>
                                         <input
                                             type="checkbox"
                                             className="custom-check"
-                                            checked={selectedInModal.includes(sub)}
-                                            onChange={() => toggleSubjectSelection(sub)}
+                                            checked={selectedInModal.includes(sub._id)}
+                                            onChange={() => toggleSubjectSelection(sub._id)}
                                         />
-                                        <span style={{ fontWeight: selectedInModal.includes(sub) ? '700' : '500' }}>
-                                            {sub}
-                                        </span>
+                                        <span>{sub.subjectName} ({sub.subjectCode})</span>
                                     </label>
                                 ))}
+                            {(!globalSubjectRepo[activeSem] || globalSubjectRepo[activeSem].filter(s => !tempWorkload[activeSem]?.some(assigned => assigned._id === s._id)).length === 0) && (
+                                <p className="no-subjects-msg">No new subjects available for Semester {activeSem}.</p>
+                            )}
                         </div>
 
                         <div className="picker-footer-actions">
@@ -172,10 +222,7 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                         <h3>Update Faculty Records?</h3>
                         <p>This action will synchronize the current workload with the central database.</p>
                         <div className="confirm-btns">
-                            <button className="btn-yes" onClick={() => {
-                                toast.success("Updated Successfully", { position: "top-center" });
-                                onBack();
-                            }}>Yes, Update</button>
+                            <button className="btn-yes" onClick={handleFinalDBUpdate}>Yes, Update</button>
                             <button className="btn-no" onClick={() => setShowConfirmModal(false)}>No, Go Back</button>
                         </div>
                     </div>

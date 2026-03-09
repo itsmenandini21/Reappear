@@ -232,3 +232,132 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* --- DELETE MODAL OVERLAY --- */
+.modal-overlay-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Dark Dim Effect */
+    backdrop-filter: blur(4px); /* Background Blur */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Always on Top */
+    padding: 20px;
+}
+
+/* --- MODAL BOX --- */
+.confirm-box-central {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    position: relative;
+    border: 1px solid #f1f5f9;
+}
+
+/* --- ANIMATION: SCALE UP --- */
+.scale-up {
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* --- WARNING ICON --- */
+.warning-icon-circle {
+    width: 64px;
+    height: 64px;
+    background: #fff1f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+}
+
+/* --- TEXT STYLING --- */
+.confirm-box-central h3 {
+    font-size: 1.5rem;
+    color: #1e293b;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.confirm-box-central p {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    font-size: 0.95rem;
+}
+
+/* --- CLOSE ICON (TOP RIGHT) --- */
+.modal-close-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.modal-close-icon:hover {
+    color: #1e293b;
+    transform: rotate(90deg);
+}
+
+/* --- BUTTON GROUP --- */
+.confirm-btns-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* NO / CANCEL BUTTON */
+.btn-no-cancel {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-no-cancel:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+/* YES / REMOVE BUTTON */
+.btn-yes-remove {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    background: #e11d48; /* Red for Danger */
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-yes-remove:hover {
+    background: #be123c;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(225, 29, 72, 0.4);
+}
+.no-data-msg{
+    height:30px;
+    padding-left:5px;
+}

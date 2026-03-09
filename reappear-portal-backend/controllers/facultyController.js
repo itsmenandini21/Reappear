@@ -23,16 +23,17 @@ export const addFaculty = async (req, res) => {
     }
 };
 
-// @desc    Update faculty details (For Admin)
-// @route   PUT /api/faculty/:id
 export const updateFaculty = async (req, res) => {
     try {
-        const updatedFaculty = await Faculty.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedFaculty) return res.status(404).json({ message: "Faculty not found" });
-        
-        res.status(200).json({ message: "Faculty updated", faculty: updatedFaculty });
+        const { name, department, phoneNumber, email, subjects } = req.body;
+        const updatedFaculty = await Faculty.findByIdAndUpdate(
+            req.params.id,
+            { name, department, phoneNumber, email, subjects },
+            { new: true }
+        );
+        res.status(200).json(updatedFaculty);
     } catch (error) {
-        res.status(400).json({ message: "Failed to update faculty", error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 

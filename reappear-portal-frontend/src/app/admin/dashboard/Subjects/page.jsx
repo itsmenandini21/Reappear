@@ -1,46 +1,93 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import './subjects.css';
+import api from '@/lib/api'; 
 
 const SubjectUpdates = () => {
   const [view, setView] = useState('list'); 
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // New for Add/Update
   const [subjectToDelete, setSubjectToDelete] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const [subjects, setSubjects] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  const [pendingData, setPendingData] = useState(null); // Temporary store form data
 
   const [notifyData, setNotifyData] = useState({ rollNumbers: '', title: '', message: '' });
   const [isSending, setIsSending] = useState(false);
 
-  // Mock Database
-  const [subjects, setSubjects] = useState([
-    { id: 1, code: "CS-302", name: "Operating Systems", dept: "CSE", credits: 4, sem: "5th" },
-    { id: 2, code: "IT-501", name: "Web Technology", dept: "IT", credits: 3, sem: "3rd" },
-    { id: 3, code: "EC-201", name: "Digital Electronics", dept: "ECE", credits: 4, sem: "3rd" },
-  ]);
+  // 1. Fetch Data
+  useEffect(() => {
+    fetchSubjects();
+  }, []);
 
-  const confirmDelete = () => {
-    setSubjects(subjects.filter(s => s.id !== subjectToDelete.id));
-    setShowDeleteModal(false);
-    toast.success("Subject Removed Successfully!", { position: "top-center" });
+  const fetchSubjects = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/subjects');
+      setSubjects(res.data);
+    } catch (err) {
+      toast.error("Database connection failed!");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // 2. Remove Functionality
+  const confirmDelete = async () => {
+    try {
+      await api.delete(`/subjects/delete/${subjectToDelete._id}`);
+      setSubjects(subjects.filter(s => s._id !== subjectToDelete._id));
+      setShowDeleteModal(false);
+      toast.success("Subject Removed!");
+    } catch (err) {
+      toast.error("Delete failed!");
+    }
+  };
+
+  // Trigger Confirmation Popup
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    toast.success(view === 'add' ? "Subject Added!" : "Subject Updated!", { position: "top-center" });
-    setView('list');
+    const formData = new FormData(e.currentTarget);
+    const subjectData = {
+      subjectCode: formData.get("code"),
+      subjectName: formData.get("name"),
+      department: formData.get("dept"),
+      semester: Number(formData.get("semester")),
+      credits: Number(formData.get("credits"))
+    };
+    setPendingData(subjectData);
+    setShowConfirmModal(true);
+  };
+
+  // Actual API Call after "Yes"
+  const executeSubmit = async () => {
+    try {
+      if (view === 'add') {
+        const res = await api.post('/subjects/add', pendingData);
+        setSubjects([...subjects, res.data]);
+        toast.success("Subject Added!");
+      } else {
+        await api.put(`/subjects/update/${selectedSubject._id}`, pendingData);
+        toast.success("Subject Updated!");
+        fetchSubjects();
+      }
+      setShowConfirmModal(false);
+      setView('list');
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Process failed!");
+      setShowConfirmModal(false);
+    }
   };
 
   const handleNotifySubmit = (e) => {
     e.preventDefault();
     setIsSending(true);
-    
-    // Simulate API Call to backend to send emails
     setTimeout(() => {
-      toast.success(`Notices sent to students successfully!`, { position: "top-center", icon: '📢' });
+      toast.success(`Notices sent!`, { icon: '📢' });
       setIsSending(false);
-      setNotifyData({ rollNumbers: '', title: '', message: '' }); 
       setView('list');
     }, 1500);
   };
@@ -55,10 +102,25 @@ const SubjectUpdates = () => {
           <div className="modal-card bounce-in">
             <div className="modal-icon-danger">⚠️</div>
             <h2>Remove Subject?</h2>
-            <p>Are you sure you want to delete <b>{subjectToDelete?.name}</b>? This action cannot be undone.</p>
+            <p>Are you sure you want to delete <b>{subjectToDelete?.subjectName}</b>?</p>
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setShowDeleteModal(false)}>Cancel</button>
               <button className="btn-danger" onClick={confirmDelete}>Delete Subject</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- ADD/UPDATE CONFIRMATION MODAL (Industry Standard) --- */}
+      {showConfirmModal && (
+        <div className="modal-backdrop">
+          <div className="modal-card bounce-in">
+            <div className="modal-icon-info">📝</div>
+            <h2>{view === 'add' ? "Add Subject?" : "Save Changes?"}</h2>
+            <p>Do you want to {view === 'add' ? "add this new subject to" : "update the details in"} the repository?</p>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowConfirmModal(false)}>No, Back</button>
+              <button className="btn-primary" onClick={executeSubmit}>Yes, Confirm</button>
             </div>
           </div>
         </div>
@@ -68,7 +130,7 @@ const SubjectUpdates = () => {
       <div className="dashboard-header">
         <div>
           <h1 className="page-title">Subject Repository</h1>
-          <p className="page-subtitle">Manage curriculum and broadcast notices to enrolled students.</p>
+          <p className="page-subtitle">Manage curriculum and broadcast notices.</p>
         </div>
         {view === 'list' && (
           <button className="btn-primary" onClick={() => { setSelectedSubject(null); setView('add'); }}>
@@ -85,13 +147,14 @@ const SubjectUpdates = () => {
               <span className="search-icon">🔍</span>
               <input 
                 type="text" 
-                placeholder="Search by code, name, or department..." 
+                placeholder="Search..." 
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
 
           <div className="table-responsive">
+            {loading ? <p style={{padding: '20px'}}>Loading...</p> : (
             <table className="modern-table">
               <thead>
                 <tr>
@@ -104,135 +167,76 @@ const SubjectUpdates = () => {
               </thead>
               <tbody>
                 {subjects
-                  .filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.code.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .filter(s => 
+                    s.subjectName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    s.subjectCode?.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
                   .map((sub) => (
-                    <tr key={sub.id}>
+                    <tr key={sub._id}>
                       <td>
                         <div className="subject-info">
-                          <span className="sub-code">{sub.code}</span>
-                          <span className="sub-name">{sub.name}</span>
+                          <span className="sub-code">{sub.subjectCode}</span>
+                          <span className="sub-name">{sub.subjectName}</span>
                         </div>
                       </td>
-                      <td><span className="pill pill-dept">{sub.dept}</span></td>
+                      <td><span className="pill pill-dept">{sub.department}</span></td>
                       <td><span className="text-muted">{sub.credits} Credits</span></td>
-                      <td><span className="pill pill-sem">{sub.sem} Sem</span></td>
+                      <td><span className="pill pill-sem">{sub.semester} Sem</span></td>
                       <td className="action-cell">
-                        <button className="action-btn btn-notify" onClick={() => { setSelectedSubject(sub); setView('notify'); }} title="Send Notice">
-                          📢 Notify
-                        </button>
-                        <button className="action-btn btn-edit" onClick={() => { setSelectedSubject(sub); setView('update'); }}>
-                          Edit
-                        </button>
-                        <button className="action-btn btn-delete" onClick={() => { setSubjectToDelete(sub); setShowDeleteModal(true); }}>
-                          Remove
-                        </button>
+                        <button className="action-btn btn-notify" onClick={() => { setSelectedSubject(sub); setView('notify'); }}>📢 Notify</button>
+                        <button className="action-btn btn-edit" onClick={() => { setSelectedSubject(sub); setView('update'); }}>Edit</button>
+                        <button className="action-btn btn-delete" onClick={() => { setSubjectToDelete(sub); setShowDeleteModal(true); }}>Remove</button>
                       </td>
                     </tr>
-                ))}
+                  ))}
               </tbody>
             </table>
-            {subjects.length === 0 && <div className="empty-state">No subjects found.</div>}
+            )}
           </div>
         </div>
       )}
 
       {/* --- ADD / UPDATE FORM --- */}
-      {/* --- ADD / UPDATE FORM --- */}
       {(view === 'add' || view === 'update') && (
         <div className="form-card fade-in">
-          
-          {/* 1. ADD THIS BACK BUTTON HERE */}
-          <button className="btn-back-top" onClick={() => setView('list')}>
-            ← Back to Subjects
-          </button>
-
+          <button className="btn-back-top" onClick={() => setView('list')}>← Back</button>
           <div className="form-header">
             <h2>{view === 'add' ? "Add New Subject" : "Edit Subject Details"}</h2>
           </div>
           <form onSubmit={handleFormSubmit} className="grid-form">
-            {/* ... (Keep your existing form inputs here) ... */}
             <div className="input-group">
               <label>Subject Code</label>
-              <input type="text" defaultValue={selectedSubject?.code} placeholder="e.g. CS-301" required />
+              <input name="code" type="text" defaultValue={selectedSubject?.subjectCode} placeholder="Code" required />
             </div>
             <div className="input-group">
               <label>Subject Name</label>
-              <input type="text" defaultValue={selectedSubject?.name} placeholder="e.g. Operating Systems" required />
+              <input name="name" type="text" defaultValue={selectedSubject?.subjectName} placeholder="Name" required />
             </div>
             <div className="input-group">
               <label>Department</label>
-              <select defaultValue={selectedSubject?.dept || "CSE"}>
-                <option value="CSE">Computer Science (CSE)</option>
-                <option value="IT">Information Technology (IT)</option>
-                <option value="ECE">Electronics (ECE)</option>
+              <select name="dept" defaultValue={selectedSubject?.department || "CSE"}>
+                <option value="CSE">CSE</option>
+                <option value="IT">IT</option>
+                <option value="ECE">ECE</option>
               </select>
             </div>
+            
+            <div className="input-group">
+              <label>Semester</label>
+              <select name="semester" defaultValue={selectedSubject?.semester || 1}>
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                  <option key={num} value={num}>{num}{num === 1 ? 'st' : num === 2 ? 'nd' : num === 3 ? 'rd' : 'th'} Semester</option>
+                ))}
+              </select>
+            </div>
+
             <div className="input-group">
               <label>Credits</label>
-              <input type="number" defaultValue={selectedSubject?.credits} placeholder="e.g. 4" required />
+              <input name="credits" type="number" defaultValue={selectedSubject?.credits} placeholder="Credits" required />
             </div>
             <div className="form-actions full-width">
               <button type="button" className="btn-cancel" onClick={() => setView('list')}>Cancel</button>
-              <button type="submit" className="btn-primary">{view === 'add' ? "Save Subject" : "Update Details"}</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* --- NOTIFY STUDENTS FORM --- */}
-      {view === 'notify' && (
-        <div className="form-card notify-card fade-in">
-          
-          {/* 2. AND ADD THIS BACK BUTTON HERE */}
-          <button className="btn-back-top" onClick={() => setView('list')}>
-            ← Back to Subjects
-          </button>
-
-          <div className="form-header">
-            <h2>Broadcast Notice 📢</h2>
-            <p className="subtitle">Send an email alert to students enrolled in <b>{selectedSubject?.name} ({selectedSubject?.code})</b></p>
-          </div>
-          
-          <form onSubmit={handleNotifySubmit} className="grid-form">
-            {/* ... (Keep your existing notify inputs here) ... */}
-            <div className="input-group full-width">
-              <label>Target Roll Numbers (Comma Separated)</label>
-              <textarea 
-                className="code-textarea"
-                placeholder="e.g. 124101, 124102, 124115" 
-                value={notifyData.rollNumbers}
-                onChange={(e) => setNotifyData({...notifyData, rollNumbers: e.target.value})}
-                required 
-              />
-            </div>
-
-            <div className="input-group full-width">
-              <label>Email Subject / Notice Title</label>
-              <input 
-                type="text" 
-                placeholder="e.g. Important update regarding Mid-Sem dates" 
-                value={notifyData.title}
-                onChange={(e) => setNotifyData({...notifyData, title: e.target.value})}
-                required 
-              />
-            </div>
-
-            <div className="input-group full-width">
-              <label>Message Content</label>
-              <textarea 
-                className="message-textarea"
-                placeholder="Type your official announcement here..." 
-                value={notifyData.message}
-                onChange={(e) => setNotifyData({...notifyData, message: e.target.value})}
-                required 
-              />
-            </div>
-
-            <div className="form-actions full-width">
-              <button type="button" className="btn-cancel" onClick={() => setView('list')}>Cancel</button>
-              <button type="submit" className="btn-notify-submit" disabled={isSending}>
-                {isSending ? "Sending Emails..." : "Send Notice to Students"}
-              </button>
+              <button type="submit" className="btn-primary">{view === 'add' ? "Save" : "Update"}</button>
             </div>
           </form>
         </div>
