@@ -6,6 +6,8 @@ import NoticeForm from './Updates/page.jsx';
 import FeeTracker from './FeeTracker/page.jsx';
 import SubjectUpdates from './Subjects/page.jsx';
 import FacultyManagement from './Faculty/page.jsx';
+import  ScheduleExams  from './Exams/page.jsx';
+import  UploadResults  from './Results/page.jsx';
 
 
 export default function AdminDashboard() {
@@ -15,6 +17,8 @@ export default function AdminDashboard() {
     { id: 'dashboard', label: 'Overview', icon: '🏠' },
     { id: 'backlogs', label: 'Manage Backlogs', icon: '📝' },
     { id: 'subjects', label: 'Subjects', icon: '📚' },
+    { id: 'exams', label: 'Exams', icon: '📅' },        // <-- ADDED THIS
+    { id: 'results', label: 'Results', icon: '📊' },
     { id: 'notices', label: 'Post Notices', icon: '📢' },
     { id: 'fees', label: 'Fee Tracker', icon: '💰' },
     { id:'faculty',label:'Faculty',icon:'👨‍🏫'}
@@ -62,6 +66,8 @@ export default function AdminDashboard() {
           {activeTab === 'fees' && <FeeTracker />}
           {activeTab === 'subjects' && <SubjectUpdates />}
           {activeTab === 'faculty' && <FacultyManagement />}
+          {activeTab === 'exams' && <ScheduleExams />}
+          {activeTab === 'results' && <UploadResults />}
         </section>
       </main>
     </div>

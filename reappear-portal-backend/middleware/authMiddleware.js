@@ -1,4 +1,4 @@
-import User from "../models/user";
+import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 
 //Security(so that only logged in users can logged in)
@@ -6,7 +6,7 @@ const protect = async (req, res, next) => {
     let token;
     if (req.headers.authorization && (req.headers.authorization.startsWith("Bearer"))) {
         try {
-            token=req.headers.authorzation.split(" ")[1];
+            token=req.headers.authorization.split(" ")[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = await User.findById(decoded.id).select('-password');
             next();

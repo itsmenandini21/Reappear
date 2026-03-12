@@ -8,11 +8,42 @@ export const getPeers = async (req, res) => {
         const activeBacklogs = await ReappearRecord.find({ 
             status: { $in: ["pending", "in-progress"] } 
         })
-        .populate('student', 'name rollNumber branch') 
-        .populate('subject', 'code name');             
+        .populate('student', 'name rollNumber branch currentSemester') 
+        .populate('subject', 'subjectCode semester');             
 
-        res.status(200).json(activeBacklogs);
+        // Group the records by student ID
+        const groupedPeers = {};
+
+        activeBacklogs.forEach(record => {
+            // Safety check in case a populated reference is missing
+            if (!record.student || !record.subject) return;
+
+            const studentId = record.student._id.toString();
+
+            if (!groupedPeers[studentId]) {
+                groupedPeers[studentId] = {
+                    id: studentId,
+                    name: record.student.name,
+                    rollNo: record.student.rollNumber || "N/A",
+                    branch: record.student.branch || "General",
+                    // Adding semester based on user schema preference
+                    semester: record.student.currentSemester || record.subject.semester || "N/A", 
+                    reappears: []
+                };
+            }
+
+            groupedPeers[studentId].reappears.push({
+                semester: record.subject.semester,
+                subject: record.subject.subjectCode
+            });
+        });
+
+        // Convert grouped object to array
+        const formattedPeers = Object.values(groupedPeers);
+
+        res.status(200).json(formattedPeers);
     } catch (error) {
+        console.error("Error fetching peers:", error);
         res.status(500).json({ message: "Failed to fetch peers", error: error.message });
     }
 };

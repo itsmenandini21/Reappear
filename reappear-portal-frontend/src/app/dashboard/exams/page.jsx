@@ -15,7 +15,6 @@ const ExamCard = ({ data, activeTab }) => {
         <div className="exam-left">
           <span className="exam-tag">{data.examName}</span>
           <h3 className="exam-subject">{data.subject}</h3>
-          <p className="exam-faculty">Faculty: {data.faculty}</p>
         </div>
 
         <div className="exam-right">
@@ -150,6 +149,11 @@ export default function ExamDates() {
       <div className="list-wrapper">
         {loading ? (
           <p style={{ textAlign: 'center' }}>Loading schedule...</p>
+        ) : cardItems.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#64748b', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1', marginTop: '20px' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#334155', marginBottom: '10px' }}>No {activeTab} exams found</h3>
+            <p>Check back later or contact your department for more information.</p>
+          </div>
         ) : (
           <AnimatedList items={cardItems} displayScrollbar={false} showGradients={true} />
         )}
