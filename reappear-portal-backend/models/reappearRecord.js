@@ -15,7 +15,8 @@ const reappearRecordSchema = new mongoose.Schema({
         default: false // FIXED TYPO: deafault -> default
     },
     roomAllocation: { type: String },
-    examDate: { type: Date }
+    examDate: { type: Date },
+    transactionID:{type:String,required:true}
 }, { timestamps: true });
 
 const ReappearRecord = mongoose.model("ReappearRecord", reappearRecordSchema);

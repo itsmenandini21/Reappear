@@ -1,28 +1,42 @@
 import mongoose from 'mongoose';
 
 const applicationSchema = new mongoose.Schema({
-    studentName: { type: String, required: true },
-    rollNo: { type: String, required: true },
-    branch: { type: String, required: true },
-    semester: { type: String, required: true },
-    
-    // The subject they are applying for
-    subjectName: { type: String, required: true },
-    reappearSemester: { type: String, required: true },
-    
-    // Payment Proof
-    transactionId: { type: String, required: true },
-    feeAmount: { type: Number, required: true },
-    
-    // THIS IS FOR YOUR FRIEND'S ADMIN PANEL!
-    status: { 
-        type: String, 
-        enum: ['Pending', 'Approved', 'Rejected'], 
-        default: 'Pending' 
-    },
-    adminRemarks: { type: String, default: '' }, // Admin can leave notes like "Invalid Transaction ID"
-    
-    appliedAt: { type: Date, default: Date.now }
-});
+  // Student jisne apply kiya
+  student: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  // Subject jiske liye reappear bhara gaya
+  subject: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Subject', 
+    required: true 
+  },
+  // Reappear Record ID (Optional: Taaki pata chale kis specific record ke against apply hua h)
+  reappearRecord: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ReappearRecord'
+  },
+  transactionId: { 
+    type: String, 
+    required: true,
+    unique: true // Ek transaction ID do baar use nahi honi chahiye
+  },
+  status: { 
+    type: String, 
+    enum: ['pending', 'approved', 'rejected'], // Sirf yehi states ho sakti hain
+    default: 'pending' 
+  },
+  feePaid: { 
+    type: Boolean, 
+    default: true
+  },
+  // Agar aapko receipt ka URL save karna ho (Cloudinary/Multer)
+  receiptUrl: {
+    type: String,default:''
+  }
+}, { timestamps: true });
 
-export default mongoose.model('Application', applicationSchema);
+const Application = mongoose.model('Application', applicationSchema);
+export default Application;

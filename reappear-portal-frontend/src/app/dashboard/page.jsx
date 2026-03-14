@@ -1,12 +1,10 @@
 "use client";
-import React from 'react';
-// 1. CHANGE: useNavigate ki jagah useRouter use hoga
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 import Navbar from '@/components/Navbar';
-// 2. CHANGE: Yahan tune Folder import kiya hai but niche <Folder /> use kiya, 
-// Ensure kar ki component ka naam capital ho (Folder)
 import Folder from '@/components/Folder'; 
 import AnimatedList from '@/components/AnimatedList';
+import api from '@/lib/api';
 import './dashboard.css';
 
 const dashboardData = [
@@ -19,43 +17,44 @@ const dashboardData = [
 
 export default function Dashboard() {
   const folderColor = "#ff2600"; 
-  // 3. CHANGE: Router initialize karo
   const router = useRouter();
+  const [announcements, setAnnouncements] = useState([]);
 
-  const announcements = [
-    "URGENT: Reappear form submission deadline extended to 15th April.",
-    "B.Tech 2nd Year IT practical schedules updated.",
-    "Guest Lecture: Advanced Data Structures & Algorithms this Friday.",
-    "Summer 2026 Government Internship portal is now live.",
-    "Hostel Data Collection Project: Final report submission next week.",
-    "Campus Hackathon: Web Development track registrations open.",
-    "Operating Systems (IT205) lab syllabus has been revised.",
-    "Exhibition: Hand gesture-controlled bots in the robotics lab at 4 PM.",
-    "LeetCode Weekly Contest - NIT Kurukshetra leaderboard updated.",
-    "New PDF study materials uploaded for Computer Networks."
-  ];
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const response = await api.get('/announcements');
+        // MODIFICATION: Title aur Category ke saath Content bhi merge kar diya hai
+        const formattedNotices = response.data.map(n => 
+          `${n.category.toUpperCase()}: ${n.title} - ${n.content}`
+        );
+        setAnnouncements(formattedNotices);
+      } catch (error) {
+        console.error("Error fetching announcements", error);
+        setAnnouncements(["Could not load latest announcements."]);
+      }
+    };
+    fetchNotices();
+  }, []);
 
   return (
     <div className="dashboard-container">
       <Navbar />
       
-      {/* The Big Announcement Div */}
       <div className="announcement-section">
         <h2 className="announcement-title">Latest Announcements</h2>
         <AnimatedList 
-          items={announcements} 
+          items={announcements.length > 0 ? announcements : ["Loading announcements..."]} 
           showGradients={true}
           displayScrollbar={true}
         />
       </div>
 
-      {/* Folder Grid */}
       <div className="dashboard-grid">
         {dashboardData.map((item) => (
           <div 
             key={item.id} 
             className="folder-card" 
-            // 4. CHANGE: navigate() ki jagah router.push()
             onClick={() => router.push(item.path || '/dashboard')}
           >
             <div className="folder-wrapper">

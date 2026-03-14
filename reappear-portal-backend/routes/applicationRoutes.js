@@ -1,28 +1,13 @@
 import express from 'express';
-import Application from '../models/Application.js';
+import { submitApplication, getStudentInfo } from '../controllers/applicationController.js';
+import {protect} from '../middleware/authMiddleware.js'; // Ensure this exists to protect routes
 
 const router = express.Router();
 
-// POST: Submit a new Reappear Form
-router.post('/apply', async (req, res) => {
-    try {
-        const newApp = new Application(req.body);
-        const savedApp = await newApp.save();
-        res.status(201).json({ message: "Application submitted successfully!", application: savedApp });
-    } catch (error) {
-        console.error("Form Submission Error:", error);
-        res.status(500).json({ message: "Server error while submitting form." });
-    }
-});
+// Student details fetch karne ke liye (pre-fill ke liye)
+router.get('/student-info', protect, getStudentInfo);
 
-// GET: Fetch all applications (YOUR FRIEND WILL USE THIS TOMORROW)
-router.get('/', async (req, res) => {
-    try {
-        const apps = await Application.find().sort({ appliedAt: -1 });
-        res.json(apps);
-    } catch (error) {
-        res.status(500).json({ message: "Server error fetching applications." });
-    }
-});
+// Application submit karne ke liye
+router.post('/apply', protect, submitApplication);
 
 export default router;

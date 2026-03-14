@@ -14,9 +14,11 @@ import pyqRoutes from './routes/pyqRoutes.js';
 import facultyRoutes from './routes/facultyRoutes.js';
 import applicationRoutes from './routes/applicationRoutes.js';
 import authRoutes from './routes/authRoutes.js'; // <-- FIX 4: Imported your auth routes!
-import noticeRoutes from './routes/noticeRoutes.js';
+import announcementRoutes from './routes/announcementRoutes.js';
 import resultRoutes from './routes/resultRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import {protect,admin} from "./middleware/authMiddleware.js"
+import reappearRoutes from "./routes/reappearRoutes.js";
 
 dotenv.config();
 connectDb();
@@ -43,9 +45,10 @@ app.use('/api/peers', peerRoutes);
 app.use('/api/pyq', pyqRoutes);    
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/applications', applicationRoutes);
-app.use('/api/notices', noticeRoutes);
+app.use('/api/announcements', announcementRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/messages', messageRoutes);
+app.use("api/reappear",reappearRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
