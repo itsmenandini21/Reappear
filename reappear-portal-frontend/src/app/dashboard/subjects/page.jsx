@@ -14,7 +14,7 @@ export default function Subjects() {
   useEffect(() => {
     const fetchMySubjects = async () => {
       try {
-        const response = await api.get('/subjects/my-reappears'); 
+        const response = await api.get('/reappear/my-reappears'); 
         setGroupedSubjects(response.data);
       } catch (error) {
         console.error("Fetch failed", error);

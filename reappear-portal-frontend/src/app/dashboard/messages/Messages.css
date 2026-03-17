@@ -257,3 +257,6 @@
   justify-content: center;
   color: #999;
 }
+
+.unread-bold-black { font-weight: 700; color: #000 !important; }
+.message-footer { display: flex; justify-content: flex-end; align-items: center; font-size: 10px; }

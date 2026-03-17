@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '@/lib/api';
 import './exams.css';
 
 // Animation Variants
@@ -25,6 +26,7 @@ const ScheduleExams = () => {
   const [hasSyllabus, setHasSyllabus] = useState(false);
   const [scheduledExams, setScheduledExams] = useState([]);
   const [loadingExams, setLoadingExams] = useState(true);
+  const [subjects,setSubjects]=useState([]);
 
   const fetchScheduledExams = async () => {
     try {
@@ -41,6 +43,21 @@ const ScheduleExams = () => {
     fetchScheduledExams();
   }, []);
 
+  useEffect(()=>{
+    fetchSubjects();
+  },[])
+
+  const fetchSubjects=async ()=>{
+    try{
+      const res=await api.get("/subjects");
+      setSubjects(res.data);
+    }
+     catch(error){
+      console.log(error.message);
+     }
+
+  }
+
   const removeExam = async (id) => {
     if (!window.confirm("Are you sure you want to remove this exam?")) return;
     try {
@@ -52,23 +69,7 @@ const ScheduleExams = () => {
       toast.error(error.response?.data?.message || "Failed to remove exam.");
     }
   };
-
-  const allSubjects = [
-    { code: "CS-101", name: "Programming in C", dept: "Engineering", sem: "1st" },
-    { code: "EE-101", name: "Basic Electrical Engg", dept: "Engineering", sem: "1st" },
-    { code: "EC-201", name: "Digital Electronics", dept: "Engineering", sem: "3rd" },
-    { code: "CS-201", name: "Data Structures", dept: "Engineering", sem: "3rd" },
-    { code: "CS-302", name: "Operating Systems", dept: "Engineering", sem: "5th" },
-    { code: "CS-304", name: "Computer Networks", dept: "Engineering", sem: "5th" },
-    { code: "BCA-101", name: "Computer Fundamentals", dept: "Computer Applications", sem: "1st" },
-    { code: "BCA-102", name: "Mathematics", dept: "Computer Applications", sem: "1st" },
-    { code: "BCA-301", name: "C++ Programming", dept: "Computer Applications", sem: "3rd" },
-    { code: "BCA-302", name: "Computer Organization", dept: "Computer Applications", sem: "3rd" },
-    { code: "IT-501", name: "Web Technology", dept: "Computer Applications", sem: "5th" },
-    { code: "IT-502", name: "Information Security", dept: "Computer Applications", sem: "5th" }
-  ];
-
-  const availableSubjects = allSubjects.filter(sub => sub.dept === examData.dept && sub.sem === examData.sem);
+  const availableSubjects = subjects.filter(sub => sub.department == examData.dept && sub.semester == examData.sem);
 
   const handleExamChange = (e) => setExamData({ ...examData, [e.target.name]: e.target.value });
 
@@ -125,16 +126,16 @@ const ScheduleExams = () => {
               <label>Semester</label>
               <select name="sem" value={examData.sem} onChange={handleExamChange} disabled={!examData.dept} required>
                 <option value="">Select Sem</option>
-                <option value="1st">1st Sem</option>
-                <option value="3rd">3rd Sem</option>
-                <option value="5th">5th Sem</option>
+                <option value="1">1st Sem</option>
+                <option value="3">3rd Sem</option>
+                <option value="5">5th Sem</option>
               </select>
             </div>
             <div className="ex-input-group">
               <label>Subject</label>
               <select name="subject" value={examData.subject} onChange={handleExamChange} disabled={!examData.sem} required>
                 <option value="">Select Subject</option>
-                {availableSubjects.map(sub => <option key={sub.code} value={sub.code}>{sub.code} - {sub.name}</option>)}
+                {availableSubjects.map(sub => <option key={sub.subjectCode} value={sub.subjectCode}>{sub.subjectCode} - {sub.subjectName}</option>)}
               </select>
             </div>
           </div>

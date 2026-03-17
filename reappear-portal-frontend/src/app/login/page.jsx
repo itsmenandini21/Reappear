@@ -21,8 +21,13 @@ function LoginPage() {
             const { token, name } = response.data;
 
             if (typeof window !== "undefined") {
+              const userObj = { ...response.data };
+              delete userObj.token; // usually good practice not to double store token inside object
+              
+              localStorage.setItem("user", JSON.stringify(userObj));
               localStorage.setItem("token", token);
               localStorage.setItem("name", name);
+              localStorage.setItem("userId", response.data._id); // Store the user ID for future API calls
             }
             setIsSuccess(true);
             setTimeout(()=>{

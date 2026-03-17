@@ -1,113 +1,110 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { MessageSquareText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '@/lib/api'; // Use your axios instance
 import './Navbar.css';
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [showMessages, setShowMessages] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [recentChats, setRecentChats] = useState([]);
 
-  const [messages, setMessages] = useState([
-    { id: 1, sender: "Exam Cell Bot", avatar: "🤖", text: "Your reappear fee receipt has been generated successfully.", time: "10:30 AM", unread: true },
-    { id: 2, sender: "Prof. A. Sharma", avatar: "👨‍🏫", text: "Are you free to discuss your OS assignment?", time: "Yesterday", unread: true },
-    { id: 3, sender: "Karan Verma", avatar: "👨‍🎓", text: "Thanks for the PYQ pdf bro!", time: "Tuesday", unread: false }
-  ]);
+  // Get current user from storage
+  const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user')) : null;
 
-  const unreadCount = messages.filter(m => m.unread).length;
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchUnread = async () => {
+      try {
+        // Fetch recent conversations to get the unread count and who sent them
+        const res = await api.get(`/messages/conversations/${user.name}`);
+        const convos = res.data || [];
+        
+        let totalUnread = 0;
+        const recentUnreadChats = [];
+        
+        convos.forEach(chat => {
+          if (chat.unread > 0) {
+            totalUnread += chat.unread;
+            recentUnreadChats.push(chat);
+          }
+        });
 
-  const markAllRead = () => {
-    setMessages(messages.map(m => ({ ...m, unread: false })));
-  };
+        setUnreadCount(totalUnread);
+        setRecentChats(recentUnreadChats.slice(0, 5)); // show up to 5 users with unread messages
+      } catch (err) { console.error("Error fetching navbar messages:", err); }
+    };
 
-  const navLinks = [
-    { label: 'Home', path: '/dashboard' },
-    { label: 'Help', path: '/help' },
-    { label: 'Contacts', path: '/contacts' }
-  ];
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 10000); // Check every 10s
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <nav className="navbar-container">
-
-      {/* 1. Left Side: Simple Logo */}
       <div className="logo-container" onClick={() => router.push('/dashboard')}>
         <h1 className="nav-brand">NIT Kurukshetra</h1>
       </div>
 
-      {/* 2. Right Side: Links + Chat Icon */}
       <div className="nav-right-side">
-
-        {/* The Text Links */}
         <div className="nav-links">
-          {navLinks.map((link) => (
-            <button
-              key={link.label}
-              className={`nav-item ${pathname === link.path ? 'active' : ''}`}
-              onClick={() => router.push(link.path)}
-            >
-              {link.label}
-            </button>
+          {['Home', 'Help', 'Contacts'].map(label => (
+            <button key={label} className="nav-item" onClick={() => router.push(`/${label.toLowerCase()}`)}>{label}</button>
           ))}
         </div>
 
-        {/* The Message Center */}
         <div className="message-wrapper">
-          <button
-            className="message-btn"
-            onClick={() => setShowMessages(!showMessages)}
-          >
+          <button className="message-btn" onClick={() => setShowMessages(!showMessages)}>
             <MessageSquareText size={20} />
-            {unreadCount > 0 && (
-              <span className="message-badge">{unreadCount}</span>
-            )}
+            {unreadCount > 0 && <span className="message-badge">{unreadCount}</span>}
           </button>
 
           <AnimatePresence>
             {showMessages && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                transition={{ duration: 0.2 }}
-                className="messages-dropdown"
-              >
+              <motion.div className="messages-dropdown">
                 <div className="dropdown-header">
-                  <h3>Chats</h3>
-                  <button className="new-chat-btn" onClick={markAllRead}>
-                    Mark read
-                  </button>
+                  <h3>Recent Messages</h3>
+                  <button className="new-chat-btn" onClick={() => router.push('/dashboard/messages')}>View All</button>
                 </div>
-
                 <div className="messages-list">
-                  {messages.length > 0 ? (
-                    messages.map(msg => (
-                      <div key={msg.id} className="message-item" onClick={() => {
-                        setShowMessages(false); // Close dropdown
-                        router.push('/dashboard/messages'); // Route to the full page!
-                      }}>
-                        <div className="sender-avatar">{msg.avatar}</div>
-                        <div className="message-content">
-                          <h4 className="message-sender">
-                            {msg.sender}
-                            <span className="message-time">{msg.time}</span>
-                          </h4>
-                          <p className={`message-preview ${msg.unread ? 'unread-text' : ''}`}>
-                            {msg.text}
-                          </p>
+                    {recentChats.length > 0 ? (
+                      recentChats.map((chat) => (
+                        <div key={chat.name} className="message-item" onClick={() => {
+                          setShowMessages(false);
+                          router.push(`/dashboard/messages?name=${encodeURIComponent(chat.name)}`);
+                        }}>
+                          <div className="message-content text-left">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold' }}>{chat.name}</h4>
+                              {chat.unread > 0 && (
+                                <span style={{ backgroundColor: '#ff3b3b', color: 'white', borderRadius: '50%', padding: '2px 6px', fontSize: '10px' }}>
+                                  {chat.unread}
+                                </span>
+                              )}
+                            </div>
+                            <p className="unread-bold-text" style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#555', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {chat.lastMessage || "New message"}
+                            </p>
+                          </div>
                         </div>
+                      ))
+                    ) : (
+                      <div className="message-item" onClick={() => router.push('/dashboard/messages')}>
+                          <div className="message-content">
+                              <p>No new messages</p>
+                          </div>
                       </div>
-                    ))
-                  ) : (
-                    <div style={{ padding: '30px', textAlign: 'center', color: '#666' }}>No messages yet!</div>
-                  )}
+                    )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
       </div>
     </nav>
   );

@@ -1,14 +1,11 @@
 import express from 'express';
 // Import the dynamic database logic from the controller we just made
-import { getPeers, addReappear, updateReappearStatus } from '../controllers/peerController.js';
+import { getPeers } from '../controllers/peerController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Student Route: Automatically fetches ONLY students with 'pending' or 'in-progress' status from MongoDB
-router.get('/', getPeers);
-
-// Admin Routes: Allows Admin to add new backlogs or change status to 'cleared'
-router.post('/add', addReappear);
-router.put('/update/:id', updateReappearStatus);
+router.get('/', protect, getPeers);
 
 export default router;

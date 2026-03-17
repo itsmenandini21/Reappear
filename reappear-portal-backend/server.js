@@ -48,7 +48,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/messages', messageRoutes);
-app.use("api/reappear",reappearRoutes);
+app.use("/api/reappear",reappearRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

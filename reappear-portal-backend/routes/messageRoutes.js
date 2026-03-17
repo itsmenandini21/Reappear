@@ -1,13 +1,16 @@
 import express from 'express';
-import { getChatHistory, sendMessage, getAdminConversations } from '../controllers/messageController.js';
+import { 
+    getChatHistory, 
+    sendMessage, 
+    getActiveConversations, 
+    getUnreadStats 
+} from '../controllers/messageController.js';
 
 const router = express.Router();
 
-// Admin Route: Gets the list of active chat threads
-router.get('/admin/conversations', getAdminConversations);
-
-// Shared Routes: Get a specific chat history, and send a message
-router.get('/:userIdentifier', getChatHistory);
 router.post('/', sendMessage);
+router.get('/stats/:userName', getUnreadStats);
+router.get('/history/:user1/:user2', getChatHistory);
+router.get('/conversations/:userName', getActiveConversations); // Sidebar ke liye
 
 export default router;

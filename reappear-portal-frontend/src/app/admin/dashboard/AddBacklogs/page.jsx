@@ -1,34 +1,55 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import api from '@/lib/api';
 import './backlog.css';
 
 const AddBacklogs = () => {
-  // Removed 'subject' from filters
   const [filters, setFilters] = useState({ dept: '', branch: '', sem: '' });
   const [lastDate, setLastDate] = useState('');
   const [rollNumbers, setRollNumbers] = useState([]); 
-  
-  // NEW STATE: Maps a roll number to an array of selected subjects
-  // Example: { "124101": ["CS-302", "IT-501"], "124105": ["EC-201"] }
   const [studentSelections, setStudentSelections] = useState({}); 
-  const [activeDropdown, setActiveDropdown] = useState(null); // Tracks which roll number's dropdown is open
+  const [activeDropdown, setActiveDropdown] = useState(null); 
+  const [existingBacklogs, setExistingBacklogs] = useState([]); // NEW STATE: To track DB records
   
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableSubjects, setAvailableSubjects] = useState([]);
 
-  // Mock Subjects (The backend will supply these based on the Semester selected)
-  const availableSubjects = [
-    { code: "CS-302", name: "Operating Systems" },
-    { code: "IT-501", name: "Web Technology" },
-    { code: "EC-201", name: "Digital Electronics" },
-    { code: "MA-201", name: "Engineering Maths III" }
-  ];
+  useEffect(() => {
+    const fetchSubjects = async () => {
+        try {
+            const res = await api.get("/subjects");
+            setAvailableSubjects(res.data);
+        } catch (error) {
+            console.error("Failed to load subjects", error);
+        }
+    }
+    fetchSubjects();
+  }, []);
 
-  // Fetch roll numbers based on the 3 main filters
+  // NEW EFFECT: Fetch existing backlogs when a dropdown is opened
+  useEffect(() => {
+    const fetchExisting = async () => {
+      if (activeDropdown) {
+        try {
+          const res = await api.get(`/reappear/check/${activeDropdown}`);
+          // Assuming backend returns an array of subject IDs or Codes
+          setExistingBacklogs(res.data.map(rec => rec.subject.subjectCode));
+        } catch (error) {
+          console.error("Failed to check existing backlogs", error);
+          setExistingBacklogs([]);
+        }
+      } else {
+        setExistingBacklogs([]);
+      }
+    };
+    fetchExisting();
+  }, [activeDropdown]);
+
   useEffect(() => {
     if (filters.dept && filters.branch && filters.sem) {
-      const mockRolls = Array.from({ length: 30 }, (_, i) => `1241${(i + 1).toString().padStart(2, '0')}`);
+      const mockRolls = Array.from({ length: 60 }, (_, i) => `124103${(i + 1).toString().padStart(3, '0')}`);
       setRollNumbers(mockRolls);
       setStudentSelections({}); 
       setActiveDropdown(null);
@@ -43,28 +64,26 @@ const AddBacklogs = () => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  // Toggles a subject for a specific student
   const handleSubjectToggle = (roll, subjectCode) => {
+    // Prevent toggling if it's already in the database
+    if (existingBacklogs.includes(subjectCode)) return;
+
     setStudentSelections(prev => {
       const currentSubjects = prev[roll] || [];
-      
       if (currentSubjects.includes(subjectCode)) {
-        // Remove subject
         const updatedSubjects = currentSubjects.filter(code => code !== subjectCode);
         if (updatedSubjects.length === 0) {
           const newState = { ...prev };
-          delete newState[roll]; // If no subjects left, remove student from selection entirely
+          delete newState[roll];
           return newState;
         }
         return { ...prev, [roll]: updatedSubjects };
       } else {
-        // Add subject
         return { ...prev, [roll]: [...currentSubjects, subjectCode] };
       }
     });
   };
 
-  // Clears all selections
   const clearAll = () => {
     setStudentSelections({});
     setActiveDropdown(null);
@@ -79,26 +98,41 @@ const AddBacklogs = () => {
     setShowModal(true);
   };
 
-  const confirmAndNotify = () => {
+  const confirmAndNotify = async () => {
     setIsSubmitting(true);
-    // Simulate Backend API Call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowModal(false);
-      toast.success(`Successfully assigned backlogs to ${selectedStudentCount} students!`, { duration: 4000 });
-      
-      setFilters({ dept: '', branch: '', sem: '' });
-      setRollNumbers([]);
-      setStudentSelections({});
-      setLastDate('');
-    }, 2000);
+    try {
+        const promises = [];
+        for (const [rollNumber, subjects] of Object.entries(studentSelections)) {
+            for (const subjectCode of subjects) {
+                const subjectDoc = availableSubjects.find(sub => sub.subjectCode === subjectCode);
+                if (subjectDoc && subjectDoc._id) {
+                     promises.push(
+                        api.post('/reappear/add', {
+                            rollNumber: rollNumber,
+                            subjectId: subjectDoc._id
+                        })
+                     );
+                }
+            }
+        }
+        await Promise.all(promises);
+        setIsSubmitting(false);
+        setShowModal(false);
+        toast.success(`Successfully assigned backlogs to ${selectedStudentCount} students!`, { duration: 4000 });
+        setFilters({ dept: '', branch: '', sem: '' });
+        setRollNumbers([]);
+        setStudentSelections({});
+        setLastDate('');
+    } catch (error) {
+        setIsSubmitting(false);
+        console.error("Failed to assign backlogs", error);
+        toast.error("Failed to assign backlogs. Check console for details.");
+    }
   };
 
   return (
     <div className="bl-main-container">
       <Toaster position="top-center" />
-
-      {/* --- CONFIRMATION MODAL --- */}
       {showModal && (
         <div className="bl-modal-overlay">
           <div className="bl-modal-content">
@@ -122,7 +156,6 @@ const AddBacklogs = () => {
       </div>
 
       <div className="bl-card">
-        {/* --- 3-COLUMN FILTER ROW --- */}
         <div className="bl-filter-row-3">
           <div className="bl-input-group">
             <label>Department</label>
@@ -152,7 +185,6 @@ const AddBacklogs = () => {
           </div>
         </div>
 
-        {/* --- ROLL NUMBER GRID WITH DROPDOWNS --- */}
         {rollNumbers.length > 0 && (
           <div className="bl-selection-area">
             <div className="bl-area-header">
@@ -178,20 +210,30 @@ const AddBacklogs = () => {
                       {isSelected && <span className="bl-badge">{subjectCount}</span>}
                     </div>
 
-                    {/* THE DROPDOWN MENU */}
                     {isDropdownOpen && (
                       <div className="bl-dropdown-menu" onClick={(e) => e.stopPropagation()}>
                         <div className="bl-dropdown-header">Select Subjects</div>
-                        {availableSubjects.map(sub => (
-                          <label key={sub.code} className="bl-dropdown-item">
-                            <input 
-                              type="checkbox" 
-                              checked={(studentSelections[roll] || []).includes(sub.code)}
-                              onChange={() => handleSubjectToggle(roll, sub.code)}
-                            />
-                            <span className="bl-dropdown-text">{sub.code}</span>
-                          </label>
-                        ))}
+                        {availableSubjects.map(sub => {
+                          const isAlreadyInDB = existingBacklogs.includes(sub.subjectCode);
+                          return (
+                            <label 
+                              key={sub.subjectCode} 
+                              className={`bl-dropdown-item ${isAlreadyInDB ? 'disabled-item' : ''}`}
+                              title={isAlreadyInDB ? "Already assigned" : ""}
+                              style={isAlreadyInDB ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                            >
+                              <input 
+                                type="checkbox" 
+                                disabled={isAlreadyInDB}
+                                checked={(studentSelections[roll] || []).includes(sub.subjectCode) || isAlreadyInDB}
+                                onChange={() => handleSubjectToggle(roll, sub.subjectCode)}
+                              />
+                              <span className="bl-dropdown-text">
+                                {sub.subjectCode} {isAlreadyInDB ? "(Already in DB)" : ""}
+                              </span>
+                            </label>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

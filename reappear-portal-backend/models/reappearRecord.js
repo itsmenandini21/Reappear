@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 const reappearRecordSchema = new mongoose.Schema({
     // Capitalized the refs to match standard Mongoose exports
-    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false }, // Made optional
+    rollNumber: { type: String, required: true }, // Added rollNumber as steady string identifier
     subject: { type: mongoose.Schema.Types.ObjectId, ref: "Subject", required: true },
     status: {
         type: String,
@@ -14,9 +15,7 @@ const reappearRecordSchema = new mongoose.Schema({
         type: Boolean,
         default: false // FIXED TYPO: deafault -> default
     },
-    roomAllocation: { type: String },
-    examDate: { type: Date },
-    transactionID:{type:String,required:true}
+    transactionID:{type:String, required:false}
 }, { timestamps: true });
 
 const ReappearRecord = mongoose.model("ReappearRecord", reappearRecordSchema);

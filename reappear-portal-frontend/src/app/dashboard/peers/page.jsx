@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import './Peers.css';
 
 export default function Peers() {
@@ -19,6 +20,8 @@ export default function Peers() {
     useEffect(() => {
         const fetchPeers = async () => {
             try {
+                // Backend controller updated logic automatically filters 
+                // based on the logged-in user's token
                 const response = await api.get('/peers');
                 setPeersData(response.data);
             } catch (error) {
@@ -32,12 +35,10 @@ export default function Peers() {
 
     // Extract unique filter options dynamically from the fetched data
     const branches = ['All', ...new Set(peersData.map(p => p.branch))];
-    const allSemesters = new Set();
     const allSubjects = new Set();
 
     peersData.forEach(peer => {
         peer.reappears.forEach(r => {
-            allSemesters.add(r.semester);
             allSubjects.add(r.subject);
         });
     });
@@ -51,7 +52,7 @@ export default function Peers() {
         const nameMatchesSearch = peer.name.toLowerCase().includes(searchTerm.toLowerCase());
 
         const hasValidReappear = peer.reappears.some(r => {
-            const matchesSem = selectedSemester === 'All' || r.semester === selectedSemester;
+            const matchesSem = selectedSemester === 'All' || String(r.semester) === selectedSemester;
             const matchesSub = selectedSubject === 'All' || r.subject === selectedSubject;
             const subjectMatchesSearch = r.subject.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -62,6 +63,7 @@ export default function Peers() {
     });
 
     return (
+        <ProtectedRoute>
         <div className="page-container" style={{ marginTop: '100px' }}>
             <div className="page-header" style={{ textAlign: 'center' }}>
                 <h1 className="page-title">Connect Peers</h1>
@@ -107,7 +109,11 @@ export default function Peers() {
                             filteredPeers.map(peer => (
                                 <div key={peer.id} className="peer-card">
                                     <div className="peer-avatar-wrapper">
-                                        <span className="peer-avatar-emoji">🎓</span>
+                                        {peer.profileImage ? (
+                                            <img src={`http://localhost:5001${peer.profileImage}`} alt={peer.name} className="peer-avatar-img" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <span className="peer-avatar-emoji">🎓</span>
+                                        )}
                                     </div>
 
                                     <h3 className="peer-name">{peer.name}</h3>
@@ -127,14 +133,13 @@ export default function Peers() {
                                         ))}
                                     </div>
 
-                                    {/* Replace your existing button with this: */}
                                     <button
                                         className="message-peer-btn"
                                         onClick={() => {
                                             const query = new URLSearchParams({
-                                                name: peer.name, // Assuming your peer object has a .name property
+                                                name: peer.name, 
                                                 type: 'student',
-                                                avatar: '👨‍🎓' // Default peer avatar
+                                                avatar: peer.profileImage || '👨‍🎓'
                                             }).toString();
                                             router.push(`/dashboard/messages?${query}`);
                                         }}
@@ -163,5 +168,6 @@ export default function Peers() {
                 )}
             </div>
         </div>
+        </ProtectedRoute>
     );
 }

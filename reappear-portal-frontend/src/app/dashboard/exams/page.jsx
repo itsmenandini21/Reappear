@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedList from '@/components/AnimatedList';
 import api from '@/lib/api';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import './ExamDates.css';
 
 const ExamCard = ({ data, activeTab }) => {
@@ -98,8 +99,44 @@ export default function ExamDates() {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const response = await api.get('/exams');
-        setExams(response.data);
+        const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+        
+        // Let's fetch both upcoming exams and the true results for the user
+        const promises = [api.get('/exams')];
+        
+        if (userId) {
+          promises.push(api.get(`/results/${userId}`));
+        }
+        
+        const [examsResponse, resultsResponse] = await Promise.allSettled(promises);
+        
+        let fetchedUpcoming = [];
+        let fetchedResults = [];
+
+        if (examsResponse.status === 'fulfilled') {
+          // Keep only upcoming from the /exams endpoint route format
+          fetchedUpcoming = examsResponse.value.data.upcoming || [];
+        }
+
+        if (resultsResponse && resultsResponse.status === 'fulfilled') {
+          // Remap results to fit the ExamCard component
+          fetchedResults = resultsResponse.value.data.map((res, index) => ({
+            id: res._id || `res-${index}`,
+            examName: `${res.subject?.sem || ''} Sem - ${res.subject?.code?.substring(0, 3) || ''}`,
+            subject: res.subject?.name || res.subject?.code || "Subject Name",
+            faculty: "Auto-Evaluated",
+            marks: res.marksObtained,
+            total: 100, // Or fallback to another value if total is available on the schema
+            date: "Published",
+            time: "--",
+            room: "--"
+          }));
+        } else if (examsResponse.status === 'fulfilled') {
+          // Fallback to the exams response dummy results if user isn't logged in or results fetch failed
+          fetchedResults = examsResponse.value.data.results || [];
+        }
+
+        setExams({ upcoming: fetchedUpcoming, results: fetchedResults });
       } catch (error) {
         console.error("Failed to fetch exams, using fallback...", error);
         // Fallback data just in case the backend is sleeping
@@ -125,6 +162,7 @@ export default function ExamDates() {
   ));
 
   return (
+    <ProtectedRoute>
     <div className="page-container" style={{ marginTop: '100px' }}>
       <div className="page-header" style={{ textAlign: 'center', paddingBottom: '20px' }}>
         <h1 className="page-title" style={{ fontSize: '2rem', fontWeight: 800 }}>Exams</h1>
@@ -159,5 +197,6 @@ export default function ExamDates() {
         )}
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
