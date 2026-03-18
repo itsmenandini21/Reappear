@@ -8,6 +8,7 @@ import SubjectUpdates from './Subjects/page.jsx';
 import FacultyManagement from './Faculty/page.jsx';
 import  ScheduleExams  from './Exams/page.jsx';
 import  UploadResults  from './Results/page.jsx';
+import UploadPyqForm from './PYQs/page.jsx';
 
 
 export default function AdminDashboard() {
@@ -21,7 +22,8 @@ export default function AdminDashboard() {
     { id: 'results', label: 'Results', icon: '📊' },
     { id: 'notices', label: 'Post Notices', icon: '📢' },
     { id: 'fees', label: 'Fee Tracker', icon: '💰' },
-    { id:'faculty',label:'Faculty',icon:'👨‍🏫'}
+    { id:'faculty',label:'Faculty',icon:'👨‍🏫'},
+    {id:'pyqs',label:'Upload PYQs',icon:""}
   ];
 
   return (
@@ -68,6 +70,7 @@ export default function AdminDashboard() {
           {activeTab === 'faculty' && <FacultyManagement />}
           {activeTab === 'exams' && <ScheduleExams />}
           {activeTab === 'results' && <UploadResults />}
+          {activeTab === 'pyqs' && <UploadPyqForm />}
         </section>
       </main>
     </div>

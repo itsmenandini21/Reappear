@@ -1,18 +1,17 @@
 import mongoose from 'mongoose';
 
 const pyqSchema = new mongoose.Schema({
-    subjectCode: { 
-        type: String, 
+    // Subject model se link kar diya taaki data fetch ho sake
+    subject: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Subject', 
         required: true 
     },
-    year: { 
-        type: Number, 
-        required: true 
-    },
-    pdfUrl: { 
-        type: String, 
-        required: true 
-    }
+    semester: { type: Number, required: true },
+    branch: { type: String, required: true },
+    year: { type: Number, required: true },
+    pdfUrl: { type: String, required: true },
+    fileSize: { type: String } // Optional: size dikhane ke liye
 }, { timestamps: true });
 
 export default mongoose.model('Pyq', pyqSchema);

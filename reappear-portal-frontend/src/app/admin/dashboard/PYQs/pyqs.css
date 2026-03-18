@@ -1,0 +1,121 @@
+.pyq-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  background-color: #f4f7f6;
+  min-height: 100vh;
+}
+
+.pyq-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 700px; /* Thoda width badha diya taaki year fit ho jaye */
+  width: 100%;
+  border-top: 6px solid #d32f2f;
+}
+
+.pyq-title {
+  color: #d32f2f;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.pyq-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pyq-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pyq-group label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #555;
+  text-transform: uppercase;
+}
+
+/* Year overflow fix: Adjusted grid and input sizing */
+.pyq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  width: 100%;
+}
+
+.pyq-input {
+  padding: 12px;
+  min-width: 0;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  width: 100%; /* Ensure input stays inside grid cell */
+  box-sizing: border-box; 
+  transition: all 0.3s ease;
+}
+
+.pyq-input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pyq-input:focus:not(:disabled) {
+  outline: none;
+  border-color: #d32f2f;
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
+.pyq-file-wrapper {
+  border: 2px dashed #d32f2f50;
+  padding: 20px;
+  border-radius: 10px;
+  background: #fffafa;
+  text-align: center;
+  cursor: pointer;
+}
+
+.pyq-submit-btn {
+  background-color: #d32f2f;
+  color: white;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 15px;
+  box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);
+}
+
+.pyq-submit-btn:hover {
+  background-color: #b71c1c;
+  transform: translateY(-2px);
+}
+
+.pyq-submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .pyq-grid { grid-template-columns: 1fr; }
+}
+.error-text {
+    color: #d32f2f;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    font-weight: 500;
+}

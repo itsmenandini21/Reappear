@@ -1,86 +1,82 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Folder from '@/components/Folder';
 import api from '@/lib/api';
 import './PYQ.css';
 
 export default function PYQDirectory() {
-  const router = useRouter();
+  // 1. Backend ka Base URL define karein
+  const BACKEND_URL = "http://localhost:5001"; 
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedYear, setSelectedYear] = useState('All');
+  const [selectedSem, setSelectedSem] = useState('All');
   const [selectedBranch, setSelectedBranch] = useState('All');
-  
-  const [subjects, setSubjects] = useState([]);
+  const [pyqs, setPyqs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const folderColor = "#ff2600";
 
   useEffect(() => {
     const fetchPYQs = async () => {
       try {
-        const response = await api.get('/pyq');
-        setSubjects(response.data);
-      } catch (error) {
-        console.error("Failed to fetch PYQs", error);
-      } finally {
-        setLoading(false);
+        const query = `?semester=${selectedSem === 'All' ? '' : selectedSem}&branch=${selectedBranch}`;
+        const response = await api.get(`/pyq${query}`);
+        setPyqs(response.data);
+      } catch (error) { 
+        console.error(error); 
+      } finally { 
+        setLoading(false); 
       }
     };
     fetchPYQs();
-  }, []);
+  }, [selectedSem, selectedBranch]);
 
-  const years = ['All', '1st Year', '2nd Year', '3rd Year', '4th Year'];
-  const branches = ['All', ...new Set(subjects.map(s => s.branch))];
+  // Helper function to handle opening PDF
+  const openPDF = (pdfPath) => {
+    if (!pdfPath || pdfPath === "#") return;
+    // 2. Full URL banayein: Backend URL + PDF Path
+    const fullUrl = `${BACKEND_URL}${pdfPath}`;
+    window.open(fullUrl, '_blank');
+  };
 
-  const filteredSubjects = subjects.filter(sub => {
-    const matchesSearch = sub.subjectName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesYear = selectedYear === 'All' || sub.yearOfStudy === selectedYear;
-    const matchesBranch = selectedBranch === 'All' || sub.branch === selectedBranch;
-    return matchesSearch && matchesYear && matchesBranch;
-  });
+  const semesters = ['All', 1, 2, 3, 4, 5, 6, 7, 8];
+  const branches = ['All', 'CSE', 'IT', 'ECE', 'EE', 'ME', 'CE'];
 
   return (
     <div className="page-container" style={{ marginTop: '100px' }}>
       <div className="page-header" style={{ textAlign: 'center' }}>
         <h1 className="page-title">Previous Year Questions</h1>
-        <p>Select a subject folder to view past exam papers.</p>
+        <p>Prioritized by your re-appear subjects.</p>
       </div>
 
+      {/* ... (Controls same rahenge) */}
       <div className="controls-container">
-        <input 
-          type="text" 
-          className="search-input" 
-          placeholder="Search subject..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select className="filter-select" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-          {years.map((year, i) => <option key={i} value={year}>{year === 'All' ? 'All Years' : year}</option>)}
+        <input type="text" className="search-input" placeholder="Search subject..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <select className="filter-select" value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
+          {semesters.map(sem => <option key={sem} value={sem}>{sem === 'All' ? 'All Semesters' : `Semester ${sem}`}</option>)}
         </select>
         <select className="filter-select" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)}>
-          {branches.map((branch, i) => <option key={i} value={branch}>{branch === 'All' ? 'All Branches' : branch}</option>)}
+          {branches.map(b => <option key={b} value={b}>{b === 'All' ? 'All Branches' : b}</option>)}
         </select>
       </div>
 
       <div className="pyq-wrapper-box">
-        {loading ? <p style={{textAlign: 'center'}}>Loading folders...</p> : (
+        {loading ? <p style={{textAlign: 'center'}}>Loading...</p> : (
           <div className="pyq-grid">
-            {filteredSubjects.map(sub => (
-              <div 
-                key={sub.id} 
-                className="pyq-folder-card"
-                onClick={() => router.push(`/dashboard/pyq/${sub.id}`)}
-              >
-                <div className="pyq-folder-wrapper">
-                  <Folder color={folderColor} size={1} />
+            {pyqs
+              .filter(item => item.subject?.subjectName.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map(item => (
+                // 3. openPDF function call karein
+                <div key={item._id} className="pyq-folder-card" onClick={() => openPDF(item.pdfUrl)}>
+                  <div className="pyq-folder-wrapper">
+                    <Folder color="#ff2600" size={1} />
+                  </div>
+                  <h3 className="pyq-card-title">{item.subject?.subjectName || "Subject"}</h3>
+                  <div className="pyq-card-tags">
+                    <span className="pyq-tag">Sem {item.semester}</span>
+                    <span className="pyq-tag">{item.year}</span>
+                    <span className="pyq-tag">{item.branch}</span>
+                  </div>
                 </div>
-                <h3 className="pyq-card-title">{sub.subjectName}</h3>
-                <div className="pyq-card-tags">
-                  <span className="pyq-tag">{sub.yearOfStudy}</span>
-                  <span className="pyq-tag">{sub.branch}</span>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>

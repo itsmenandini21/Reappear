@@ -1,102 +1,142 @@
 /* src/app/dashboard/pyq/PYQ.css */
 
-.pyq-wrapper-box {
-  background: #ffffff;
-  border: 2px solid #eaeaea;
-  border-radius: 16px;
-  padding: 30px;
-  margin-top: 10px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+:root {
+  --nit-red: #ff2600;
+  --text-dark: #1a1a1a;
+  --gray-border: #eaeaea;
+  --bg-soft: #f8f9fa;
 }
 
-/* --- Main Page Filter Controls --- */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.pyq-wrapper-box {
+  background: #ffffff;
+  border: 1px solid var(--gray-border);
+  border-radius: 16px;
+  padding: 35px;
+  margin-top: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+}
+
+/* --- Filter Controls --- */
 .controls-container {
   display: flex;
   gap: 15px;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
   justify-content: center;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 .search-input, .filter-select {
-  padding: 12px 20px;
-  border: 2px solid #eaeaea;
-  border-radius: 8px;
+  padding: 14px 22px;
+  border: 2px solid var(--gray-border);
+  border-radius: 10px;
   font-size: 0.95rem;
   outline: none;
   background: #ffffff;
   color: #333;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
+  font-weight: 500;
 }
 
 .search-input {
   flex: 1;
-  min-width: 250px;
-  max-width: 350px;
+  min-width: 280px;
+  max-width: 400px;
 }
 
 .filter-select {
-  min-width: 160px;
+  min-width: 180px;
   cursor: pointer;
-  /* This removes the ugly default Mac/Windows dropdown arrow */
-  appearance: none; 
-  /* This adds a custom, clean dropdown arrow */
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff2600%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
-  background-position: right 15px top 50%;
-  background-size: 10px auto;
-  padding-right: 40px; 
+  background-position: right 18px top 50%;
+  background-size: 12px auto;
+  padding-right: 45px;
 }
 
-/* The signature Red focus state */
 .search-input:focus, .filter-select:focus {
-  border-color: #ff2600;
-  box-shadow: 0 0 0 3px rgba(255, 38, 0, 0.1);
+  border-color: var(--nit-red);
+  box-shadow: 0 0 0 4px rgba(255, 38, 0, 0.1);
+  transform: translateY(-1px);
 }
 
+/* --- Folder Grid --- */
 .pyq-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 30px;
   width: 100%;
 }
 
 .pyq-folder-card {
   background: #ffffff;
-  border: 1px solid #eaeaea;
-  border-radius: 12px;
-  padding: 30px 20px 20px;
+  border: 1px solid var(--gray-border);
+  border-radius: 14px;
+  padding: 35px 20px 25px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-bottom: 5px solid #1a1a1a;
-  min-height: 220px; 
+  border-bottom: 4px solid var(--text-dark);
+  position: relative;
+  overflow: hidden;
 }
 
 .pyq-folder-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(255, 38, 0, 0.08);
-  border-bottom-color: #ff2600; 
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(255, 38, 0, 0.1);
+  border-bottom-color: var(--nit-red);
+}
+
+.pyq-folder-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--nit-red);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.pyq-folder-card:hover::before {
+  opacity: 1;
 }
 
 .pyq-folder-wrapper {
-  min-height: 80px; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px; 
+  margin-bottom: 25px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
 }
 
 .pyq-card-title {
-  font-size: 1.05rem; 
+  font-size: 1.1rem;
   font-weight: 800;
-  color: #1a1a1a;
-  margin: 0 0 12px 0;
-  line-height: 1.3;
+  color: var(--text-dark);
+  margin-bottom: 15px;
+  line-height: 1.4;
+  height: 3rem; /* Max 2 lines height */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .pyq-card-tags {
@@ -104,211 +144,48 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: auto; 
+  margin-top: auto;
 }
 
 .pyq-tag {
-  background: #f8f9fa;
-  border: 1px solid #eaeaea;
-  color: #555;
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-weight: 600;
-}
-
-/* Specific Subject Page Styles */
-.back-btn {
-  background: transparent;
-  border: none;
+  background: var(--bg-soft);
+  border: 1px solid var(--gray-border);
   color: #666;
-  font-size: 1rem;
+  font-size: 0.7rem;
+  padding: 5px 12px;
+  border-radius: 6px;
   font-weight: 700;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: 20px;
-  transition: color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.back-btn:hover {
-  color: #ff2600;
+.pyq-folder-card:hover .pyq-tag {
+  background: #fff0ef;
+  color: var(--nit-red);
+  border-color: #ffcccc;
 }
 
-.papers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.paper-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f8f9fa;
-  border: 1px solid #eaeaea;
-  border-left: 5px solid #ff2600;
-  padding: 20px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.paper-row:hover {
-  border-left-color: #1a1a1a;
-  background: #ffffff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-  transform: translateX(5px);
-}
-
-.paper-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.paper-icon {
-  font-size: 2rem;
-}
-
-.paper-title {
-  margin: 0 0 5px 0;
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #1a1a1a;
-}
-
-.paper-meta {
-  font-size: 0.85rem;
-  color: #666;
-  font-weight: 500;
-  display: flex;
-  gap: 15px;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* --- Inner Subject Page Styles --- */
-
-.subject-header-container {
+/* Loading state */
+.loading-text {
   text-align: center;
-  margin-bottom: 40px;
+  color: #888;
+  font-weight: 500;
+  padding: 50px;
 }
 
-.subject-main-title {
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: #1a1a1a;
-  margin-bottom: 10px;
-  letter-spacing: -0.5px;
-}
+/* --- Responsiveness --- */
+@media (max-width: 768px) {
+  .controls-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .search-input, .filter-select {
+    width: 100%;
+    max-width: 100%;
+  }
 
-.subject-meta-text {
-  font-size: 1rem;
-  color: #666;
-  font-weight: 600;
-}
-
-/* The "Back" Button */
-.back-pill-btn {
-  background: #f8f9fa;
-  border: 1px solid #eaeaea;
-  color: #1a1a1a;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 8px 20px;
-  border-radius: 50px;
-  margin-bottom: 30px;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.back-pill-btn:hover {
-  background: #1a1a1a;
-  color: white;
-  border-color: #1a1a1a;
-}
-
-/* Exam Type Filter Tabs */
-.exam-tab-wrapper {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-}
-
-.exam-tab-btn {
-  background: transparent;
-  border: 2px solid #eaeaea;
-  color: #666;
-  padding: 8px 24px;
-  border-radius: 50px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.exam-tab-btn.active {
-  background: #ff2600;
-  border-color: #ff2600;
-  color: white;
-}
-
-.exam-tab-btn.active:hover {
-  background: #1a1a1a;
-  border-color: #1a1a1a;
-}
-
-/* Download Button */
-.download-pdf-btn {
-  background: #ff2600;
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.download-pdf-btn:hover {
-  background: #1a1a1a;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(26, 26, 26, 0.2);
-}
-
-/* Enhanced Paper Row styling */
-.paper-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
-  border: 1px solid #eaeaea;
-  border-left: 6px solid #ff2600;
-  padding: 24px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-  margin-bottom: 15px;
-}
-
-.paper-row:hover {
-  border-left-color: #1a1a1a;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+  .pyq-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
 }
