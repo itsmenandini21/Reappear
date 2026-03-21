@@ -128,7 +128,7 @@ export default function Peers() {
                                         {peer.reappears.map((r, i) => (
                                             <span key={i} className="reappear-tag">
                                                 <span className="tag-sem">Sem {r.semester}</span>
-                                                <span className="tag-sub">{r.subject}</span>
+                                                <span className="tag-sub" title={`${r.subjectName} (${r.subject})`}>{r.subjectName} ({r.subject})</span>
                                             </span>
                                         ))}
                                     </div>

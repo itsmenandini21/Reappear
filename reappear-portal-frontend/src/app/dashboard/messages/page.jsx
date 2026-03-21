@@ -13,7 +13,7 @@ export default function MessagesPage() {
   const [conversations, setConversations] = useState([]); 
   const [messages, setMessages] = useState([]); 
   const [tempChat, setTempChat] = useState(null);
-  const [isUserActive, setIsUserActive] = useState(true); // <--- NEW STATE
+  const [isUserActive, setIsUserActive] = useState(true);
   const messagesEndRef = useRef(null);
 
   const [user, setUser] = useState(null);
@@ -176,9 +176,6 @@ export default function MessagesPage() {
               <div className="convo-avatar">{activeChat.avatar}</div>
               <div className="chat-header-info">
                 <h3>{activeChat.name}</h3>
-                <p style={{ color: isUserActive ? '#28a745' : '#dc3545' }}>
-                  {isUserActive ? 'Online' : 'Unavailable'}
-                </p>
               </div>
             </div>
 

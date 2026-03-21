@@ -36,7 +36,7 @@ export const getPeers = async (req, res) => {
             status: { $in: ["pending", "in-progress"] } 
         })
         .populate('student', 'name rollNumber branch currentSemester profileImage') 
-        .populate('subject', 'subjectCode semester');
+        .populate('subject', 'subjectCode subjectName semester');
 
         // --- STEP 4: GROUPING LOGIC (With Safety Checks) ---
         const groupedPeers = {};
@@ -67,7 +67,8 @@ export const getPeers = async (req, res) => {
             if (!isAlreadyAdded) {
                 groupedPeers[studentId].reappears.push({
                     semester: record.subject.semester,
-                    subject: record.subject.subjectCode
+                    subject: record.subject.subjectCode,
+                    subjectName: record.subject.subjectName
                 });
             }
         });

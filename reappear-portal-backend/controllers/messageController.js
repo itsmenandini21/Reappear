@@ -72,8 +72,11 @@ export const getActiveConversations = async (req, res) => {
         const receivedFrom = await Message.distinct('sender', { receiver: userName });
         let allContacts = [...new Set([...sentTo, ...receivedFrom])];
 
+        // Ensure "Exam Cell Bot" actively existing in old database chunks is filtered out
+        allContacts = allContacts.filter(c => c !== "Exam Cell Bot");
+
         if (allContacts.length === 0) {
-            allContacts = ["Exam Cell Bot"];
+            return res.status(200).json([]);
         }
 
         const conversations = await Promise.all(allContacts.map(async (contact) => {
@@ -94,7 +97,7 @@ export const getActiveConversations = async (req, res) => {
                 name: contact,
                 lastMessage: lastMsg ? lastMsg.content : "Start your first chat!",
                 time: lastMsg ? lastMsg.timestamp : new Date(),
-                unread: unreadCount 
+                unread: unreadCount
             };
         }));
 
