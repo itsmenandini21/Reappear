@@ -67,14 +67,18 @@ body::before {
 /* ============================= */
 /* 📊 GRID */
 /* ============================= */
+
 .dashboard-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 3rem; 
+  gap: 4rem 3rem;
 }
 
-/* Premium Card Look */
+/* ============================= */
+/* 🍏 ULTRA GLASS CARD */
+/* ============================= */
+
 .folder-card {
   position: relative;
 
@@ -83,33 +87,87 @@ body::before {
   align-items: center;
   justify-content: flex-end;
   text-align: center;
-  width: 320px; 
-  cursor: pointer;
-  background: var(--white);
-  border: 1px solid var(--gray-border);
+
+  width: 320px;
+  padding: 1.5rem;
   border-radius: 24px;
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
+  cursor: pointer;
+
+  transition: all 0.35s ease;
+
+  /* 🔥 milky glass */
+  background: rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(70px) saturate(200%);
+  -webkit-backdrop-filter: blur(70px) saturate(200%);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.7),
+    inset 0 -1px 1px rgba(255,255,255,0.2),
+    0 15px 40px rgba(0,0,0,0.12);
+
+  filter: brightness(1.05);
 }
 
-.folder-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--nit-red-light);
+/* ✨ TOP LIGHT */
+.folder-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.6),
+    rgba(255,255,255,0.2) 30%,
+    transparent 60%
+  );
+
+  pointer-events: none;
 }
+
+/* 🌫️ EXTRA BLUR LAYER */
+.folder-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  pointer-events: none;
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  background: radial-gradient(
+    120% 100% at 50% 120%,
+    rgba(0,0,0,0.15),
+    transparent 60%
+  );
+
+  opacity: 0.3;
+}
+
+/* hover */
+.folder-card:hover {
+  transform: scale(1.03);
+  background: rgba(255,255,255,0.18);
+}
+
+/* ============================= */
+/* 📁 FOLDER WRAPPER */
+/* ============================= */
 
 .folder-wrapper {
-  height: 180px; 
+  height: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+  margin-bottom: 1.5rem;
 
-.folder-card:hover .folder-wrapper {
-  transform: scale(1.05);
+  position: relative;
+  z-index: 2; /* keeps animation safe */
 }
 
 /* ============================= */
@@ -118,70 +176,90 @@ body::before {
 
 .card-title {
   margin: 0;
-  font-size: 1.5rem;
-  color: var(--charcoal); 
+  font-size: 1.6rem;
+  color: #1a1a1a;
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .card-desc {
-  margin: 12px 0 0 0;
-  color: var(--gray-muted); 
-  font-size: 0.95rem;
-  font-weight: 500;
-  line-height: 1.5;
+  margin: 8px 0 0 0;
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
-@media (max-width: 768px) {
-  .folder-card {
-    width: 100%; 
-  }
-}
+/* ============================= */
+/* 📢 ANNOUNCEMENT GLASS */
+/* ============================= */
 
-/* Announcement Section Styling */
 .announcement-section {
   position: relative;
   width: 100%;
   max-width: 850px;
   margin: 0 auto 4rem auto;
-  background: var(--white);
-  border: 2px solid var(--nit-red-light); 
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: var(--shadow-md);
-  position: relative;
-  overflow: hidden;
+  padding: 28px;
+  border-radius: 20px;
+
+  /* 🔥 new color style */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 38, 0, 0.08),
+    rgba(255, 255, 255, 0.7)
+  );
+
+  backdrop-filter: blur(60px);
+  -webkit-backdrop-filter: blur(60px);
+
+  border: 1px solid rgba(255, 38, 0, 0.2);
+
+  box-shadow:
+    0 20px 50px rgba(255, 38, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
+/* light reflection */
 .announcement-section::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: linear-gradient(to right, var(--nit-red), var(--brick-red));
+  inset: 0;
+  border-radius: inherit;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.6),
+    transparent
+  );
+
+  pointer-events: none;
 }
+
+/* ============================= */
+/* 📜 CONTENT */
+/* ============================= */
 
 .announcement-section .scroll-list {
-  max-height: 250px !important; 
+  max-height: 220px !important;
 }
 
 .announcement-title {
-  color: var(--charcoal);
-  font-size: 1.7rem;
-  font-weight: 800;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--gray-border);
-  padding-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+
+  background: linear-gradient(90deg, #ff2600, #ff3b1f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* 🔥 glow */
+  filter: drop-shadow(0 4px 12px rgba(255, 38, 0, 0.3));
 }
 
+/* 🔥 stronger red accent */
 .announcement-title::before {
-  content: '📢';
-  font-size: 1.5rem;
+  content: "";
+  width: 6px;
+  height: 26px;
+  background: linear-gradient(#ff2600, #ff6a4d);
+  border-radius: 4px;
 }
 
 .announcement-section .scroll-list-container {
