@@ -60,7 +60,7 @@ export default function Dashboard() {
 
         setAnnouncements(formatted);
       } catch (error) {
-        console.error("Error fetching announcements", error);
+        console.error("Error fetching announcements:", error?.message);
 
         setAnnouncements([
           <div key="err" className="notice-card">

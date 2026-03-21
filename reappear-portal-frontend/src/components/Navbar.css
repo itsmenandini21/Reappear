@@ -22,6 +22,11 @@
   cursor: pointer;
 }
 
+.nav-logo {
+  object-fit: contain;
+  margin-right: 12px;
+}
+
 .nav-brand {
   font-size: 1.5rem;
   font-weight: 900;

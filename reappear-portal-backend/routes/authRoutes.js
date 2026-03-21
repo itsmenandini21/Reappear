@@ -1,12 +1,12 @@
-import { registerUser, loginUser, googleLogin } from "../controllers/authController.js";
-import express from "express"
- 
-const router=express.Router();
+import express from "express";
+import { loginUser, googleLogin, sendOtp, verifyOtpAndRegister, resendOtp } from "../controllers/authController.js";
 
-router.post("/register",registerUser);
+const router = express.Router();
 
-router.post("/login",loginUser);
-
+router.post("/send-otp", sendOtp);
+router.post("/verify-otp", verifyOtpAndRegister);
+router.post("/resend-otp", resendOtp);
+router.post("/login", loginUser);
 router.post("/google", googleLogin);
 
 export default router;

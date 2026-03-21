@@ -23,9 +23,10 @@ export default function Peers() {
                 // Backend controller updated logic automatically filters 
                 // based on the logged-in user's token
                 const response = await api.get('/peers');
-                setPeersData(response.data);
+                const data = response.data;
+                setPeersData(Array.isArray(data) ? data : (data.peers || []));
             } catch (error) {
-                console.error("Failed to fetch peers...", error);
+                console.warn("Could not fetch peers...", error?.message);
             } finally {
                 setLoading(false);
             }
