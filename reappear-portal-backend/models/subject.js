@@ -32,6 +32,9 @@ const SubjectSchema = new mongoose.Schema({
   syllabusUrl: { 
     type: String,
     default: "" 
+  },
+  lastDateToApply: {
+    type: Date
   }
 }, { 
   timestamps: true 

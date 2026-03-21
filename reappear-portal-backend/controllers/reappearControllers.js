@@ -42,7 +42,10 @@ export const getMyReappears = async (req, res) => {
         id: record._id,
         name: record.subject.subjectName || "Unknown Subject",
         code: record.subject.subjectCode || "N/A",
+        subjectObjectId: record.subject._id,
         status: record.status || "pending",
+        hasApplied: record.feesPaid,
+        lastDateToApply: record.subject.lastDateToApply ? new Date(record.subject.lastDateToApply).toLocaleDateString('en-GB') : null,
         credits: record.subject.credits || 0,
         semester: sem
       });
@@ -141,5 +144,51 @@ export const checkExistingBacklogs = async (req, res) => {
     } catch (error) {
         console.error("Error checking existing backlogs:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+// @desc    Admin fetches all reappears for Fee Tracker
+// @route   GET /api/reappear/admin/fee-tracker
+export const getFeeTrackerData = async (req, res) => {
+    try {
+        // Find both pending & in-progress
+        const records = await ReappearRecord.find()
+            .populate('student', 'name email rollNumber')
+            .populate('subject', 'subjectName subjectCode department semester');
+        
+        res.status(200).json(records);
+    } catch (error) {
+        console.error("Error in fee tracker fetch:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+// @desc    Admin sends an email dynamically to a student
+// @route   POST /api/reappear/admin/send-email
+export const sendAdminEmail = async (req, res) => {
+    try {
+        const { email, subject, message } = req.body;
+        if (!email || !subject || !message) {
+            return res.status(400).json({ message: "Please provide email, subject, and message" });
+        }
+        
+        const htmlMessage = `
+        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto;">
+                <h2 style="color: #ff2600;">Urgent: Action Required</h2>
+                <p style="font-size: 15px; color: #333; line-height: 1.5;">${message.replace(/\n/g, '<br/>')}</p>
+                <br/>
+                <p>Please log in to your NIT KKR Reappear Portal and complete the required actions to avoid penalties.</p>
+                <a href="http://localhost:3000/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">Login to Portal</a>
+                <br/><br/>
+                <p style="color: #888; font-size: 13px;">- Exam Cell, NIT Kurukshetra</p>
+            </div>
+        </div>`;
+        
+        await sendEmail(email, subject, htmlMessage);
+        res.status(200).json({ message: "Email sent successfully to " + email });
+    } catch (error) {
+        console.error("Error sending admin email:", error);
+        res.status(500).json({ message: "Failed to send email", error: error.message });
     }
 };

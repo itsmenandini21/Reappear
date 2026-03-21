@@ -5,7 +5,7 @@ const announcementSchema = new mongoose.Schema({
   category: { type: String, enum: ['Urgent', 'Academic', 'Fees', 'General'], default: 'General' },
   content: { type: String, required: true },
   expiryDate: { type: Date },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now, expires: '30d' }
 });
 
 const Announcement = mongoose.model('Announcement', announcementSchema);

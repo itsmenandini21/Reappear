@@ -1,12 +1,72 @@
-/* src/components/Dashboard.css */
+/* ============================= */
+/* 🤍 CLEAN APPLE BACKGROUND */
+/* ============================= */
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+
+  background: linear-gradient(135deg, #eef1f5, #f8f9fb);
+}
+
+/* soft ambient glow */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.7), transparent 60%),
+    radial-gradient(circle at 80% 20%, rgba(240,240,245,0.6), transparent 60%);
+
+  filter: blur(30px);
+}
+
+/* ============================= */
+/* ❄️ GLOBAL FROSTED LAYER */
+/* ============================= */
+
+.dashboard-container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+
+  backdrop-filter: blur(70px) saturate(200%);
+  -webkit-backdrop-filter: blur(70px) saturate(200%);
+  background: rgba(255,255,255,0.35);
+}
+
+/* subtle noise */
+.dashboard-container::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background-image: url("https://www.transparenttextures.com/patterns/noise.png");
+  opacity: 0.05;
+}
+
+/* ============================= */
+/* 📦 CONTAINER */
+/* ============================= */
 
 .dashboard-container {
   width: 100%;
   max-width: 1200px;
   margin: 120px auto 0;
   padding: 0 2rem 2rem 2rem;
+  position: relative;
 }
 
+/* ============================= */
+/* 📊 GRID */
+/* ============================= */
 .dashboard-grid {
   display: flex;
   flex-wrap: wrap;
@@ -16,6 +76,8 @@
 
 /* Premium Card Look */
 .folder-card {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -50,6 +112,10 @@
   transform: scale(1.05);
 }
 
+/* ============================= */
+/* 📝 TEXT */
+/* ============================= */
+
 .card-title {
   margin: 0;
   font-size: 1.5rem;
@@ -74,8 +140,9 @@
 
 /* Announcement Section Styling */
 .announcement-section {
+  position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: 850px;
   margin: 0 auto 4rem auto;
   background: var(--white);
   border: 2px solid var(--nit-red-light); 
@@ -119,4 +186,152 @@
 
 .announcement-section .scroll-list-container {
   width: 100% !important;
+}
+
+/* ============================= */
+/* 📱 RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .folder-card {
+    width: 100%;
+  }
+}
+
+.scroll-list li {
+  list-style: none;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+
+  background: rgba(0, 0, 0, 0.03);
+
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #222;
+
+  transition: all 0.25s ease;
+}
+
+/* hover effect */
+.scroll-list li:hover {
+  background: rgba(255, 38, 0, 0.08);
+  transform: translateX(4px);
+}
+
+.tag {
+  background: #ff2600;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+/* ============================= */
+/* 🔥 NOTICE CARD (MAIN FIX) */
+/* ============================= */
+
+.notice-card {
+  padding: 18px 20px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(40px);
+
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  transition: all 0.25s ease;
+}
+
+/* hover = interactive feel */
+.notice-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* ============================= */
+/* HEADER */
+/* ============================= */
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* red tag */
+.notice-tag {
+  background: #ff2600;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* title */
+.notice-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111;
+}
+
+/* ============================= */
+/* CONTENT */
+/* ============================= */
+
+.notice-content {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 6px 0 12px 0;
+}
+
+/* ============================= */
+/* CTA BUTTON */
+/* ============================= */
+
+.notice-action {
+  background: transparent;
+  border: none;
+  color: #ff2600;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  padding: 0;
+}
+
+.notice-action:hover {
+  text-decoration: underline;
+}
+
+/* default tag */
+.notice-tag {
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* 🔥 CATEGORY COLORS */
+.notice-tag.fees {
+  background: #00b894; /* green */
+}
+
+.notice-tag.urgent {
+  background: #ff2600; /* red */
+}
+
+.notice-tag.academic {
+  background: #0984e3; /* blue */
+}
+
+.notice-tag.general {
+  background: #f1c40f; /* yellow */
+  color: #000; /* better contrast */
 }

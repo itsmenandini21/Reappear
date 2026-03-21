@@ -1,5 +1,5 @@
-import { getMyReappears,addReappear,updateReappearStatus,checkExistingBacklogs } from "../controllers/reappearControllers.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { getMyReappears,addReappear,updateReappearStatus,checkExistingBacklogs, getFeeTrackerData, sendAdminEmail } from "../controllers/reappearControllers.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
 import express from "express"
 const router=express.Router();
 router.get("/my-reappears",protect,getMyReappears);
@@ -7,4 +7,6 @@ router.get("/my-reappears",protect,getMyReappears);
 router.post('/add', addReappear);
 router.put('/update/:id', updateReappearStatus);
 router.get('/check/:rollNumber', checkExistingBacklogs);
+router.get('/admin/fee-tracker', protect, getFeeTrackerData); // Protect admin endpoints
+router.post('/admin/send-email', protect, sendAdminEmail);
 export default router;

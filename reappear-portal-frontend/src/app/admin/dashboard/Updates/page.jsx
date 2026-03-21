@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '@/lib/api'; // Ensure path is correct
 import './updates.css';
 
@@ -11,6 +11,21 @@ const NoticeForm = () => {
     expiryDate: ''
   });
   const [loading, setLoading] = useState(false);
+  const [notices, setNotices] = useState([]);
+  const [editId, setEditId] = useState(null);
+
+  useEffect(() => {
+    fetchNotices();
+  }, []);
+
+  const fetchNotices = async () => {
+    try {
+      const { data } = await api.get('/announcements');
+      setNotices(data);
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+    }
+  };
 
   function handleChange(e) {
     setNotice({ ...notice, [e.target.name]: e.target.value });
@@ -20,13 +35,40 @@ const NoticeForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/announcements', notice);
-      alert("📢 Announcement Published Successfully!");
+      if (editId) {
+        await api.put(`/announcements/${editId}`, notice);
+        alert("📢 Announcement Updated Successfully!");
+        setEditId(null);
+      } else {
+        await api.post('/announcements', notice);
+        alert("📢 Announcement Published Successfully!");
+      }
       setNotice({ title: '', category: 'Urgent', content: '', expiryDate: '' });
+      fetchNotices();
     } catch (error) {
-      alert("Error publishing: " + (error.response?.data?.message || error.message));
+      alert("Error saving: " + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (n) => {
+    setEditId(n._id);
+    setNotice({
+      title: n.title,
+      category: n.category,
+      content: n.content,
+      expiryDate: n.expiryDate ? n.expiryDate.substring(0, 10) : ''
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this announcement?")) return;
+    try {
+      await api.delete(`/announcements/${id}`);
+      fetchNotices();
+    } catch (error) {
+      alert("Error deleting: " + (error.response?.data?.message || error.message));
     }
   };
 
@@ -35,7 +77,19 @@ const NoticeForm = () => {
       <div className="notice-flex">
         <div className="notice-form-section">
           <div className="form-header">
-            <h3>Create New Announcement</h3>
+            <h3>{editId ? "Edit Announcement" : "Create New Announcement"}</h3>
+            {editId && (
+              <button 
+                type="button" 
+                className="cancel-edit-btn"
+                onClick={() => {
+                  setEditId(null);
+                  setNotice({ title: '', category: 'Urgent', content: '', expiryDate: '' });
+                }}
+              >
+                Cancel Edit
+              </button>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="actual-form">
@@ -85,7 +139,7 @@ const NoticeForm = () => {
             </div>
 
             <button type="submit" className="publish-btn" disabled={loading}>
-              {loading ? "Broadcasting..." : "🚀 Broadcast Announcement"}
+              {loading ? (editId ? "Updating..." : "Broadcasting...") : (editId ? "🔄 Update Announcement" : "🚀 Broadcast Announcement")}
             </button>
           </form>
         </div>
@@ -102,6 +156,29 @@ const NoticeForm = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="recent-notices-section">
+        <h3>Recent Announcements</h3>
+        {notices.length === 0 ? (
+          <p className="no-notices">No announcements found.</p>
+        ) : (
+          <div className="recent-notices-list">
+            {notices.map((n) => (
+              <div key={n._id} className="recent-notice-card">
+                <div className="recent-notice-content">
+                  <span className={`recent-notice-tag ${n.category.toLowerCase()}`}>{n.category}</span>
+                  <h4>{n.title}</h4>
+                  <p>{n.content}</p>
+                </div>
+                <div className="recent-notice-actions">
+                  <button onClick={() => handleEdit(n)} className="action-btn edit">✎ Edit</button>
+                  <button onClick={() => handleDelete(n._id)} className="action-btn delete">🗑 Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

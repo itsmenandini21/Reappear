@@ -19,9 +19,12 @@ import resultRoutes from './routes/resultRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import {protect,admin} from "./middleware/authMiddleware.js"
 import reappearRoutes from "./routes/reappearRoutes.js";
+import estimatorRoutes from "./routes/estimatorRoutes.js"; // New Estimator API
+import { startCronJob } from "./cron/deadlineMailer.js";
 
 dotenv.config();
 connectDb();
+startCronJob();
 
 const app = express();
 
@@ -49,6 +52,7 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/messages', messageRoutes);
 app.use("/api/reappear",reappearRoutes);
+app.use("/api/estimator", estimatorRoutes); // New Estimator API
 
 
 const PORT = process.env.PORT || 5001;

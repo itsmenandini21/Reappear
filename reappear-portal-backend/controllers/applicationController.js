@@ -1,5 +1,6 @@
 import Application from '../models/Application.js';
 import User from '../models/user.js';
+import ReappearRecord from '../models/reappearRecord.js';
 
 // @desc    Submit new reappear application
 // @route   POST /api/applications/apply
@@ -30,6 +31,12 @@ export const submitApplication = async (req, res) => {
     });
 
     await newApplication.save();
+
+    // 4. Update ReappearRecord to mark fees as paid so the student can instantly see 'Applied' status
+    if (reappearRecordId) {
+      await ReappearRecord.findByIdAndUpdate(reappearRecordId, { feesPaid: true });
+    }
+
     res.status(201).json({ message: "Application submitted successfully!", data: newApplication });
   } catch (error) {
     console.error("Application Error:", error);

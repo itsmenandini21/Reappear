@@ -60,3 +60,133 @@
   border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: var(--transition); margin-top: 15px;
 }
 .publish-btn:hover { background: var(--nit-red); transform: translateY(-4px); box-shadow: var(--shadow-nit); }
+
+/* Recent Announcements Section */
+.recent-notices-section {
+  margin-top: 50px;
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.recent-notices-section h3 {
+  margin-bottom: 20px;
+  color: #1d1d1f;
+  font-size: 22px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+.no-notices {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.recent-notices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.recent-notice-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #fdfdfd;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.recent-notice-card:hover {
+  border-color: #ddd;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+  transform: translateY(-2px);
+}
+
+.recent-notice-content h4 {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #1d1d1f;
+}
+
+.recent-notice-content p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recent-notice-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.recent-notice-tag.urgent { background: #ffebeb; color: #ff3b30; }
+.recent-notice-tag.academic { background: #e5f1ff; color: #007aff; }
+.recent-notice-tag.fees { background: #eaf8ed; color: #34c759; }
+.recent-notice-tag.general { background: #f0f0f0; color: #555; }
+
+.recent-notice-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.action-btn.edit {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.action-btn.edit:hover { background: #e0e0e0; }
+
+.action-btn.delete {
+  background: #ffebeb;
+  color: #ff3b30;
+}
+
+.action-btn.delete:hover { background: #ffd6d6; }
+
+/* Cancel Edit Button */
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.cancel-edit-btn {
+  background: #ffebeb;
+  color: #ff3b30;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cancel-edit-btn:hover { background: #ffd6d6; }

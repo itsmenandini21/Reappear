@@ -52,18 +52,28 @@ export default function Subjects() {
 
             <div className="action-group">
               {sub.status !== 'cleared' ? (
-                <>
-                  <button
-                    className="form-btn"
-                    onClick={() => {
-                      const query = new URLSearchParams({ subject: sub.name, code: sub.code }).toString();
-                      router.push(`/dashboard/apply?${query}`);
-                    }}
-                  >
-                    Apply Now
-                  </button>
-                  {sub.lastDate && <span className="date-text">Last date: {sub.lastDate}</span>}
-                </>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
+                  {sub.hasApplied ? (
+                    <div className="status-badge-applied" style={{ background: '#34c759', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>
+                      Applied
+                    </div>
+                  ) : (
+                    <button
+                      className="form-btn"
+                      onClick={() => {
+                        const query = new URLSearchParams({ 
+                          subjectName: sub.name, 
+                          subjectId: sub.subjectObjectId,
+                          recordId: sub.id
+                        }).toString();
+                        router.push(`/dashboard/apply?${query}`);
+                      }}
+                    >
+                      Apply Now
+                    </button>
+                  )}
+                  {sub.lastDateToApply && <span className="date-text" style={{ fontSize: '12px', color: '#ff2600', fontWeight: 'bold' }}>Last date: {sub.lastDateToApply}</span>}
+                </div>
               ) : (
                 <span className="status-badge-cleared">Verified ✓</span>
               )}

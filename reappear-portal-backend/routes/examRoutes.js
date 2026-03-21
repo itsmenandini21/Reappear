@@ -27,7 +27,11 @@ router.get('/', async (req, res) => {
             try {
                 const token = req.headers.authorization.split(' ')[1];
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                userId = decoded.id;
+                const user = await User.findById(decoded.id);
+                // If not admin, set userId to filter. Admins see everything.
+                if (user && user.role !== 'admin') {
+                    userId = decoded.id;
+                }
             } catch (err) {
                 console.log("Token extraction failed in exams GET:", err.message);
             }
@@ -95,6 +99,17 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET: Fetch all raw exams strictly for admin consumption
+router.get('/all', protect, async (req, res) => {
+    try {
+        const exams = await Exam.find().sort({ examDate: -1 });
+        res.json(exams);
+    } catch (error) {
+        console.error("Error fetching admin exams:", error);
+        res.status(500).json({ message: "Server Error while fetching all exams." });
+    }
+});
+
 // POST: Admin schedules a new exam
 router.post('/', async (req, res) => {
     try {
@@ -139,6 +154,41 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error("Error deleting exam:", error);
         res.status(500).json({ message: "Server Error while deleting exam." });
+    }
+});
+
+// PUT: Admin updates an existing exam
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { dept, sem, subject, date, time, room, syllabus } = req.body;
+
+        if (!dept || !sem || !subject || !date || !time || !room) {
+            return res.status(400).json({ message: "Please fill all required exam details." });
+        }
+
+        const updatedExam = await Exam.findByIdAndUpdate(
+            id,
+            {
+                department: dept,
+                semester: sem,
+                subjectCode: subject,
+                examDate: new Date(date),
+                examTime: time,
+                roomAllocation: room,
+                syllabus: syllabus || "",
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedExam) {
+            return res.status(404).json({ message: "Exam not found." });
+        }
+
+        res.json({ message: "Exam Updated Successfully!", exam: updatedExam });
+    } catch (error) {
+        console.error("Error updating exam:", error);
+        res.status(500).json({ message: "Server Error while updating exam." });
     }
 });
 

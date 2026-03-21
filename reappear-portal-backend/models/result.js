@@ -11,6 +11,11 @@ const resultSchema = new mongoose.Schema({
         ref: 'Subject', 
         required: true 
     },
+    evaluatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Faculty',
+        required: false
+    },
     marksObtained: { 
         type: Number, 
         required: true 

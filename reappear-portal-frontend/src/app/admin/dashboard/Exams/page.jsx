@@ -1,227 +1,294 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
-import api from '@/lib/api';
-import './exams.css';
-
-// Animation Variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-};
+import '../Subjects/subjects.css';
+import api from '@/lib/api'; 
 
 const ScheduleExams = () => {
-  // 1. Changed syllabusLink to syllabus
-  const [examData, setExamData] = useState({ dept: '', sem: '', subject: '', date: '', time: '', room: '', syllabus: '' });
+  const [view, setView] = useState('list'); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [examToDelete, setExamToDelete] = useState(null);
+  const [selectedExam, setSelectedExam] = useState(null);
+  const [exams, setExams] = useState([]); 
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pendingData, setPendingData] = useState(null); 
   const [hasSyllabus, setHasSyllabus] = useState(false);
-  const [scheduledExams, setScheduledExams] = useState([]);
-  const [loadingExams, setLoadingExams] = useState(true);
-  const [subjects,setSubjects]=useState([]);
-
-  const fetchScheduledExams = async () => {
-    try {
-      const response = await axios.get('http://localhost:5001/api/exams');
-      setScheduledExams(response.data.upcoming || []);
-    } catch (error) {
-      console.error("Failed to fetch exams", error);
-    } finally {
-      setLoadingExams(false);
-    }
-  };
 
   useEffect(() => {
-    fetchScheduledExams();
+    fetchExams();
+    fetchSubjects();
   }, []);
 
-  useEffect(()=>{
-    fetchSubjects();
-  },[])
-
-  const fetchSubjects=async ()=>{
-    try{
-      const res=await api.get("/subjects");
-      setSubjects(res.data);
-    }
-     catch(error){
-      console.log(error.message);
-     }
-
-  }
-
-  const removeExam = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this exam?")) return;
+  const fetchExams = async () => {
     try {
-      await axios.delete(`http://localhost:5001/api/exams/${id}`);
-      toast.success("Exam removed successfully.");
-      fetchScheduledExams();
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to remove exam.");
+      setLoading(true);
+      const res = await api.get('/exams/all');
+      setExams(res.data || []);
+    } catch (err) {
+      toast.error("Database connection failed!");
+    } finally {
+      setLoading(false);
     }
   };
-  const availableSubjects = subjects.filter(sub => sub.department == examData.dept && sub.semester == examData.sem);
 
-  const handleExamChange = (e) => setExamData({ ...examData, [e.target.name]: e.target.value });
-
-  const submitExamSchedule = async (e) => {
-    e.preventDefault();
-    if (!examData.subject || !examData.date || !examData.time || !examData.room) {
-      return toast.error("Please fill all required exam details.");
+  const fetchSubjects = async () => {
+    try {
+      const res = await api.get("/subjects");
+      setSubjects(res.data);
+    } catch (error) {
+      console.log(error.message);
     }
-    
-    toast.promise(
-      axios.post('http://localhost:5001/api/exams', examData),
-      {
-        loading: 'Scheduling exam in database...',
-        success: (response) => {
-          // Reset form to empty 'syllabus'
-          setExamData({ dept: '', sem: '', subject: '', date: '', time: '', room: '', syllabus: '' });
-          setHasSyllabus(false);
-          fetchScheduledExams();
-          return response.data.message || 'Exam Scheduled Successfully!';
-        },
-        error: (err) => {
-          return err.response?.data?.message || 'Failed to schedule exam. Please try again.';
-        }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await api.delete(`/exams/${examToDelete._id}`);
+      setExams(exams.filter(e => e._id !== examToDelete._id));
+      setShowDeleteModal(false);
+      toast.success("Exam Removed!");
+    } catch (err) {
+      toast.error("Delete failed!");
+    }
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      dept: formData.get("dept"),
+      sem: formData.get("sem"),
+      subject: formData.get("subject"),
+      date: formData.get("date"),
+      time: formData.get("time"),
+      room: formData.get("room"),
+      syllabus: hasSyllabus ? formData.get("syllabus") : ""
+    };
+    setPendingData(data);
+    setShowConfirmModal(true);
+  };
+
+  const executeSubmit = async () => {
+    try {
+      if (view === 'add') {
+        await api.post('/exams', pendingData);
+        toast.success("Exam Scheduled!");
+      } else {
+        await api.put(`/exams/${selectedExam._id}`, pendingData);
+        toast.success("Exam Updated!");
       }
-    );
+      fetchExams();
+      setShowConfirmModal(false);
+      setView('list');
+      setHasSyllabus(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Process failed!");
+      setShowConfirmModal(false);
+    }
+  };
+
+  const openEdit = (exam) => {
+    setSelectedExam(exam);
+    setHasSyllabus(!!exam.syllabus);
+    setView('update');
+  };
+
+  const getSubName = (code) => {
+      const s = subjects.find(sub => sub.subjectCode === code);
+      return s ? s.subjectName : "";
   };
 
   return (
-    <motion.div 
-      className="ex-main-container"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
+    <div className="admin-subjects-wrapper">
       <Toaster position="top-center" />
-      <motion.div variants={itemVariants} className="ex-header">
-        <h1>Schedule Exams</h1>
-        <p>Set dates, times, and syllabus details for upcoming reappear exams.</p>
-      </motion.div>
 
-      <motion.div variants={itemVariants} className="ex-card">
-        <form onSubmit={submitExamSchedule}>
-          <h3 className="ex-section-title">1. Select Subject</h3>
-          <div className="ex-form-row-3">
-            <div className="ex-input-group">
+      {/* --- DELETE MODAL --- */}
+      {showDeleteModal && (
+        <div className="modal-backdrop">
+          <div className="modal-card bounce-in">
+            <div className="modal-icon-danger">⚠️</div>
+            <h2>Remove Exam?</h2>
+            <p>Are you sure you want to delete the exam for <b>{examToDelete?.subjectCode}</b>?</p>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+              <button className="btn-danger" onClick={confirmDelete}>Delete Exam</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- ADD/UPDATE CONFIRMATION MODAL --- */}
+      {showConfirmModal && (
+        <div className="modal-backdrop">
+          <div className="modal-card bounce-in">
+            <div className="modal-icon-info">📝</div>
+            <h2>{view === 'add' ? "Schedule Exam?" : "Save Changes?"}</h2>
+            <p>Do you want to {view === 'add' ? "schedule this exam in" : "update the exam details in"} the repository?</p>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowConfirmModal(false)}>No, Back</button>
+              <button className="btn-primary" onClick={executeSubmit}>Yes, Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- HEADER --- */}
+      <div className="dashboard-header">
+        <div>
+          <h1 className="page-title">Exam Repository</h1>
+          <p className="page-subtitle">Manage upcoming exams and exam center details.</p>
+        </div>
+        {view === 'list' && (
+          <button className="btn-primary" onClick={() => { setSelectedExam(null); setView('add'); setHasSyllabus(false); }}>
+            + Schedule Exam
+          </button>
+        )}
+      </div>
+
+      {/* --- LIST VIEW --- */}
+      {view === 'list' && (
+        <div className="table-card fade-in">
+          <div className="search-container">
+            <div className="search-box">
+              <span className="search-icon">🔍</span>
+              <input 
+                type="text" 
+                placeholder="Search exams by dept, code, or center..." 
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="table-responsive">
+            {loading ? <p style={{padding: '20px'}}>Loading...</p> : (
+            <table className="modern-table">
+              <thead>
+                <tr>
+                  <th>Exam Details</th>
+                  <th>Department</th>
+                  <th>Center & Time</th>
+                  <th>Syllabus</th>
+                  <th className="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {exams
+                  .filter(e => 
+                    e.subjectCode?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    e.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    e.roomAllocation?.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((exam) => (
+                    <tr key={exam._id}>
+                      <td>
+                        <div className="subject-info">
+                          <span className="sub-code">{exam.subjectCode}</span>
+                          <span className="sub-name">{getSubName(exam.subjectCode)}</span>
+                        </div>
+                      </td>
+                      <td><span className="pill pill-dept">{exam.department} - {exam.semester} Sem</span></td>
+                      <td>
+                        <div className="subject-info">
+                          <span className="sub-name">Room: {exam.roomAllocation}</span>
+                          <span className="text-muted">{new Date(exam.examDate).toLocaleDateString()} at {exam.examTime}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="text-muted">{exam.syllabus ? "Available" : "Not Provided"}</span>
+                      </td>
+                      <td className="action-cell">
+                        <button className="action-btn btn-edit" onClick={() => openEdit(exam)}>Edit</button>
+                        <button className="action-btn btn-delete" onClick={() => { setExamToDelete(exam); setShowDeleteModal(true); }}>Remove</button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* --- ADD / UPDATE FORM --- */}
+      {(view === 'add' || view === 'update') && (
+        <div className="form-card fade-in">
+          <button className="btn-back-top" onClick={() => setView('list')}>← Back</button>
+          <div className="form-header">
+            <h2>{view === 'add' ? "Schedule New Exam" : "Edit Exam Details"}</h2>
+          </div>
+          <form onSubmit={handleFormSubmit} className="grid-form">
+            <div className="input-group">
               <label>Department</label>
-              <select name="dept" value={examData.dept} onChange={handleExamChange} required>
+              <select name="dept" defaultValue={selectedExam?.department || ""}>
                 <option value="">Select Dept</option>
                 <option value="Computer Applications">Computer Applications</option>
                 <option value="Engineering">Engineering</option>
               </select>
             </div>
-            <div className="ex-input-group">
-              <label>Semester</label>
-              <select name="sem" value={examData.sem} onChange={handleExamChange} disabled={!examData.dept} required>
-                <option value="">Select Sem</option>
-                <option value="1">1st Sem</option>
-                <option value="3">3rd Sem</option>
-                <option value="5">5th Sem</option>
-              </select>
-            </div>
-            <div className="ex-input-group">
-              <label>Subject</label>
-              <select name="subject" value={examData.subject} onChange={handleExamChange} disabled={!examData.sem} required>
-                <option value="">Select Subject</option>
-                {availableSubjects.map(sub => <option key={sub.subjectCode} value={sub.subjectCode}>{sub.subjectCode} - {sub.subjectName}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <h3 className="ex-section-title ex-mt">2. Exam Details</h3>
-          <div className="ex-form-row-3">
-            <div className="ex-input-group">
-              <label>Exam Date</label>
-              <input type="date" name="date" value={examData.date} onChange={handleExamChange} required />
-            </div>
-            <div className="ex-input-group">
-              <label>Exam Time</label>
-              <input type="time" name="time" value={examData.time} onChange={handleExamChange} required />
-            </div>
-            <div className="ex-input-group">
-              <label>Exam Centre (Room No.)</label>
-              <input type="text" name="room" placeholder="e.g. Room 101" value={examData.room} onChange={handleExamChange} required />
-            </div>
-          </div>
-
-          <div className="ex-syllabus-section">
-            <label className="ex-checkbox-label">
-              <input type="checkbox" checked={hasSyllabus} onChange={(e) => setHasSyllabus(e.target.checked)} />
-              Syllabus is available for this exam
-            </label>
             
-            {hasSyllabus ? (
-              <div className="ex-input-group ex-mt-small">
-                <label>Manual Syllabus Entry</label>
-                {/* 2. Changed input to a textarea for multi-line typing */}
+            <div className="input-group">
+              <label>Semester</label>
+              <select name="sem" defaultValue={selectedExam?.semester || ""}>
+                <option value="">Select Sem</option>
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                  <option key={num} value={num}>{num}{num === 1 ? 'st' : num === 2 ? 'nd' : num === 3 ? 'rd' : 'th'} Semester</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="input-group">
+              <label>Subject</label>
+              <select name="subject" defaultValue={selectedExam?.subjectCode || ""}>
+                <option value="">Select Subject</option>
+                {subjects.map(sub => (
+                  <option key={sub.subjectCode} value={sub.subjectCode}>{sub.subjectCode} - {sub.subjectName}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="input-group">
+              <label>Exam Date</label>
+              <input name="date" type="date" defaultValue={selectedExam?.examDate ? new Date(selectedExam.examDate).toISOString().split('T')[0] : ''} required />
+            </div>
+
+            <div className="input-group">
+              <label>Exam Time</label>
+              <input name="time" type="time" defaultValue={selectedExam?.examTime} required />
+            </div>
+
+            <div className="input-group">
+              <label>Exam Centre (Room No.)</label>
+              <input name="room" type="text" defaultValue={selectedExam?.roomAllocation} placeholder="e.g. Room 101" required />
+            </div>
+
+            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+              <label style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <input type="checkbox" checked={hasSyllabus} onChange={(e) => setHasSyllabus(e.target.checked)} style={{width: 'auto', padding: 0}} />
+                Syllabus is available for this exam
+              </label>
+              
+              {hasSyllabus && (
                 <textarea 
                   name="syllabus" 
                   rows="4" 
-                  placeholder="Type the chapters, topics, or instructions here... e.g. Unit 1: OS Basics, Unit 2: Process Scheduling..." 
-                  value={examData.syllabus} 
-                  onChange={handleExamChange} 
+                  placeholder="Type the chapters, topics, or instructions here..." 
+                  defaultValue={selectedExam?.syllabus} 
                   required 
+                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid #eee' }}
                 />
-              </div>
-            ) : (
-              <div className="ex-warning-box">
-                <span className="ex-icon">ℹ️</span>
-                By default, students will see: <b>"Syllabus has not been released."</b>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <div className="ex-submit-row">
-            <button type="submit" className="ex-btn-primary">Schedule Exam →</button>
-          </div>
-        </form>
-      </motion.div>
-
-      <motion.div variants={itemVariants} className="ex-card ex-mt">
-        <h3 className="ex-section-title">Scheduled Exams</h3>
-        
-        {loadingExams ? (
-           <p className="ex-loading">Loading scheduled exams...</p>
-        ) : scheduledExams.length === 0 ? (
-           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="ex-no-data">No upcoming exams scheduled yet.</motion.p>
-        ) : (
-           <motion.div layout className="ex-list">
-             <AnimatePresence>
-               {scheduledExams.map(exam => (
-                 <motion.div 
-                   key={exam.id} 
-                   className="ex-list-item"
-                   layout
-                   initial={{ opacity: 0, scale: 0.95 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                   whileHover={{ scale: 1.01 }}
-                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                 >
-                   <div className="ex-list-info">
-                     <h4>{exam.subject} - {exam.examName}</h4>
-                     <p>Date: {exam.date} | Time: {exam.time} | Room: {exam.room}</p>
-                   </div>
-                   <button onClick={() => removeExam(exam.id)} className="ex-btn-delete">Remove</button>
-                 </motion.div>
-               ))}
-             </AnimatePresence>
-           </motion.div>
-        )}
-      </motion.div>
-    </motion.div>
+            <div className="form-actions full-width">
+              <button type="button" className="btn-cancel" onClick={() => setView('list')}>Cancel</button>
+              <button type="submit" className="btn-primary">{view === 'add' ? "Schedule" : "Update"}</button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
   );
 };
 
