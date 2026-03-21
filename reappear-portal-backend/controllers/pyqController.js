@@ -34,16 +34,9 @@ export const getPyqs = async (req, res) => {
             });
         }
 
-        // Dummy data fallback logic
+        // Pass pure empty array to frontend so they can render a sleek Empty State
         if (pyqs.length === 0) {
-            return res.status(200).json([{
-                _id: "dummy1",
-                subject: { subjectName: "No Papers Found", subjectCode: "XXXX" },
-                year: 2024,
-                semester: Number(semester) || 1,
-                pdfUrl: "#",
-                branch: branch || "General"
-            }]);
+            return res.status(200).json([]);
         }
 
         res.status(200).json(pyqs);

@@ -6,9 +6,9 @@ import Subject from '../models/subject.js';
 // @route   GET /api/results/:studentId
 export const getStudentResults = async (req, res) => {
     try {
-        // Fetches the results and populates the subject details (like code: 'IT-501')
+        // Fetches the results and populates the correct subject schema properties
         const results = await Result.find({ student: req.params.studentId })
-            .populate('subject', 'code name credits sem');
+            .populate('subject', 'subjectCode subjectName credits semester department branch');
             
         res.status(200).json(results);
     } catch (error) {

@@ -27,7 +27,7 @@ router.get('/', getFaculty);
 
 // The admin frontend will hit these routes to manage the list
 router.post('/add', addFaculty);
-router.put('/update', updateFaculty);
+router.put('/update/:id', updateFaculty);
 router.delete('/delete/:id', deleteFaculty);
 router.get('/subject', getFacultyBySubject);
 

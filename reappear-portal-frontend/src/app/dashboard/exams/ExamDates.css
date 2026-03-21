@@ -65,3 +65,51 @@
 }
 .tab-button.active-tab { background: var(--nit-red); border-color: var(--nit-red); color: white; box-shadow: var(--shadow-sm); }
 .tab-button.active-tab:hover { background: var(--charcoal); border-color: var(--charcoal); transform: translateY(-2px); }
+
+/* Standard Industry Results Grid Settings */
+.student-res-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 15px;
+  width: 100%;
+}
+
+.res-stat-box {
+  background: var(--white, #ffffff);
+  border: 1px solid var(--gray-border, #e2e8f0);
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gray-muted, #64748b);
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--charcoal, #1e293b);
+}
+
+.stat-value.score {
+  color: var(--nit-red, #ff2600);
+  font-size: 1.4rem;
+}
+
+.stat-value.score small {
+  font-size: 0.8rem;
+  color: var(--gray-muted, #64748b);
+  font-weight: 600;
+}
+
+.stat-value.tag-pass { color: #16a34a; }
+.stat-value.tag-fail { color: #dc2626; }
+.stat-value.tag-evaluated { color: #2563eb; }

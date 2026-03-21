@@ -17,10 +17,43 @@ const ScheduleExams = () => {
   const [pendingData, setPendingData] = useState(null); 
   const [hasSyllabus, setHasSyllabus] = useState(false);
 
+  // Dynamic MongoDB Mappings
+  const [departments, setDepartments] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [dynamicSemesters, setDynamicSemesters] = useState([]);
+  const [formData, setFormData] = useState({ dept: '', branch: '', sem: '', subject: '' });
+
   useEffect(() => {
     fetchExams();
-    fetchSubjects();
+    api.get('/subjects/departments').then(res => setDepartments(res.data)).catch(() => {});
   }, []);
+
+  // Update backend dynamic mappings whenever Admin uses filters
+  useEffect(() => {
+    const deptQuery = formData.dept && formData.dept !== 'All' ? `?department=${formData.dept}` : '';
+    api.get(`/subjects/branches${deptQuery}`).then(res => setBranches(res.data)).catch(() => {});
+  }, [formData.dept]);
+
+  useEffect(() => {
+    if ((!formData.dept || formData.dept === 'All') && (!formData.branch || formData.branch === 'All')) {
+       setDynamicSemesters([1, 2, 3, 4, 5, 6, 7, 8]);
+       return;
+    }
+    let queryArgs = [];
+    if (formData.dept && formData.dept !== 'All') queryArgs.push(`department=${formData.dept}`);
+    if (formData.branch && formData.branch !== 'All') queryArgs.push(`branch=${formData.branch}`);
+    const qs = `?${queryArgs.join('&')}`;
+    api.get(`/subjects/semesters/distinct${qs}`).then(res => setDynamicSemesters(res.data)).catch(() => {});
+  }, [formData.dept, formData.branch]);
+
+  useEffect(() => {
+    if (formData.sem && formData.dept && formData.branch && formData.dept !== 'All' && formData.branch !== 'All') {
+       api.get(`/subjects/sem?semesters=${formData.sem}&department=${formData.dept}&branch=${formData.branch}`)
+          .then(res => setSubjects(res.data)).catch(() => setSubjects([]));
+    } else {
+       api.get('/subjects').then(res => setSubjects(res.data)).catch(() => setSubjects([]));
+    }
+  }, [formData.dept, formData.branch, formData.sem]);
 
   const fetchExams = async () => {
     try {
@@ -31,15 +64,6 @@ const ScheduleExams = () => {
       toast.error("Database connection failed!");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchSubjects = async () => {
-    try {
-      const res = await api.get("/subjects");
-      setSubjects(res.data);
-    } catch (error) {
-      console.log(error.message);
     }
   };
 
@@ -59,6 +83,7 @@ const ScheduleExams = () => {
     const formData = new FormData(e.currentTarget);
     const data = {
       dept: formData.get("dept"),
+      branch: formData.get("branch"),
       sem: formData.get("sem"),
       subject: formData.get("subject"),
       date: formData.get("date"),
@@ -92,7 +117,16 @@ const ScheduleExams = () => {
   const openEdit = (exam) => {
     setSelectedExam(exam);
     setHasSyllabus(!!exam.syllabus);
+    // Preload the specific data into the dynamic states to establish the mappings instantly
+    setFormData({ dept: exam.department || '', branch: exam.branch || '', sem: exam.semester || '', subject: exam.subjectCode || '' });
     setView('update');
+  };
+
+  const openAdd = () => {
+    setSelectedExam(null); 
+    setView('add'); 
+    setHasSyllabus(false);
+    setFormData({ dept: '', branch: '', sem: '', subject: '' });
   };
 
   const getSubName = (code) => {
@@ -141,7 +175,7 @@ const ScheduleExams = () => {
           <p className="page-subtitle">Manage upcoming exams and exam center details.</p>
         </div>
         {view === 'list' && (
-          <button className="btn-primary" onClick={() => { setSelectedExam(null); setView('add'); setHasSyllabus(false); }}>
+          <button className="btn-primary" onClick={openAdd}>
             + Schedule Exam
           </button>
         )}
@@ -188,7 +222,10 @@ const ScheduleExams = () => {
                           <span className="sub-name">{getSubName(exam.subjectCode)}</span>
                         </div>
                       </td>
-                      <td><span className="pill pill-dept">{exam.department} - {exam.semester} Sem</span></td>
+                      <td>
+                        <span className="pill pill-dept" style={{display: 'inline-block', marginBottom: '4px'}}>{exam.department} • {exam.branch}</span><br />
+                        <span style={{fontSize: '0.85rem', fontWeight: 600, color: '#64748b'}}>Semester {exam.semester}</span>
+                      </td>
                       <td>
                         <div className="subject-info">
                           <span className="sub-name">Room: {exam.roomAllocation}</span>
@@ -221,18 +258,25 @@ const ScheduleExams = () => {
           <form onSubmit={handleFormSubmit} className="grid-form">
             <div className="input-group">
               <label>Department</label>
-              <select name="dept" defaultValue={selectedExam?.department || ""}>
+              <select name="dept" value={formData.dept} onChange={e => setFormData({ ...formData, dept: e.target.value })} required>
                 <option value="">Select Dept</option>
-                <option value="Computer Applications">Computer Applications</option>
-                <option value="Engineering">Engineering</option>
+                {departments.map((d, i) => <option key={i} value={d}>{d}</option>)}
               </select>
             </div>
             
             <div className="input-group">
+              <label>Branch</label>
+              <select name="branch" value={formData.branch} onChange={e => setFormData({ ...formData, branch: e.target.value })} required>
+                <option value="">{branches.length === 0 && formData.dept ? "No Branches" : "Select Branch"}</option>
+                {branches.map((b, i) => <option key={i} value={b}>{b}</option>)}
+              </select>
+            </div>
+
+            <div className="input-group">
               <label>Semester</label>
-              <select name="sem" defaultValue={selectedExam?.semester || ""}>
+              <select name="sem" value={formData.sem} onChange={e => setFormData({ ...formData, sem: e.target.value })} required>
                 <option value="">Select Sem</option>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                {dynamicSemesters.map(num => (
                   <option key={num} value={num}>{num}{num === 1 ? 'st' : num === 2 ? 'nd' : num === 3 ? 'rd' : 'th'} Semester</option>
                 ))}
               </select>
@@ -240,8 +284,8 @@ const ScheduleExams = () => {
 
             <div className="input-group">
               <label>Subject</label>
-              <select name="subject" defaultValue={selectedExam?.subjectCode || ""}>
-                <option value="">Select Subject</option>
+              <select name="subject" value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })} required>
+                <option value="">{subjects.length === 0 ? "No mapped subjects" : "Select Subject"}</option>
                 {subjects.map(sub => (
                   <option key={sub.subjectCode} value={sub.subjectCode}>{sub.subjectCode} - {sub.subjectName}</option>
                 ))}

@@ -5,8 +5,8 @@ import Subject from '../models/subject.js';
 // @route   GET /api/faculty
 export const getFaculty = async (req, res) => {
     try {
-        // Fetches all faculty from the database
-        const faculty = await Faculty.find({});
+        // Fetches all faculty from the database and officially hydrates the Subject Arrays
+        const faculty = await Faculty.find({}).populate('subjects');
         res.status(200).json(faculty);
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch faculty data", error: error.message });

@@ -76,10 +76,25 @@ const ExamCard = ({ data, activeTab }) => {
               className="slider-container"
             >
               <div className="slider-content">
-                <span className="slider-label">Marks Obtained</span>
-                <div className="slider-data">
-                  <span className="marks-obtained">{data.marks}</span>
-                  <span className="marks-total">/ {data.total}</span>
+                <span className="slider-label" style={{marginBottom: '15px', display: 'block'}}>Official Reappear Result</span>
+                
+                <div className="student-res-grid">
+                  <div className="res-stat-box">
+                    <span className="stat-label">Marks Obtained</span>
+                    <span className="stat-value score">{data.marks} <small>/ {data.total}</small></span>
+                  </div>
+                  <div className="res-stat-box">
+                    <span className="stat-label">Grade Computed</span>
+                    <span className="stat-value grade">{data.grade}</span>
+                  </div>
+                  <div className="res-stat-box">
+                    <span className="stat-label">Final Status</span>
+                    <span className={`stat-value tag-${data.status.toLowerCase()}`}>{data.status}</span>
+                  </div>
+                  <div className="res-stat-box">
+                    <span className="stat-label">Publish Date</span>
+                    <span className="stat-value date">{data.date}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -115,17 +130,16 @@ export default function ExamDates() {
         
         let fetchedUpcoming = examsResponse.data.upcoming || [];
         
-        // Remap strictly from MongoDB
+        // Remap strictly from MongoDB Results Protocol
         let fetchedResults = resultsResponse.data.map((res, index) => ({
           id: res._id || `res-${index}`,
-          examName: `${res.subject?.semester || 'Unknown'} Sem`,
-          subject: res.subject?.subjectName || res.subject?.subjectCode || "Subject Name",
-          faculty: "Auto-Evaluated",
+          examName: `Semester ${res.subject?.semester || 'N/A'}`,
+          subject: `${res.subject?.subjectCode || 'Code'} - ${res.subject?.subjectName || 'Subject Name'}`,
           marks: res.marksObtained,
           total: res.totalMarks || 100, 
-          date: new Date(res.createdAt).toLocaleDateString('en-GB') || "Published",
-          time: "--",
-          room: "--"
+          grade: res.grade || 'N/A',
+          status: res.remarks || 'Evaluated',
+          date: new Date(res.createdAt).toLocaleDateString('en-GB') || "Published"
         }));
 
         setExams({ upcoming: fetchedUpcoming, results: fetchedResults });
@@ -172,9 +186,18 @@ export default function ExamDates() {
         {loading ? (
           <p style={{ textAlign: 'center' }}>Loading schedule...</p>
         ) : cardItems.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#64748b', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1', marginTop: '20px' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#334155', marginBottom: '10px' }}>No {activeTab} exams found</h3>
-            <p>Check back later or contact your department for more information.</p>
+          <div style={{ textAlign: 'center', padding: '50px', backgroundColor: '#f9f9f9', borderRadius: '15px', border: '2px dashed #e2e8f0', marginTop: '20px' }}>
+            <span style={{ fontSize: '40px', display: 'block', marginBottom: '15px' }}>
+              {activeTab === 'upcoming' ? '🗓️' : '📊'}
+            </span>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>
+              {activeTab === 'upcoming' ? 'No Upcoming Exams' : 'No Official Results Found'}
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '15px' }}>
+              {activeTab === 'upcoming' 
+                ? 'You do not have any reappear exams explicitly scheduled at this moment.' 
+                : 'We searched the Results Database, but you currently have no authenticated reappear results to display.'}
+            </p>
           </div>
         ) : (
           <AnimatedList items={cardItems} displayScrollbar={false} showGradients={true} />

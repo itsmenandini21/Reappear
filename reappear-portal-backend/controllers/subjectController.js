@@ -61,9 +61,13 @@ const getUniqueDepartments = async (req, res) => {
 const getBranchesByDepartment = async (req, res) => {
     try {
         const { department } = req.query;
-        if (!department) return res.status(400).json({ message: "Target Department required" });
+        let queryArgs = {};
         
-        const branches = await Subject.distinct("branch", { department });
+        if (department && department !== 'All' && department !== 'undefined') {
+            queryArgs.department = department;
+        }
+        
+        const branches = await Subject.distinct("branch", queryArgs);
         res.status(200).json(branches);
     } catch (error) {
         res.status(500).json({ message: "Failed to query Schema Branches", error: error.message });
@@ -75,9 +79,12 @@ const getBranchesByDepartment = async (req, res) => {
 const getSemestersByDeptAndBranch = async (req, res) => {
     try {
         const { department, branch } = req.query;
-        if (!department || !branch) return res.status(400).json({ message: "Dept and Branch required" });
+        let queryArgs = {};
+        
+        if (department && department !== 'All' && department !== 'undefined') queryArgs.department = department;
+        if (branch && branch !== 'All' && branch !== 'undefined') queryArgs.branch = branch;
 
-        const sems = await Subject.distinct("semester", { department, branch });
+        const sems = await Subject.distinct("semester", queryArgs);
         res.status(200).json(sems.sort((a,b) => a - b));
     } catch (error) {
         res.status(500).json({ message: "Failed to query Schema Semesters", error: error.message });

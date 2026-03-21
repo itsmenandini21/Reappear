@@ -113,16 +113,17 @@ router.get('/all', protect, async (req, res) => {
 // POST: Admin schedules a new exam
 router.post('/', async (req, res) => {
     try {
-        const { dept, sem, subject, date, time, room, syllabus } = req.body;
+        const { dept, branch, sem, subject, date, time, room, syllabus } = req.body;
 
         // Backend validation
-        if (!dept || !sem || !subject || !date || !time || !room) {
-            return res.status(400).json({ message: "Please fill all required exam details." });
+        if (!dept || !branch || !sem || !subject || !date || !time || !room) {
+            return res.status(400).json({ message: "Please fill all required exam details, including Branch." });
         }
 
         // Map frontend payload to mongoose schema
         const newExam = new Exam({
             department: dept,
+            branch: branch,
             semester: sem,
             subjectCode: subject,
             examDate: new Date(date),
@@ -161,16 +162,17 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { dept, sem, subject, date, time, room, syllabus } = req.body;
+        const { dept, branch, sem, subject, date, time, room, syllabus } = req.body;
 
-        if (!dept || !sem || !subject || !date || !time || !room) {
-            return res.status(400).json({ message: "Please fill all required exam details." });
+        if (!dept || !branch || !sem || !subject || !date || !time || !room) {
+            return res.status(400).json({ message: "Please fill all required exam details, including Branch." });
         }
 
         const updatedExam = await Exam.findByIdAndUpdate(
             id,
             {
                 department: dept,
+                branch: branch,
                 semester: sem,
                 subjectCode: subject,
                 examDate: new Date(date),

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const examSchema = new mongoose.Schema({
     department: { type: String, required: true },
+    branch: { type: String, required: true },
     semester: { type: String, required: true },
     subjectCode: { type: String, required: true },
     examDate: { type: Date, required: true },

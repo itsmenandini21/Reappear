@@ -5,7 +5,7 @@ import './faculty.css';
 import AddFaculty from './AddFaculty.jsx';
 import UpdateFaculty from './UpdateFaculty.jsx';
 import api from '@/lib/api';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 const FacultyDashboard = () => {
   const [view, setView] = useState('list');
@@ -71,6 +71,7 @@ const FacultyDashboard = () => {
 
   return (
     <div className={`admin-portal-container fade-in ${showConfirmModal ? 'body-blur' : ''}`}>
+      <Toaster />
       <div className="portal-header-wrapper">
         <div className="header-info">
           <h1>Faculty Management</h1>

@@ -23,7 +23,7 @@ export default function AdminDashboard() {
     { id: 'notices', label: 'Post Notices', icon: '📢' },
     { id: 'fees', label: 'Fee Tracker', icon: '💰' },
     { id:'faculty',label:'Faculty',icon:'👨‍🏫'},
-    {id:'pyqs',label:'Upload PYQs',icon:""}
+    {id:'pyqs',label:'Upload PYQs',icon:"📤"}
   ];
 
   return (

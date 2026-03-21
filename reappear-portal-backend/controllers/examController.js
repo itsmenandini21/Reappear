@@ -4,10 +4,11 @@ import Result from '../models/result.js';
 export const scheduleExam = async (req, res) => {
     try {
         // Look for 'syllabus' instead of 'syllabusLink'
-        const { dept, sem, subject, date, time, room, syllabus } = req.body;
+        const { dept, branch, sem, subject, date, time, room, syllabus } = req.body;
 
         const newExam = await Exam.create({
             department: dept,
+            branch: branch,
             semester: sem,
             subjectCode: subject,
             examDate: date,

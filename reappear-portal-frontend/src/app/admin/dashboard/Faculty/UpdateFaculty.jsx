@@ -6,14 +6,19 @@ import api from '@/lib/api'; // API import
 import './updateFaculty.css';
 
 const UpdateFaculty = ({ facultyData, onBack }) => {
-    const [showPicker, setShowPicker] = useState(false);
-    const [activeSem, setActiveSem] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [selectedInModal, setSelectedInModal] = useState([]);
+    
+    // Dynamic Dropdown states
+    const [selectedBranch, setSelectedBranch] = useState("");
+    const [selectedSem, setSelectedSem] = useState("");
+    const [selectedSubjects, setSelectedSubjects] = useState([]);
+    
+    const [branches, setBranches] = useState([]);
+    const [semesters, setSemesters] = useState([]);
+    const [availableSubjects, setAvailableSubjects] = useState([]);
 
     // DB se data handle karne ke liye states
     const [tempWorkload, setTempWorkload] = useState({});
-    const [globalSubjectRepo, setGlobalSubjectRepo] = useState({});
     const [formData, setFormData] = useState({
         name: facultyData?.name || "",
         email: facultyData?.email || "",
@@ -26,7 +31,6 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
         if (facultyData?.subjects && Array.isArray(facultyData.subjects)) {
             const grouped = {};
             facultyData.subjects.forEach(sub => {
-                // Check if subject and semester exists
                 if (sub && sub.semester) {
                     if (!grouped[sub.semester]) grouped[sub.semester] = [];
                     grouped[sub.semester].push(sub);
@@ -34,62 +38,88 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
             });
             setTempWorkload(grouped);
         }
-        fetchGlobalSubjects();
     }, [facultyData]);
 
-    // 2. Fetch Global Subjects for this Department
-    const fetchGlobalSubjects = async () => {
-        try {
-            const res = await api.get(`/subjects/dept?department=${facultyData?.department}`);
-            const grouped = {};
-            res.data.forEach(sub => {
-                if (!grouped[sub.semester]) grouped[sub.semester] = [];
-                grouped[sub.semester].push(sub);
-            });
-            setGlobalSubjectRepo(grouped);
-        } catch (err) {
-            console.error("Error loading subjects");
+    // 2. Fetch Branches dynamically for this Faculty's Department
+    useEffect(() => {
+        if (formData.department) {
+            api.get(`/subjects/branches?department=${formData.department}`)
+               .then(res => setBranches(res.data)).catch(() => {});
         }
-    };
+    }, [formData.department]);
+
+    // 3. Fetch Semesters dynamically based on Branch
+    useEffect(() => {
+        if (formData.department && selectedBranch) {
+            api.get(`/subjects/semesters/distinct?department=${formData.department}&branch=${selectedBranch}`)
+               .then(res => setSemesters(res.data)).catch(() => {});
+        } else {
+            setSemesters([]);
+            setSelectedSem("");
+        }
+    }, [selectedBranch, formData.department]);
+
+    // 4. Fetch Subjects based on Semester & Branch
+    useEffect(() => {
+        if (formData.department && selectedBranch && selectedSem) {
+            api.get(`/subjects/sem?semesters=${selectedSem}&department=${formData.department}&branch=${selectedBranch}`)
+               .then(res => setAvailableSubjects(res.data)).catch(() => {});
+        } else {
+            setAvailableSubjects([]);
+        }
+        setSelectedSubjects([]); // Reset checkboxes on any filter change
+    }, [selectedSem, selectedBranch, formData.department]);
+
+    // Active Flat List tracker
+    const flatWorkloadIds = Object.values(tempWorkload).flat().map(s => s._id);
+    const filteredSubjects = availableSubjects.filter(s => !flatWorkloadIds.includes(s._id));
 
     const handleRemoveSubject = (sem, subId) => {
         setTempWorkload(prev => {
             const updatedList = prev[sem].filter(item => item._id !== subId);
-            const newState = { ...prev, [sem]: updatedList };
-            // Agar semester khali ho jaye toh key delete kar do taaki UI se card hat jaye
+            const newState = { ...prev };
+            newState[sem] = updatedList;
             if (updatedList.length === 0) delete newState[sem];
             return newState;
         });
-        toast.error(`Subject removed from view`, { icon: '🗑️' });
+        toast.error(`Removed from local view`, { icon: '🗑️' });
     };
 
-    const handleAddSubjects = () => {
-        if (selectedInModal.length === 0) {
-            toast.error("Please select at least one subject");
-            return;
-        }
-
-        const selectedObjs = globalSubjectRepo[activeSem].filter(s => selectedInModal.includes(s._id));
-
-        setTempWorkload(prev => ({
-            ...prev,
-            [activeSem]: [...(prev[activeSem] || []), ...selectedObjs]
-        }));
-
-        setSelectedInModal([]);
-        setShowPicker(false);
-        toast.success(`${selectedInModal.length} Subjects added to list`);
-    };
-
-    const toggleSubjectSelection = (subId) => {
-        setSelectedInModal(prev =>
-            prev.includes(subId) ? prev.filter(s => s !== subId) : [...prev, subId]
+    const toggleSubject = (id) => {
+        setSelectedSubjects(prev =>
+            prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
         );
     };
 
-    // 4. Final PUT Request to Database
+    const injectSubjects = () => {
+        if (selectedSubjects.length === 0) {
+            toast.error("Please select at least one subject from the list");
+            return;
+        }
+
+        const selectedObjs = availableSubjects.filter(s => selectedSubjects.includes(s._id));
+        if (selectedObjs.length === 0) return;
+
+        setTempWorkload(prev => {
+            const newState = { ...prev };
+            selectedObjs.forEach(subObj => {
+                const sem = subObj.semester;
+                if (!newState[sem]) newState[sem] = [];
+                // Only push if not already present somehow
+                if (!newState[sem].find(s => s._id === subObj._id)) {
+                    newState[sem].push(subObj);
+                }
+            });
+            return newState;
+        });
+
+        setSelectedSubjects([]);
+        toast.success(`${selectedObjs.length} subjects staged for assignment`);
+    };
+
+    // 5. Final PUT Request to Database
     const handleFinalDBUpdate = async () => {
-        const loadingToast = toast.loading("Updating Database...");
+        const loadingToast = toast.loading("Executing Database Transaction...");
         try {
             const allSubjectIds = Object.values(tempWorkload).flat().map(s => s._id);
 
@@ -98,15 +128,20 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                 subjects: allSubjectIds
             });
 
-            toast.success("Updated Successfully", { id: loadingToast });
-            onBack();
+            toast.dismiss(loadingToast);
+            toast.success("Updated Successfully", { position: 'top-center' });
+            
+            setTimeout(() => {
+                onBack();
+            }, 600);
         } catch (error) {
-            toast.error("Update Failed", { id: loadingToast });
+            toast.dismiss(loadingToast);
+            toast.error("Synchronization Failed", { position: 'top-center' });
         }
     };
 
     return (
-        <div className={`update-screen-wrapper ${showPicker || showConfirmModal ? 'body-blur' : ''}`}>
+        <div className={`update-screen-wrapper ${showConfirmModal ? 'body-blur' : ''}`}>
 
             {/* 1. TOP NAVIGATION */}
             <nav className="update-navbar">
@@ -133,20 +168,71 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                     </div>
                 </section>
 
-                {/* 3. SEMESTER-WISE WORKLOAD SECTION */}
+                {/* 3. ASSIGN NEW COURSE SECTION */}
+                <section className="assign-course-section" style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
+                    <h3 className="card-heading" style={{ borderBottom: 'none', paddingBottom: '0', marginBottom: '15px' }}><FiPlus /> Assign New Course</h3>
+                    <div className="assign-course-grid">
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div className="input-box">
+                                <label>Designated Branch</label>
+                                <select value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)}>
+                                    <option value="">Select Branch</option>
+                                    {branches.map(b => <option key={b} value={b}>{b}</option>)}
+                                </select>
+                            </div>
+                            <div className="input-box">
+                                <label>Semester Depth</label>
+                                <select value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)} disabled={!selectedBranch}>
+                                    <option value="">Select Semester</option>
+                                    {semesters.map(s => <option key={s} value={s}>Semester {s}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="input-box">
+                            <label>Available Subjects (Multi-Select)</label>
+                            <div className="checkbox-list-container">
+                                {filteredSubjects.length === 0 ? (
+                                    <p className="no-subjects-msg">{selectedSem ? "No Subjects Left" : "Select Semester to view"}</p>
+                                ) : (
+                                    filteredSubjects.map(s => (
+                                        <label key={s._id} className={`checkbox-item-row ${selectedSubjects.includes(s._id) ? 'checked-row' : ''}`}>
+                                            <input 
+                                                type="checkbox" 
+                                                checked={selectedSubjects.includes(s._id)} 
+                                                onChange={() => toggleSubject(s._id)}
+                                            />
+                                            <span className="truncate-text" title={`${s.subjectName} (${s.subjectCode})`}>
+                                                {s.subjectName} ({s.subjectCode})
+                                            </span>
+                                        </label>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        <button 
+                            className="btn-update-final" 
+                            style={{ margin: 0, opacity: selectedSubjects.length === 0 ? 0.5 : 1, width: '100%', height: '100%', justifyContent: 'center' }} 
+                            onClick={injectSubjects}
+                            disabled={selectedSubjects.length === 0}
+                        >
+                            Stage {selectedSubjects.length > 0 ? `(${selectedSubjects.length})` : ''}
+                        </button>
+                    </div>
+                </section>
+
+                {/* 4. SEMESTER-WISE WORKLOAD SECTION */}
                 <section className="workload-section">
                     <h3 className="card-heading"><FiBriefcase /> Assigned Academic Workload</h3>
 
                     <div className="semester-stack">
-                        {/* Only map semesters that have assigned subjects */}
                         {Object.keys(tempWorkload).length > 0 ? (
                             Object.keys(tempWorkload).sort((a, b) => a - b).map(sem => (
                                 <div key={sem} className="sem-row-card">
                                     <div className="sem-row-header">
                                         <h4>Semester {sem}</h4>
-                                        <button className="btn-add-course" onClick={() => { setActiveSem(Number(sem)); setShowPicker(true) }}>
-                                            <FiPlus /> Add Course
-                                        </button>
                                     </div>
                                     <div className="subject-pills-wrap">
                                         {tempWorkload[sem].map(sub => (
@@ -160,8 +246,7 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                             ))
                         ) : (
                             <div className="no-workload-placeholder">
-                                <p>No active workload detected for this faculty.</p>
-                                <button onClick={() => { setActiveSem(1); setShowPicker(true) }} className="btn-add-course">Assign First Subject</button>
+                                <p>No active workload detected for this faculty. Use the assignment panel above to stage courses.</p>
                             </div>
                         )}
                     </div>
@@ -176,43 +261,7 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
                 </footer>
             </div>
 
-            {/* --- MODAL 1: SUBJECT PICKER --- */}
-            {showPicker && (
-                <div className="modal-overlay-fixed">
-                    <div className="picker-card-central fade-in">
-                        <div className="picker-header">
-                            <h3>Select Subjects (Sem {activeSem})</h3>
-                            <FiX className="close-icon" onClick={() => { setShowPicker(false); setSelectedInModal([]); }} />
-                        </div>
 
-                        <div className="picker-list">
-                            {/* Filter: Jo subjects faculty abhi nahi pada raha wahi dikhenge usi semester ke */}
-                            {globalSubjectRepo[activeSem]
-                                ?.filter(s => !tempWorkload[activeSem]?.some(assigned => assigned._id === s._id))
-                                .map(sub => (
-                                    <label key={sub._id} className={`picker-item ${selectedInModal.includes(sub._id) ? 'selected-row' : ''}`}>
-                                        <input
-                                            type="checkbox"
-                                            className="custom-check"
-                                            checked={selectedInModal.includes(sub._id)}
-                                            onChange={() => toggleSubjectSelection(sub._id)}
-                                        />
-                                        <span>{sub.subjectName} ({sub.subjectCode})</span>
-                                    </label>
-                                ))}
-                            {(!globalSubjectRepo[activeSem] || globalSubjectRepo[activeSem].filter(s => !tempWorkload[activeSem]?.some(assigned => assigned._id === s._id)).length === 0) && (
-                                <p className="no-subjects-msg">No new subjects available for Semester {activeSem}.</p>
-                            )}
-                        </div>
-
-                        <div className="picker-footer-actions">
-                            <button className="btn-modal-add" onClick={handleAddSubjects}>
-                                Add {selectedInModal.length > 0 ? `(${selectedInModal.length})` : ''} to Profile
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* --- MODAL 2: FINAL CONFIRMATION --- */}
             {showConfirmModal && (
