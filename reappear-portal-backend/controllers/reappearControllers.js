@@ -192,3 +192,29 @@ export const sendAdminEmail = async (req, res) => {
         res.status(500).json({ message: "Failed to send email", error: error.message });
     }
 };
+
+// @desc    Admin fetches eligible students for a specific subject
+// @route   GET /api/reappear/admin/eligible-students
+export const getEligibleStudentsForResults = async (req, res) => {
+    try {
+        const { subjectCode } = req.query; 
+        if (!subjectCode) return res.status(400).json({ message: "Subject Code is required" });
+
+        // Retrieve all reappear records and populate subject and student fields
+        const records = await ReappearRecord.find()
+            .populate('subject', 'subjectCode')
+            .populate('student', 'rollNumber');
+
+        // Filter purely to the targeted subject code 
+        const filtered = records.filter(r => r.subject && r.subject.subjectCode === subjectCode);
+        
+        // Extract roll numbers and prune any nullish definitions
+        const rollNumbers = filtered.map(r => r.rollNumber).filter(Boolean);
+        
+        // Return absolutely unique Array of students so admins don't mark duplicates
+        res.status(200).json([...new Set(rollNumbers)]);
+    } catch (error) {
+        console.error("Failed to fetch eligible students for results:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};

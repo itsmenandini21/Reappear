@@ -18,7 +18,7 @@
 // export default router;
 
 import express from 'express';
-import { getFaculty, addFaculty, updateFaculty, deleteFaculty } from '../controllers/facultyController.js';
+import { getFaculty, addFaculty, updateFaculty, deleteFaculty, getFacultyBySubject } from '../controllers/facultyController.js';
 
 const router = express.Router();
 
@@ -29,5 +29,6 @@ router.get('/', getFaculty);
 router.post('/add', addFaculty);
 router.put('/update', updateFaculty);
 router.delete('/delete/:id', deleteFaculty);
+router.get('/subject', getFacultyBySubject);
 
 export default router;

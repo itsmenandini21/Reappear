@@ -101,53 +101,37 @@ export default function ExamDates() {
       try {
         const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
         
-        // Let's fetch both upcoming exams and the true results for the user
-        const promises = [api.get('/exams')];
-        
-        if (userId) {
-          promises.push(api.get(`/results/${userId}`));
+        if (!userId) {
+            setLoading(false);
+            return;
         }
         
-        const [examsResponse, resultsResponse] = await Promise.allSettled(promises);
+        const promises = [
+            api.get('/exams').catch(() => ({ data: { upcoming: [] } })), // Gracefully handle if exams API doesn't exist yet
+            api.get(`/results/${userId}`)
+        ];
         
-        let fetchedUpcoming = [];
-        let fetchedResults = [];
-
-        if (examsResponse.status === 'fulfilled') {
-          // Keep only upcoming from the /exams endpoint route format
-          fetchedUpcoming = examsResponse.value.data.upcoming || [];
-        }
-
-        if (resultsResponse && resultsResponse.status === 'fulfilled') {
-          // Remap results to fit the ExamCard component
-          fetchedResults = resultsResponse.value.data.map((res, index) => ({
-            id: res._id || `res-${index}`,
-            examName: `${res.subject?.sem || ''} Sem - ${res.subject?.code?.substring(0, 3) || ''}`,
-            subject: res.subject?.name || res.subject?.code || "Subject Name",
-            faculty: "Auto-Evaluated",
-            marks: res.marksObtained,
-            total: 100, // Or fallback to another value if total is available on the schema
-            date: "Published",
-            time: "--",
-            room: "--"
-          }));
-        } else if (examsResponse.status === 'fulfilled') {
-          // Fallback to the exams response dummy results if user isn't logged in or results fetch failed
-          fetchedResults = examsResponse.value.data.results || [];
-        }
+        const [examsResponse, resultsResponse] = await Promise.all(promises);
+        
+        let fetchedUpcoming = examsResponse.data.upcoming || [];
+        
+        // Remap strictly from MongoDB
+        let fetchedResults = resultsResponse.data.map((res, index) => ({
+          id: res._id || `res-${index}`,
+          examName: `${res.subject?.semester || 'Unknown'} Sem`,
+          subject: res.subject?.subjectName || res.subject?.subjectCode || "Subject Name",
+          faculty: "Auto-Evaluated",
+          marks: res.marksObtained,
+          total: res.totalMarks || 100, 
+          date: new Date(res.createdAt).toLocaleDateString('en-GB') || "Published",
+          time: "--",
+          room: "--"
+        }));
 
         setExams({ upcoming: fetchedUpcoming, results: fetchedResults });
       } catch (error) {
-        console.error("Failed to fetch exams, using fallback...", error);
-        // Fallback data just in case the backend is sleeping
-        setExams({
-          upcoming: [
-            { id: 1, examName: 'Mid Sem - 2', subject: 'Operating Systems', faculty: 'Prof. A. Sharma', date: '20 March 2026', time: '10:00 AM', room: '101', syllabus: 'Process Management, Threads, CPU Scheduling, Deadlocks.' }
-          ],
-          results: [
-            { id: 4, examName: 'Mid Sem - 1', subject: 'Computer Architecture', faculty: 'Dr. M. Singh', marks: 24, total: 30 }
-          ]
-        });
+        console.error("Failed to fetch Live Exams Data", error);
+        setExams({ upcoming: [], results: [] }); // Strict: Empty arrays on pure failure instead of Mock Data
       } finally {
         setLoading(false);
       }

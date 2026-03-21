@@ -16,17 +16,56 @@ const AddBacklogs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableSubjects, setAvailableSubjects] = useState([]);
 
+  // Database Selectors
+  const [departments, setDepartments] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [dynamicSemesters, setDynamicSemesters] = useState([]);
+
+  useEffect(() => {
+    api.get('/subjects/departments')
+      .then(res => setDepartments(res.data))
+      .catch(() => toast.error("Failed to fetch Schema Departments"));
+  }, []);
+
+  useEffect(() => {
+    if (filters.dept) {
+      api.get(`/subjects/branches?department=${filters.dept}`)
+        .then(res => setBranches(res.data))
+        .catch(() => {});
+    } else {
+      setBranches([]);
+      setFilters(prev => ({ ...prev, branch: '', sem: '' }));
+    }
+  }, [filters.dept]);
+
+  useEffect(() => {
+     if (filters.dept && filters.branch) {
+        api.get(`/subjects/semesters/distinct?department=${filters.dept}&branch=${filters.branch}`)
+          .then(res => setDynamicSemesters(res.data))
+          .catch(() => {});
+     } else {
+        setDynamicSemesters([]);
+        setFilters(prev => ({ ...prev, sem: '' }));
+     }
+  }, [filters.branch, filters.dept]);
+
+  // Load active subjects for the selected matrix
   useEffect(() => {
     const fetchSubjects = async () => {
+        if (!filters.dept || !filters.branch || !filters.sem) {
+            setAvailableSubjects([]);
+            return;
+        }
         try {
-            const res = await api.get("/subjects");
+            const semNum = parseInt(filters.sem.replace(/[^0-9]/g, ''));
+            const res = await api.get(`/subjects/sem?semesters=${semNum}&department=${filters.dept}&branch=${filters.branch}`);
             setAvailableSubjects(res.data);
         } catch (error) {
-            console.error("Failed to load subjects", error);
+            console.error("Failed to load official subjects", error);
         }
     }
     fetchSubjects();
-  }, []);
+  }, [filters.dept, filters.branch, filters.sem]);
 
   // NEW EFFECT: Fetch existing backlogs when a dropdown is opened
   useEffect(() => {
@@ -161,26 +200,23 @@ const AddBacklogs = () => {
             <label>Department</label>
             <select name="dept" value={filters.dept} onChange={handleFilterChange}>
               <option value="">Select Dept</option>
-              <option value="Computer Applications">Computer Applications</option>
-              <option value="Engineering">Engineering</option>
+              {departments.map((d, i) => <option key={i} value={d}>{d}</option>)}
             </select>
           </div>
           <div className="bl-input-group">
             <label>Branch</label>
-            <select name="branch" value={filters.branch} onChange={handleFilterChange} disabled={!filters.dept}>
-              <option value="">Select Branch</option>
-              <option value="CSE">Computer Science</option>
-              <option value="IT">Information Technology</option>
-              <option value="ECE">Electronics</option>
+            <select name="branch" value={filters.branch} onChange={handleFilterChange} disabled={!filters.dept || branches.length === 0}>
+              <option value="">{branches.length === 0 ? "No Branches" : "Select Branch"}</option>
+              {branches.map((b, i) => <option key={i} value={b}>{b}</option>)}
             </select>
           </div>
           <div className="bl-input-group">
             <label>Semester</label>
-            <select name="sem" value={filters.sem} onChange={handleFilterChange} disabled={!filters.branch}>
-              <option value="">Select Sem</option>
-              <option value="1st">1st Sem</option>
-              <option value="3rd">3rd Sem</option>
-              <option value="5th">5th Sem</option>
+            <select name="sem" value={filters.sem} onChange={handleFilterChange} disabled={!filters.branch || dynamicSemesters.length === 0}>
+              <option value="">{dynamicSemesters.length === 0 ? "No Semesters" : "Select Sem"}</option>
+              {dynamicSemesters.map((s, i) => (
+                  <option key={i} value={s.toString()}>{s}{s === 1 ? 'st' : s === 2 ? 'nd' : s === 3 ? 'rd' : 'th'} Sem</option>
+              ))}
             </select>
           </div>
         </div>
@@ -229,7 +265,7 @@ const AddBacklogs = () => {
                                 onChange={() => handleSubjectToggle(roll, sub.subjectCode)}
                               />
                               <span className="bl-dropdown-text">
-                                {sub.subjectCode} {isAlreadyInDB ? "(Already in DB)" : ""}
+                                {sub.subjectName} <small style={{color: '#666', fontSize: '0.85em'}}>({sub.subjectCode})</small> {isAlreadyInDB ? "(Already in DB)" : ""}
                               </span>
                             </label>
                           );

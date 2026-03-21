@@ -3,6 +3,7 @@ import { useState } from 'react';
 import api from '@/lib/api';
 import './register.css';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 function RegisterPage() {
   const [isSuccess, setIsSuccess] = useState(false);
@@ -18,19 +19,14 @@ function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response=await api.post('auth/register', formData);
-        setIsSuccess(true);
-        setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+      setIsSuccess(true);
+      setTimeout(() => { router.push("/login"); }, 2000);
     } catch (err) {
       setisNotSuccess(true);
-      setTimeout(()=>{
-        setisNotSuccess(false);
-      },2000);
-      const errorMessage = err.response?.data?.message || "Registration Failed";
+      setTimeout(() => { setisNotSuccess(false); }, 2000);
+      toast.error(err.response?.data?.message || "Registration Failed");
     }
   };
 
@@ -70,10 +66,10 @@ function RegisterPage() {
           <div className="reg-input-group">
             <label>Branch</label>
             <select name="branch" onChange={handleChange} value={formData.branch}>
-              <option value="CSE">CSE</option>
-              <option value="IT">IT</option>
-              <option value="ECE">ECE</option>
-              <option value="Mechanical">Mechanical</option>
+              <option value="Computer Science Engineering">Computer Science Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+              <option value="Mechanical Engineering">Mechanical Engineering</option>
             </select>
           </div>
 
@@ -84,11 +80,14 @@ function RegisterPage() {
 
           <button type="submit" className="reg-submit-btn">REGISTER</button>
         </form>
+
         <div className="login-link">
           Already registered? <a href="/login">Login</a>
         </div>
       </div>
       <p className="reg-footer">NIT Kurukshetra • Reappear Portal 2026</p>
+      
+      {/* Existing modals */}
       {isSuccess && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -96,7 +95,7 @@ function RegisterPage() {
             <h2>Registration Successful!</h2>
             <p>Welcome to NIT Kurukshetra Reappear Portal.</p>
             <div className="loading-bar"></div>
-            <p className="redirect-text">Redirecting to login...</p>
+            <p className="redirect-text" style={{color: 'gray', marginTop: '10px'}}>Redirecting to login...</p>
           </div>
         </div>
       )}
@@ -110,6 +109,6 @@ function RegisterPage() {
       )}
     </div>
   );
-};
+}
 
 export default RegisterPage;

@@ -35,7 +35,7 @@ export default function Subjects() {
     
     return semesters.map(sem => {
       const filteredInSem = groupedSubjects[sem].filter(sub => {
-        if (activeTab === 'pending') return sub.status === 'pending' || sub.status === 'unfilled' || sub.status === 'in-progress';
+        if (activeTab === 'pending') return sub.status === 'pending' || sub.status === 'unfilled' || sub.status === 'in-progress' || sub.status === 'failed';
         return sub.status === 'cleared';
       });
 

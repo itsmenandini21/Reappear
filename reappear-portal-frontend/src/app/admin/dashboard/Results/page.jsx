@@ -2,24 +2,94 @@
 import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import './results.css';
+import api from '@/lib/api';
 
 const UploadResults = () => {
-  const [resFilters, setResFilters] = useState({ dept: '', branch: '', sem: '', subject: '', examType: '', component: '', totalMarks: '' });
+  const [resFilters, setResFilters] = useState({ dept: '', branch: '', sem: '', subject: '', examType: '', component: '', totalMarks: '', evaluator: '' });
   const [eligibleStudents, setEligibleStudents] = useState([]);
   const [activeRoll, setActiveRoll] = useState(null); 
   const [studentMarks, setStudentMarks] = useState({}); 
 
-  const availableSubjects = [
-    { code: "CS-302", name: "Operating Systems" },
-    { code: "IT-501", name: "Web Technology" },
-    { code: "EC-201", name: "Digital Electronics" }
-  ];
+  const [availableSubjects, setAvailableSubjects] = useState([]);
+  const [availableEvaluators, setAvailableEvaluators] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [dynamicSemesters, setDynamicSemesters] = useState([]);
+
+  // Dynamically fetch Departments on mount
+  useEffect(() => {
+    api.get('/subjects/departments')
+      .then(res => setDepartments(res.data))
+      .catch(() => toast.error("Failed to fetch Schema Departments"));
+  }, []);
+
+  // Dynamically fetch Branches whenever Department changes
+  useEffect(() => {
+    if (resFilters.dept) {
+      api.get(`/subjects/branches?department=${resFilters.dept}`)
+        .then(res => setBranches(res.data))
+        .catch(() => toast.error("Failed to fetch Official Branches"));
+    } else {
+      setBranches([]);
+      setResFilters(prev => ({ ...prev, branch: '', sem: '', subject: '', evaluator: '' })); 
+    }
+  }, [resFilters.dept]);
+
+  // Dynamically fetch Semesters when Branch is locked in
+  useEffect(() => {
+     if (resFilters.dept && resFilters.branch) {
+        api.get(`/subjects/semesters/distinct?department=${resFilters.dept}&branch=${resFilters.branch}`)
+          .then(res => setDynamicSemesters(res.data))
+          .catch(() => toast.error("Failed to fetch Branch Semesters"));
+     } else {
+        setDynamicSemesters([]);
+        setResFilters(prev => ({ ...prev, sem: '', subject: '', evaluator: '' }));
+     }
+  }, [resFilters.branch, resFilters.dept]);
+
+  // Dynamically fetch Evaluators
+  useEffect(() => {
+    if (resFilters.subject) {
+       api.get(`/faculty/subject?subjectCode=${resFilters.subject}`)
+         .then(res => setAvailableEvaluators(res.data))
+         .catch(() => toast.error("Failed to fetch mapped Evaluators"));
+    } else {
+       setAvailableEvaluators([]);
+    }
+  }, [resFilters.subject]);
+
+  // Dynamically fetch subjects for the exact Department, Branch, and Semester selected
+  useEffect(() => {
+    if (resFilters.dept && resFilters.branch && resFilters.sem) {
+       const semNum = parseInt(resFilters.sem.replace(/[^0-9]/g, '')); // Safely extracts 3 from "3rd"
+       api.get(`/subjects/sem?semesters=${semNum}&department=${resFilters.dept}&branch=${resFilters.branch}`)
+         .then(res => setAvailableSubjects(res.data))
+         .catch(() => toast.error("Failed to load official subjects for this configuration."));
+    } else {
+       setAvailableSubjects([]);
+       setResFilters(prev => ({ ...prev, subject: '', evaluator: '' }));
+    }
+  }, [resFilters.dept, resFilters.branch, resFilters.sem]);
 
   useEffect(() => {
     if (resFilters.dept && resFilters.branch && resFilters.sem && resFilters.subject && resFilters.examType && resFilters.component) {
-      // Mocking the backend fetch of reappear students
-      const mockRolls = Array.from({ length: 12 }, (_, i) => `1241${(i + 1).toString().padStart(2, '0')}`);
-      setEligibleStudents(mockRolls);
+      
+      const fetchEligibleStudents = async () => {
+        try {
+          const response = await api.get(`/reappear/admin/eligible-students?subjectCode=${resFilters.subject}`);
+          setEligibleStudents(response.data);
+          
+          if(response.data.length === 0){
+             toast.error("No active reappears found for this Subject in exactly this Batch query.");
+          }
+        } catch (error) {
+          toast.error("Failed to query legitimate subjects from Reappear Schema.");
+          setEligibleStudents([]);
+        }
+      };
+
+      fetchEligibleStudents();
+
     } else {
       setEligibleStudents([]);
       setActiveRoll(null);
@@ -32,14 +102,42 @@ const UploadResults = () => {
     setStudentMarks(prev => ({ ...prev, [roll]: { ...prev[roll], [field]: value } }));
   };
 
-  const submitResults = () => {
+  const submitResults = async () => {
     const uploadedCount = Object.keys(studentMarks).length;
     if (uploadedCount === 0) return toast.error("Please enter marks for at least one student!");
     if (!resFilters.totalMarks) return toast.error("Please enter the Total Marks for this exam!");
+
+    // Ensure every selected student specifically has a typed out mark
+    for (const roll of Object.keys(studentMarks)) {
+      if (studentMarks[roll].marks === undefined || studentMarks[roll].marks.toString().trim() === '') {
+        return toast.error(`Incomplete Entry: Please enter the exact marks obtained for Roll No: ${roll}`);
+      }
+    }
     
-    toast.success(`Results uploaded successfully for ${uploadedCount} students!`);
-    setStudentMarks({});
-    setActiveRoll(null);
+    // Transform studentMarks object into flat array
+    const resultsPayload = Object.keys(studentMarks).map(roll => ({
+        rollNumber: roll,
+        marksObtained: Number(studentMarks[roll].marks) || 0,
+        status: studentMarks[roll].status || 'Fail'
+    }));
+
+    try {
+        const response = await api.post('/results/bulk', {
+            subjectCode: resFilters.subject,
+            evaluatedBy: resFilters.evaluator,
+            totalMarks: Number(resFilters.totalMarks),
+            results: resultsPayload
+        });
+        toast.success(response.data.message || `Results uploaded successfully for ${uploadedCount} students!`);
+        setStudentMarks({});
+        setActiveRoll(null);
+        
+        // Refresh grid
+        const newResponse = await api.get(`/reappear/admin/eligible-students?subjectCode=${resFilters.subject}`);
+        setEligibleStudents(newResponse.data);
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to publish results to database.");
+    }
   };
 
   return (
@@ -59,31 +157,30 @@ const UploadResults = () => {
             <label>Department</label>
             <select name="dept" value={resFilters.dept} onChange={handleResChange}>
               <option value="">Select Dept</option>
-              <option value="Computer Applications">Computer Applications</option>
-              <option value="Engineering">Engineering</option>
+              {departments.map((d, i) => <option key={i} value={d}>{d}</option>)}
             </select>
           </div>
           <div className="res-input-group">
             <label>Branch</label>
-            <select name="branch" value={resFilters.branch} onChange={handleResChange} disabled={!resFilters.dept}>
-              <option value="">Select Branch</option>
-              <option value="CSE">Computer Science</option>
-              <option value="IT">Information Technology</option>
+            <select name="branch" value={resFilters.branch} onChange={handleResChange} disabled={!resFilters.dept || branches.length === 0}>
+              <option value="">{branches.length === 0 ? "No Branches" : "Select Branch"}</option>
+              {branches.map((b, i) => <option key={i} value={b}>{b}</option>)}
             </select>
           </div>
           <div className="res-input-group">
             <label>Semester</label>
-            <select name="sem" value={resFilters.sem} onChange={handleResChange} disabled={!resFilters.branch}>
-              <option value="">Select Sem</option>
-              <option value="3rd">3rd Sem</option>
-              <option value="5th">5th Sem</option>
+            <select name="sem" value={resFilters.sem} onChange={handleResChange} disabled={!resFilters.branch || dynamicSemesters.length === 0}>
+              <option value="">{dynamicSemesters.length === 0 ? "No Semesters" : "Select Sem"}</option>
+              {dynamicSemesters.map((s, i) => (
+                  <option key={i} value={s}>{s}{s === 1 ? 'st' : s === 2 ? 'nd' : s === 3 ? 'rd' : 'th'} Sem</option>
+              ))}
             </select>
           </div>
           <div className="res-input-group">
             <label>Subject</label>
-            <select name="subject" value={resFilters.subject} onChange={handleResChange} disabled={!resFilters.sem}>
-              <option value="">Select Subject</option>
-              {availableSubjects.map(sub => <option key={sub.code} value={sub.code}>{sub.code} - {sub.name}</option>)}
+            <select name="subject" value={resFilters.subject} onChange={handleResChange} disabled={!resFilters.sem || availableSubjects.length === 0}>
+              <option value="">{availableSubjects.length === 0 ? "No Subjects Found" : "Select Subject"}</option>
+              {availableSubjects.map(sub => <option key={sub.subjectCode} value={sub.subjectCode}>{sub.subjectCode} - {sub.subjectName}</option>)}
             </select>
           </div>
         </div>
@@ -104,6 +201,13 @@ const UploadResults = () => {
               <option value="">Select Component</option>
               <option value="Theory">Theory</option>
               <option value="Practical">Practical</option>
+            </select>
+          </div>
+          <div className="res-input-group">
+            <label>Evaluated By <span className="res-helper-text" style={{fontSize: '0.8em', color: '#666'}}>(Optional)</span></label>
+            <select name="evaluator" value={resFilters.evaluator} onChange={handleResChange} disabled={!resFilters.subject || availableEvaluators.length === 0}>
+              <option value="">{availableEvaluators.length === 0 ? "No Evaluators Found" : "Select Evaluator"}</option>
+              {availableEvaluators.map(prof => <option key={prof._id} value={prof._id}>{prof.name}</option>)}
             </select>
           </div>
           <div className="res-input-group">
@@ -170,7 +274,14 @@ const UploadResults = () => {
 
             <div className="res-submit-row">
               <p className="res-selected-count"><b>{Object.keys(studentMarks).length}</b> results entered</p>
-              <button className="res-btn-primary" onClick={submitResults}>Publish Results →</button>
+              <button 
+                className="res-btn-primary" 
+                onClick={submitResults}
+                disabled={Object.keys(studentMarks).length === 0}
+                style={Object.keys(studentMarks).length === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              >
+                Publish Results →
+              </button>
             </div>
           </div>
         )}

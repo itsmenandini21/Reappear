@@ -1,5 +1,5 @@
 import express from 'express';
-import { getStudentResults, addResult } from '../controllers/resultController.js';
+import { getStudentResults, addResult, addBulkResults } from '../controllers/resultController.js';
 
 const router = express.Router();
 
@@ -8,5 +8,6 @@ router.get('/:studentId', getStudentResults);
 
 // Admin Route (To post the new grades)
 router.post('/', addResult);
+router.post('/bulk', addBulkResults);
 
 export default router;

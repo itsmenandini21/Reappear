@@ -19,8 +19,22 @@ const AddFaculty = ({ onBack }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loadingSubs, setLoadingSubs] = useState(false);
+  const [departments, setDepartments] = useState([]);
 
   const semesterData = [1, 2, 3, 4, 5, 6, 7, 8];
+
+  // Fetch verified Schema Departments
+  useEffect(() => {
+    const fetchDepts = async () => {
+      try {
+        const res = await api.get('/subjects/departments');
+        setDepartments(res.data);
+      } catch (err) {
+        toast.error("Failed to load backend departments");
+      }
+    };
+    fetchDepts();
+  }, []);
 
   // Effect: Fetch subjects based on Single Dept + Selected Semesters
   useEffect(() => {
@@ -127,10 +141,10 @@ const AddFaculty = ({ onBack }) => {
               <div className="input-field">
                 <label>Department *</label>
                 <select name="department" value={facultyData.department} onChange={handleChange} required>
-                  <option value="">Choose Dept</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Information Technology">Information Technology</option>
-                  <option value="Electronics">Electronics</option>
+                  <option value="">{departments.length === 0 ? "Loading Departments..." : "Choose Dept"}</option>
+                  {departments.map((dept, idx) => (
+                    <option key={idx} value={dept}>{dept}</option>
+                  ))}
                 </select>
               </div>
               <div className="input-field">

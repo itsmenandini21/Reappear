@@ -9,10 +9,29 @@ export default function PYQDirectory() {
   const BACKEND_URL = "http://localhost:5001"; 
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSem, setSelectedSem] = useState('All');
+  const [selectedDept, setSelectedDept] = useState('All');
   const [selectedBranch, setSelectedBranch] = useState('All');
+  const [selectedSem, setSelectedSem] = useState('All');
   const [pyqs, setPyqs] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Dynamic MongoDB Mappings
+  const [departments, setDepartments] = useState([]);
+  const [branches, setBranches] = useState([]);
+
+  useEffect(() => {
+    api.get('/subjects/departments').then(res => setDepartments(res.data)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (selectedDept !== 'All') {
+      api.get(`/subjects/branches?department=${selectedDept}`)
+         .then(res => setBranches(res.data)).catch(() => {});
+    } else {
+      setBranches([]);
+      setSelectedBranch('All');
+    }
+  }, [selectedDept]);
 
   useEffect(() => {
     const fetchPYQs = async () => {
@@ -37,9 +56,6 @@ export default function PYQDirectory() {
     window.open(fullUrl, '_blank');
   };
 
-  const semesters = ['All', 1, 2, 3, 4, 5, 6, 7, 8];
-  const branches = ['All', 'CSE', 'IT', 'ECE', 'EE', 'ME', 'CE'];
-
   return (
     <div className="page-container" style={{ marginTop: '100px' }}>
       <div className="page-header" style={{ textAlign: 'center' }}>
@@ -47,14 +63,19 @@ export default function PYQDirectory() {
         <p>Prioritized by your re-appear subjects.</p>
       </div>
 
-      {/* ... (Controls same rahenge) */}
       <div className="controls-container">
         <input type="text" className="search-input" placeholder="Search subject..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-        <select className="filter-select" value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
-          {semesters.map(sem => <option key={sem} value={sem}>{sem === 'All' ? 'All Semesters' : `Semester ${sem}`}</option>)}
+        <select className="filter-select" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}>
+          <option value="All">All Departments</option>
+          {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        <select className="filter-select" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)}>
-          {branches.map(b => <option key={b} value={b}>{b === 'All' ? 'All Branches' : b}</option>)}
+        <select className="filter-select" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)} disabled={selectedDept === 'All'}>
+          <option value="All">All Branches</option>
+          {branches.map(b => <option key={b} value={b}>{b}</option>)}
+        </select>
+        <select className="filter-select" value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)}>
+          <option value="All">All Semesters</option>
+          {[1,2,3,4,5,6,7,8].map(sem => <option key={sem} value={sem}>{`Semester ${sem}`}</option>)}
         </select>
       </div>
 

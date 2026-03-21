@@ -55,6 +55,7 @@ const SubjectUpdates = () => {
       subjectCode: formData.get("code"),
       subjectName: formData.get("name"),
       department: formData.get("dept"),
+      branch: formData.get("branch"),
       semester: Number(formData.get("semester")),
       credits: Number(formData.get("credits"))
     };
@@ -160,6 +161,7 @@ const SubjectUpdates = () => {
                 <tr>
                   <th>Subject Details</th>
                   <th>Department</th>
+                  <th>Branch</th>
                   <th>Credits</th>
                   <th>Semester</th>
                   <th className="text-right">Actions</th>
@@ -180,6 +182,7 @@ const SubjectUpdates = () => {
                         </div>
                       </td>
                       <td><span className="pill pill-dept">{sub.department}</span></td>
+                      <td><span className="pill pill-branch" style={{ background: '#f1f5f9', color: '#475569' }}>{sub.branch || 'N/A'}</span></td>
                       <td><span className="text-muted">{sub.credits} Credits</span></td>
                       <td><span className="pill pill-sem">{sub.semester} Sem</span></td>
                       <td className="action-cell">
@@ -214,11 +217,12 @@ const SubjectUpdates = () => {
             </div>
             <div className="input-group">
               <label>Department</label>
-              <select name="dept" defaultValue={selectedSubject?.department || "CSE"}>
-                <option value="CSE">CSE</option>
-                <option value="IT">IT</option>
-                <option value="ECE">ECE</option>
-              </select>
+              <input name="dept" type="text" defaultValue={selectedSubject?.department} placeholder="e.g. Computer Applications" required />
+            </div>
+
+            <div className="input-group">
+              <label>Branch</label>
+              <input name="branch" type="text" defaultValue={selectedSubject?.branch} placeholder="e.g. MCA" required />
             </div>
             
             <div className="input-group">

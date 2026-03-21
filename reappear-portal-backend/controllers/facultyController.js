@@ -1,4 +1,5 @@
 import Faculty from '../models/faculty.js';
+import Subject from '../models/subject.js';
 
 // @desc    Get all faculty members (For Students to view)
 // @route   GET /api/faculty
@@ -47,5 +48,23 @@ export const deleteFaculty = async (req, res) => {
         res.status(200).json({ message: "Faculty removed successfully" });
     } catch (error) {
         res.status(500).json({ message: "Failed to delete faculty", error: error.message });
+    }
+};
+
+// @desc    Get faculty mapped exactly to a Subject Code
+// @route   GET /api/faculty/subject?subjectCode=X
+export const getFacultyBySubject = async (req, res) => {
+    try {
+        const { subjectCode } = req.query;
+        if (!subjectCode) return res.status(400).json({ message: "Subject code is required" });
+
+        const subjectDoc = await Subject.findOne({ subjectCode });
+        if (!subjectDoc) return res.status(404).json({ message: "Subject not found in Database" });
+
+        const facultyList = await Faculty.find({ subjects: subjectDoc._id });
+        res.status(200).json(facultyList);
+    } catch (error) {
+        console.error("Failed to query mapped Faculty:", error);
+        res.status(500).json({ message: "Error fetching mapped evaluators", error: error.message });
     }
 };

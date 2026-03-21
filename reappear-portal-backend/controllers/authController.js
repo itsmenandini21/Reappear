@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/user.js"; // <-- The crucial .js extension!
+import User from "../models/user.js";
 import ReappearRecord from "../models/reappearRecord.js";
 import Message from "../models/Message.js";
 
@@ -83,4 +83,51 @@ const loginUser = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser };
+// GOOGLE LOGIN
+const googleLogin = async (req, res) => {
+    try {
+        const { access_token } = req.body;
+        if (!access_token) {
+            return res.status(400).json({ message: "No Google token provided" });
+        }
+
+        // Fetch user profile from Google
+        const googleResponse = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+            headers: { Authorization: `Bearer ${access_token}` }
+        });
+        
+        if (!googleResponse.ok) {
+            return res.status(400).json({ message: "Failed to verify Google Token" });
+        }
+        
+        const payload = await googleResponse.json();
+        
+        if (!payload || !payload.email) {
+            return res.status(400).json({ message: "Invalid Google user data" });
+        }
+
+        let user = await User.findOne({ email: payload.email });
+
+        if (!user) {
+            return res.status(404).json({ message: "Account not found! Please register normally first to provide your Roll Number and Academic Details." });
+        }
+
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            rollNumber: user.rollNumber,
+            branch: user.branch,
+            currentSemester: user.currentSemester,
+            profileImage: user.profileImage,
+            token: generateToken(user._id)
+        });
+
+    } catch (error) {
+        console.error("Google verify error:", error);
+        res.status(500).json({ message: "Internal Server Error / Invalid Google Token" });
+    }
+};
+
+export { registerUser, loginUser, googleLogin };

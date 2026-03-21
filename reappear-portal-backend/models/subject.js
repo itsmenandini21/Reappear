@@ -24,6 +24,11 @@ const SubjectSchema = new mongoose.Schema({
     required: true,
     index: true 
   },
+  branch: {
+    type: String,
+    required: true,
+    index: true
+  },
   credits: { 
     type: Number, 
     required: true,
