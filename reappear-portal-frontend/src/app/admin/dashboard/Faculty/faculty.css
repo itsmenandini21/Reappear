@@ -1,15 +1,15 @@
 
 
 :root {
-    --primary-red: #E3342F;
-    --primary-red-light: #fff1f0;
-    --slate-50: #f8fafc;
-    --slate-100: #f1f5f9;
-    --slate-200: #e2e8f0;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-900: #0f172a;
-    --white: #ffffff;
+    --primary-red: var(--nit-red);
+    --primary-red-light: var(--nit-red-light);
+    --slate-50: transparent; /* Keep background transparent to see global mesh */
+    --slate-100: var(--gray-border);
+    --slate-200: var(--gray-border);
+    --slate-600: var(--gray-muted);
+    --slate-700: var(--charcoal);
+    --slate-900: var(--charcoal);
+    --white: var(--glass-bg);
 }
 
 .admin-portal-container {
@@ -78,10 +78,11 @@
 /* Table Design */
 .data-card {
     background: var(--white);
+    backdrop-filter: blur(12px);
     border-radius: 20px;
     border: 1px solid var(--slate-200);
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-md);
 }
 
 .staff-table {
@@ -221,7 +222,7 @@
 
 .primary-action-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(227, 52, 47, 0.2);
+    box-shadow: var(--shadow-nit);
 }
 
 .fade-in {

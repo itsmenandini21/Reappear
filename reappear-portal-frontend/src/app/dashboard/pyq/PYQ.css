@@ -1,12 +1,5 @@
 /* src/app/dashboard/pyq/PYQ.css */
 
-:root {
-  --nit-red: #ff2600;
-  --text-dark: #1a1a1a;
-  --gray-border: #eaeaea;
-  --bg-soft: #f8f9fa;
-}
-
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -16,18 +9,20 @@
 .page-title {
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--text-dark);
-  letter-spacing: -1px;
+  color: var(--charcoal);
+  letter-spacing: -0.02em;
   margin-bottom: 8px;
 }
 
 .pyq-wrapper-box {
-  background: #ffffff;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--gray-border);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 35px;
   margin-top: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-md);
 }
 
 /* --- Filter Controls --- */
@@ -41,15 +36,16 @@
 
 .search-input, .filter-select {
   padding: 14px 22px;
-  border: 2px solid var(--gray-border);
-  border-radius: 10px;
+  border: 1px solid var(--gray-border);
+  border-radius: 12px;
   font-size: 0.95rem;
   outline: none;
-  background: #ffffff;
-  color: #333;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: inherit;
+  background: var(--white);
+  color: var(--charcoal);
+  transition: var(--transition);
+  font-family: var(--font-body);
   font-weight: 500;
+  box-shadow: var(--shadow-sm);
 }
 
 .search-input {
@@ -62,7 +58,7 @@
   min-width: 180px;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff2600%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23be123c%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 18px top 50%;
   background-size: 12px auto;
@@ -71,8 +67,8 @@
 
 .search-input:focus, .filter-select:focus {
   border-color: var(--nit-red);
-  box-shadow: 0 0 0 4px rgba(255, 38, 0, 0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 4px var(--nit-red-glow);
+  transform: translateY(-2px);
 }
 
 /* --- Folder Grid --- */
@@ -84,24 +80,25 @@
 }
 
 .pyq-folder-card {
-  background: #ffffff;
+  background: var(--white);
   border: 1px solid var(--gray-border);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 35px 20px 25px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-bottom: 4px solid var(--text-dark);
+  border-bottom: 4px solid var(--charcoal);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .pyq-folder-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 15px 35px rgba(255, 38, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   border-bottom-color: var(--nit-red);
 }
 
@@ -112,7 +109,7 @@
   left: 0;
   width: 100%;
   height: 4px;
-  background: var(--nit-red);
+  background: linear-gradient(to right, var(--nit-red), var(--brick-red));
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -123,13 +120,18 @@
 
 .pyq-folder-wrapper {
   margin-bottom: 25px;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.05));
+  transition: transform 0.3s ease;
+}
+
+.pyq-folder-card:hover .pyq-folder-wrapper {
+  transform: scale(1.05);
 }
 
 .pyq-card-title {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--text-dark);
+  color: var(--charcoal);
   margin-bottom: 15px;
   line-height: 1.4;
   height: 3rem; /* Max 2 lines height */
@@ -148,27 +150,28 @@
 }
 
 .pyq-tag {
-  background: var(--bg-soft);
+  background: var(--gray-light);
   border: 1px solid var(--gray-border);
-  color: #666;
-  font-size: 0.7rem;
-  padding: 5px 12px;
-  border-radius: 6px;
+  color: var(--gray-muted);
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 8px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: var(--transition);
 }
 
 .pyq-folder-card:hover .pyq-tag {
-  background: #fff0ef;
-  color: var(--nit-red);
-  border-color: #ffcccc;
+  background: var(--nit-red-light);
+  color: var(--nit-red-dark);
+  border-color: var(--nit-red-light);
 }
 
 /* Loading state */
 .loading-text {
   text-align: center;
-  color: #888;
+  color: var(--gray-muted);
   font-weight: 500;
   padding: 50px;
 }

@@ -3,27 +3,34 @@
   justify-content: center;
   align-items: flex-start;
   padding: 40px 20px;
-  background-color: #f4f7f6;
   min-height: 100vh;
 }
 
 .pyq-card {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
   padding: 40px;
-  max-width: 700px; /* Thoda width badha diya taaki year fit ho jaye */
+  max-width: 700px;
   width: 100%;
-  border-top: 6px solid #d32f2f;
+  border: 1px solid var(--gray-border);
+  border-top: 6px solid var(--nit-red);
+  transition: var(--transition);
+}
+.pyq-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
 
 .pyq-title {
-  color: #d32f2f;
+  color: var(--nit-red);
   font-size: 1.8rem;
   margin-bottom: 30px;
   text-align: center;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: -0.02em;
 }
 
 .pyq-form {
@@ -39,13 +46,13 @@
 }
 
 .pyq-group label {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
-  color: #555;
+  color: var(--gray-muted);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* Year overflow fix: Adjusted grid and input sizing */
 .pyq-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -54,68 +61,82 @@
 }
 
 .pyq-input {
-  padding: 12px;
+  padding: 12px 16px;
   min-width: 0;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid var(--gray-border);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--charcoal);
   font-size: 0.95rem;
-  width: 100%; /* Ensure input stays inside grid cell */
+  width: 100%; 
   box-sizing: border-box; 
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  font-family: inherit;
 }
 
 .pyq-input:disabled {
-  background-color: #f0f0f0;
+  background-color: var(--gray-light);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 .pyq-input:focus:not(:disabled) {
   outline: none;
-  border-color: #d32f2f;
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+  border-color: var(--nit-red);
+  box-shadow: 0 0 0 4px var(--nit-red-glow);
 }
 
 .pyq-file-wrapper {
-  border: 2px dashed #d32f2f50;
-  padding: 20px;
-  border-radius: 10px;
-  background: #fffafa;
+  border: 2px dashed var(--nit-red-light);
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(225, 29, 72, 0.02);
   text-align: center;
   cursor: pointer;
+  transition: var(--transition);
+  color: var(--charcoal);
+  font-weight: 500;
+}
+
+.pyq-file-wrapper:hover {
+  background: var(--nit-red-light);
+  border-color: var(--nit-red);
 }
 
 .pyq-submit-btn {
-  background-color: #d32f2f;
+  background-color: var(--nit-red);
   color: white;
   padding: 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition);
   margin-top: 15px;
-  box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
 .pyq-submit-btn:hover {
-  background-color: #b71c1c;
+  background-color: var(--nit-red-dark);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-nit);
 }
 
 .pyq-submit-btn:disabled {
-  background-color: #ccc;
+  background-color: var(--gray-border);
+  color: var(--gray-muted);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 @media (max-width: 600px) {
   .pyq-grid { grid-template-columns: 1fr; }
 }
 .error-text {
-    color: #d32f2f;
-    font-size: 0.75rem;
+    color: var(--nit-red);
+    font-size: 0.8rem;
     margin-top: 4px;
-    font-weight: 500;
+    font-weight: 600;
 }

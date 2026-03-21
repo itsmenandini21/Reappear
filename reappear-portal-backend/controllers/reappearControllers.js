@@ -130,7 +130,6 @@ export const updateReappearStatus = async (req, res) => {
 export const checkExistingBacklogs = async (req, res) => {
     try {
         const { rollNumber } = req.params;
-
         // Sirf pending ya in-progress wale records check karenge
         // Kyunki agar 'cleared' hai toh admin dobara add kar sakta hai
         const existingRecords = await ReappearRecord.find({ 
