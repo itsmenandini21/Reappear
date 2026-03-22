@@ -75,6 +75,16 @@
 /* 📱 MOBILE RESPONSIVENESS */
 /* ============================= */
 
+.mobile-back-btn {
+  display: none; /* Hidden on desktop */
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  margin-right: 12px;
+  color: var(--charcoal);
+}
+
 @media (max-width: 850px) {
   .messages-page-wrapper {
     padding: 70px 0 0 0; /* Remove 1rem padding so it touches edges */
@@ -91,15 +101,28 @@
   
   .chat-sidebar {
     width: 100%;
-    height: 40%;
+    height: 100%;
     border-right: none;
-    border-bottom: 3px solid var(--gray-border);
+    border-bottom: none;
   }
   
   .chat-window {
     width: 100%;
-    flex-grow: 1; /* take remaining height */
-    height: auto;
+    height: 100%;
+    flex-grow: 1;
+  }
+
+  /* WhatsApp Style Toggle Logic */
+  .chat-container.mobile-chat-open .chat-sidebar {
+    display: none;
+  }
+  .chat-container:not(.mobile-chat-open) .chat-window,
+  .chat-container:not(.mobile-chat-open) .no-chat-selected {
+    display: none;
+  }
+
+  .mobile-back-btn {
+    display: block; /* Show on mobile */
   }
 
   .messages-area {

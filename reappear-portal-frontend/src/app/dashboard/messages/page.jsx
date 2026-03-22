@@ -140,7 +140,7 @@ export default function MessagesPage() {
 
   return (
     <div className="messages-page-wrapper">
-      <div className="chat-container">
+      <div className={`chat-container ${activeChat ? 'mobile-chat-open' : ''}`}>
         
         <div className="chat-sidebar">
           <div className="sidebar-header">
@@ -173,6 +173,16 @@ export default function MessagesPage() {
         {activeChat ? (
           <div className="chat-window">
             <div className="chat-header">
+              <button 
+                className="mobile-back-btn" 
+                onClick={() => {
+                  setActiveChatId(null);
+                  if (tempChat) setTempChat(null);
+                  router.replace('/dashboard/messages');
+                }}
+              >
+                ⬅️
+              </button>
               <div className="convo-avatar">{activeChat.avatar}</div>
               <div className="chat-header-info">
                 <h3>{activeChat.name}</h3>
