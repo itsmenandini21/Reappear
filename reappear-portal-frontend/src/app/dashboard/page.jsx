@@ -14,7 +14,6 @@ const dashboardData = [
   { id: "faculty", title: "Faculty Info", path: "/dashboard/faculty" },
   { id: "peers", title: "Connect Peers", path: "/dashboard/peers" },
   { id: "pyq", title: "PYQs", path: "/dashboard/pyq" },
-  { id: "estimator", title: "Difficulty Estimator", path: "/dashboard/estimator" },
 ];
 
 export default function Dashboard() {

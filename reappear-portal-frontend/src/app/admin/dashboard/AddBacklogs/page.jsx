@@ -140,22 +140,26 @@ const AddBacklogs = () => {
   const confirmAndNotify = async () => {
     setIsSubmitting(true);
     try {
-        const promises = [];
+        // Prepare bulk assignments data
+        const assignments = [];
         for (const [rollNumber, subjects] of Object.entries(studentSelections)) {
             for (const subjectCode of subjects) {
                 const subjectDoc = availableSubjects.find(sub => sub.subjectCode === subjectCode);
                 if (subjectDoc && subjectDoc._id) {
-                     promises.push(
-                        api.post('/reappear/add', {
-                            rollNumber: rollNumber,
-                            subjectId: subjectDoc._id,
-                            lastDate: lastDate // Attach dynamic constraint to Reappear document
-                        })
-                     );
+                    assignments.push({
+                        rollNumber: rollNumber,
+                        subjectId: subjectDoc._id
+                    });
                 }
             }
         }
-        await Promise.all(promises);
+
+        // Send all assignments in one bulk request
+        await api.post('/reappear/add-bulk', {
+            assignments: assignments,
+            lastDate: lastDate
+        });
+
         setIsSubmitting(false);
         setShowModal(false);
         toast.success(`Successfully assigned backlogs to ${selectedStudentCount} students!`, { duration: 4000 });

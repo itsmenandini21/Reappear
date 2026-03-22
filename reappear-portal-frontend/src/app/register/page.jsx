@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 function RegisterPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isNotSuccess,setisNotSuccess]=useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '', email: '', password: '', rollNumber: '', branch: 'CSE', currentSemester: ''
@@ -147,7 +148,15 @@ function RegisterPage() {
 
           <div className="reg-input-group full-row">
             <label>Password</label>
-            <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
+            <div className="password-input-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} name="password" placeholder="••••••••" 
+                value={formData.password} onChange={handleChange} required 
+              />
+              <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
           </div>
 
           <button type="submit" className="reg-submit-btn" disabled={isLoading || !!emailError || !formData.email} style={{ opacity: (isLoading || !!emailError || !formData.email) ? 0.5 : 1, cursor: (isLoading || !!emailError || !formData.email) ? 'not-allowed' : 'pointer' }}>

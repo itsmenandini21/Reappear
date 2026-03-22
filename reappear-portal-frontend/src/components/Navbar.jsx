@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { MessageSquareText } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from "next/image";
 import api from '@/lib/api';
@@ -9,14 +9,38 @@ import './Navbar.css';
 
 export default function Navbar() {
   const router = useRouter();
-  const pathname = usePathname();
   const [showMessages, setShowMessages] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [recentChats, setRecentChats] = useState([]);
+  const profileRef = useRef(null);
 
   const user = typeof window !== 'undefined'
     ? JSON.parse(localStorage.getItem('user'))
     : null;
+
+  useEffect(() => {
+    if (!showProfile) return;
+
+    const closeOnOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setShowProfile(false);
+      }
+    };
+
+    document.addEventListener('mousedown', closeOnOutside);
+    return () => document.removeEventListener('mousedown', closeOnOutside);
+  }, [showProfile]);
+
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('name');
+      localStorage.removeItem('userId');
+    }
+    router.replace('/login');
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -70,26 +94,14 @@ export default function Navbar() {
       {/* RIGHT SIDE */}
       <div className="nav-right-side">
 
-        {/* NAV LINKS */}
-        <div className="nav-links">
-          {['Home', 'Help', 'Contacts'].map(label => (
-            <button
-              key={label}
-              className="nav-item"
-              onClick={() => router.push(`/${label.toLowerCase()}`)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
         {/* MESSAGES */}
         <div className="message-wrapper">
           <button
             className="message-btn"
             onClick={() => setShowMessages(!showMessages)}
+            aria-label="Open messages"
           >
-            <MessageSquareText size={20} />
+            <MessageCircle size={20} />
             {unreadCount > 0 && (
               <span className="message-badge">{unreadCount}</span>
             )}
@@ -151,6 +163,36 @@ export default function Navbar() {
                     </div>
                   )}
                 </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* PROFILE */}
+        <div className="profile-wrapper" ref={profileRef}>
+          <button
+            className="profile-btn"
+            onClick={() => setShowProfile(prev => !prev)}
+            aria-label="Profile menu"
+          >
+            <span className="profile-emoji profile-emoji-default" aria-hidden="true">👤</span>
+            <span className="profile-emoji profile-emoji-hover" aria-hidden="true">↩️</span>
+          </button>
+
+          <AnimatePresence>
+            {showProfile && (
+              <motion.div
+                className="profile-dropdown"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                <button className="logout-btn" onClick={handleLogout}>
+                    <span className="logout-emoji logout-emoji-default" aria-hidden="true">👤</span>
+                    <span className="logout-emoji logout-emoji-hover" aria-hidden="true">↩️</span>
+                  Logout
+                </button>
               </motion.div>
             )}
           </AnimatePresence>

@@ -97,6 +97,101 @@ export const getMyReappears = async (req, res) => {
   }
 };
 
+export const addBulkReappears = async (req, res) => {
+    try {
+        const { assignments, lastDate } = req.body;
+
+        if (!assignments || !Array.isArray(assignments) || assignments.length === 0) {
+            return res.status(400).json({ message: "assignments array is required" });
+        }
+
+        const results = [];
+        const emailPromises = [];
+
+        // Group assignments by roll number for consolidated emails
+        const studentGroups = {};
+
+        for (const assignment of assignments) {
+            const { rollNumber, subjectId } = assignment;
+
+            if (!rollNumber || !subjectId) {
+                continue; // Skip invalid assignments
+            }
+
+            const existingStudent = await User.findOne({ rollNumber });
+
+            const newRecord = await ReappearRecord.create({
+                rollNumber: rollNumber,
+                student: existingStudent ? existingStudent._id : null,
+                subject: subjectId,
+                status: "pending",
+                feesPaid: false,
+                attemptCount: 1,
+                lastDate: lastDate || null
+            });
+
+            results.push(newRecord);
+
+            // Group by roll number for email consolidation
+            if (!studentGroups[rollNumber]) {
+                studentGroups[rollNumber] = {
+                    student: existingStudent,
+                    subjects: []
+                };
+            }
+            studentGroups[rollNumber].subjects.push(subjectId);
+        }
+
+        // Send consolidated emails asynchronously
+        for (const [rollNumber, data] of Object.entries(studentGroups)) {
+            const recipientEmail = (data.student && data.student.email) ? data.student.email : `${rollNumber}@nitkkr.ac.in`;
+            const studentName = (data.student && data.student.name) ? data.student.name : rollNumber;
+
+            // Get subject details
+            const subjects = await Subject.find({ _id: { $in: data.subjects } });
+
+            const subjectListHtml = subjects.map(sub =>
+                `<li><strong>${sub.subjectName} (${sub.subjectCode})</strong></li>`
+            ).join('');
+
+            const emailHtml = `
+            <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto;">
+                    <h2 style="color: #4a90e2;">Action Required: Reappear Form Updates</h2>
+                    <p>Dear <b>${studentName}</b>,</p>
+                    <p>You have been marked for reappears in the following subjects:</p>
+                    <ul style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        ${subjectListHtml}
+                    </ul>
+                    <p>Please log in to your NIT KKR Reappear Portal to view your assigned subjects and complete the required forms.</p>
+                    <br/>
+                    <a href="https://reappear.vercel.app/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Portal</a>
+                    <br/><br/>
+                    <p>- Exam Cell, NIT Kurukshetra</p>
+                </div>
+            </div>`;
+
+            // Send email asynchronously without awaiting
+            emailPromises.push(
+                sendEmail(recipientEmail, "Action Required: Reappear Form Updates", emailHtml)
+                    .catch(error => console.error(`Failed to send email to ${recipientEmail}:`, error))
+            );
+        }
+
+        // Don't await email sending - let it happen in background
+        Promise.all(emailPromises).catch(error => {
+            console.error('Bulk email sending failed:', error);
+        });
+
+        res.status(201).json({
+            message: `Successfully assigned ${results.length} backlogs to ${Object.keys(studentGroups).length} students`,
+            records: results
+        });
+    } catch (error) {
+        res.status(400).json({ message: "Failed to add records", error: error.message });
+    }
+};
+
 export const addReappear = async (req, res) => {
     try {
         const { rollNumber, subjectId, lastDate } = req.body;
@@ -109,7 +204,7 @@ export const addReappear = async (req, res) => {
 
         const newRecord = await ReappearRecord.create({
             rollNumber: rollNumber,
-            student: existingStudent ? existingStudent._id : null, 
+            student: existingStudent ? existingStudent._id : null,
             subject: subjectId,
             status: "pending",
             feesPaid: false,
@@ -117,24 +212,34 @@ export const addReappear = async (req, res) => {
             lastDate: lastDate || null // Bind parameter to DB
         });
 
+        // Send email asynchronously (don't await) to avoid blocking the response
         const recipientEmail = (existingStudent && existingStudent.email) ? existingStudent.email : `${rollNumber}@nitkkr.ac.in`;
         const studentName = (existingStudent && existingStudent.name) ? existingStudent.name : rollNumber;
+
+        // Get subject details for better email content
+        const subject = await Subject.findById(subjectId);
 
         const emailHtml = `
         <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
             <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto;">
                 <h2 style="color: #4a90e2;">Action Required: Reappear Form Updates</h2>
                 <p>Dear <b>${studentName}</b>,</p>
-                <p>You have been marked for reappears in specific subjects by the Exam Cell.</p>
-                <p>Please log in to your NIT KKR Reappear Portal to view your assigned subjects.</p>
+                <p>You have been marked for reappears in the following subject:</p>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <strong>${subject?.subjectName || 'Subject'} (${subject?.subjectCode || subjectId})</strong>
+                </div>
+                <p>Please log in to your NIT KKR Reappear Portal to view your assigned subjects and complete the required forms.</p>
                 <br/>
                 <a href="https://reappear.vercel.app/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Portal</a>
                 <br/><br/>
                 <p>- Exam Cell, NIT Kurukshetra</p>
             </div>
         </div>`;
-        
-        await sendEmail(recipientEmail, "Action Required: Reappear Form Updates", emailHtml);
+
+        // Send email without awaiting to prevent blocking
+        sendEmail(recipientEmail, "Action Required: Reappear Form Updates", emailHtml).catch(error => {
+            console.error('Failed to send email notification:', error);
+        });
 
         res.status(201).json({ message: "Student added successfully", record: newRecord });
     } catch (error) {

@@ -53,7 +53,6 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/messages', messageRoutes);
 app.use("/api/reappear",reappearRoutes);
-app.use("/api/estimator", estimatorRoutes); // New Estimator API
 app.use("/api/admin", adminRoutes); // New Admin API
 
 
