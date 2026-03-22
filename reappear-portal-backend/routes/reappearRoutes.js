@@ -1,4 +1,4 @@
-import { getMyReappears,addReappear,updateReappearStatus,checkExistingBacklogs, getEligibleStudentsForResults } from "../controllers/reappearControllers.js";
+import { getMyReappears,addReappear,checkExistingBacklogs, getEligibleStudentsForResults } from "../controllers/reappearControllers.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import express from "express"
 const router=express.Router();

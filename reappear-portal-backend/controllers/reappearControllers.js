@@ -141,27 +141,6 @@ export const addReappear = async (req, res) => {
         res.status(400).json({ message: "Failed to add record", error: error.message });
     }
 };
-
-// @desc    Admin updates status
-// @route   PUT /api/reappear/update/:id
-export const updateReappearStatus = async (req, res) => {
-    try {
-        const { status, feesPaid, roomAllocation, examDate } = req.body; 
-        
-        const updatedRecord = await ReappearRecord.findByIdAndUpdate(
-            req.params.id, 
-            { status, feesPaid, roomAllocation, examDate }, 
-            { new: true }
-        );
-        
-        if (!updatedRecord) return res.status(404).json({ message: "Record not found" });
-        
-        res.status(200).json({ message: "Record updated successfully", record: updatedRecord });
-    } catch (error) {
-        res.status(400).json({ message: "Failed to update record", error: error.message });
-    }
-};
-
 // @desc    Check existing backlogs for a student by roll number
 // @route   GET /api/reappear/check/:rollNumber
 export const checkExistingBacklogs = async (req, res) => {
@@ -181,21 +160,7 @@ export const checkExistingBacklogs = async (req, res) => {
     }
 };
 
-// @desc    Admin fetches all reappears for Fee Tracker
-// @route   GET /api/reappear/admin/fee-tracker
-export const getFeeTrackerData = async (req, res) => {
-    try {
-        // Find both pending & in-progress
-        const records = await ReappearRecord.find()
-            .populate('student', 'name email rollNumber')
-            .populate('subject', 'subjectName subjectCode department semester');
-        
-        res.status(200).json(records);
-    } catch (error) {
-        console.error("Error in fee tracker fetch:", error);
-        res.status(500).json({ message: "Internal server error", error: error.message });
-    }
-};
+
 
 // @desc    Admin sends an email dynamically to a student
 // @route   POST /api/reappear/admin/send-email

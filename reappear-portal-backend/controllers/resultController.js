@@ -41,7 +41,7 @@ export const addResult = async (req, res) => {
             );
         }
 
-        res.status(201).json({ message: "Result published and backlog cleared!", result: newResult });
+        res.status(201).json({ message: "Result published", result: newResult });
     } catch (error) {
         res.status(400).json({ message: "Failed to upload result", error: error.message });
     }
