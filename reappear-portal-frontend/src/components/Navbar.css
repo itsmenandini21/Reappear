@@ -252,3 +252,48 @@
   color: #1a1a1a;
   font-weight: 700;
 }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+
+@media (max-width: 850px) {
+  .navbar-container {
+    padding: 0.8rem 1rem;
+  }
+  .nav-brand {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .nav-brand {
+    display: none; /* Hide text, keep NIT logo */
+  }
+  
+  /* Floating Bottom Nav for Mobile */
+  .nav-links {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    z-index: 2000;
+    padding: 8px 12px;
+  }
+  
+  .nav-item {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
+
+  .messages-dropdown {
+    width: 300px;
+    right: -10px;
+  }
+  
+  .message-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
