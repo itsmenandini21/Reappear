@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Footer from "@/components/Footer";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -18,5 +19,12 @@ export default function DashboardLayout({ children }) {
   // Prevent rendering the dashboard structure until the token check clears
   if (!isAuthenticated) return null;
 
-  return <>{children}</>;
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1 }}>
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
 }

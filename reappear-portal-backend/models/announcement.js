@@ -5,6 +5,8 @@ const announcementSchema = new mongoose.Schema({
   category: { type: String, enum: ['Urgent', 'Academic', 'Fees', 'General'], default: 'General' },
   content: { type: String, required: true },
   expiryDate: { type: Date },
+  subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject' },
+  deadline: { type: Date },
   createdAt: { type: Date, default: Date.now, expires: '30d' }
 });
 

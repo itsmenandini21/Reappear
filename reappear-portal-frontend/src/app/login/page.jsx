@@ -34,13 +34,25 @@ function LoginPage() {
     const [isNotSuccess, setisNotSuccess] = useState(false);
     const router = useRouter();
     const [loginData, setLoginData] = useState({ email: "", password: "" })
+    const [emailError, setEmailError] = useState("");
 
     function handleChange(e) {
         setLoginData({ ...loginData, [e.target.name]: e.target.value });
+        
+        // Live validation for email field
+        if (e.target.name === 'email') {
+            const val = e.target.value;
+            const studentEmailRegex = /^\d+@nitkkr\.ac\.in$/;
+            if (val && !studentEmailRegex.test(val) && val !== "admin.nitkkr@gmail.com") {
+                setEmailError("Please enter only your valid college mail ID (rollnumber@nitkkr.ac.in)");
+            } else {
+                setEmailError("");
+            }
+        }
     }
 
     async function handleAuthSuccess(response) {
-        const { token, name, _id } = response.data;
+        const { token, name, _id, role } = response.data;
         if (typeof window !== "undefined") {
             const userObj = { ...response.data };
             delete userObj.token;
@@ -50,11 +62,21 @@ function LoginPage() {
             localStorage.setItem("userId", _id);
         }
         setIsSuccess(true);
-        setTimeout(() => { router.push("/dashboard"); }, 2000);
+        setTimeout(() => { 
+            if (role === 'admin') router.push("/admin/dashboard");
+            else router.push("/dashboard");
+        }, 2000);
     }
 
     async function handleSubmit(e) {
         e.preventDefault();
+        
+        const studentEmailRegex = /^\d+@nitkkr\.ac\.in$/;
+        if (!studentEmailRegex.test(loginData.email) && loginData.email !== "admin.nitkkr@gmail.com") {
+            toast.error("Use your rollnumber@nitkkr.ac.in email entirely!");
+            return;
+        }
+
         try {
             const response = await api.post("auth/login", loginData);
             handleAuthSuccess(response);
@@ -86,6 +108,7 @@ function LoginPage() {
                 type="email" name="email" placeholder="student@nitkkr.ac.in" 
                 value={loginData.email} onChange={handleChange} required 
               />
+              {emailError && <p style={{color: '#ff4d4d', fontSize: '12px', marginTop: '5px', textAlign: 'left'}}>{emailError}</p>}
             </div>
             <div className="input-box">
               <label>Password</label>
@@ -94,7 +117,7 @@ function LoginPage() {
                 value={loginData.password} onChange={handleChange} required 
               />
             </div>
-            <button type="submit" className="login-submit-btn">LOGIN</button>
+            <button type="submit" className="login-submit-btn" disabled={!!emailError || !loginData.email} style={{ opacity: (!!emailError || !loginData.email) ? 0.5 : 1, cursor: (!!emailError || !loginData.email) ? 'not-allowed' : 'pointer' }}>LOGIN</button>
           </form>
 
           <div className="auth-separator">

@@ -2,8 +2,8 @@ import Announcement from '../models/announcement.js';
 
 export const createAnnouncement = async (req, res) => {
   try {
-    const { title, category, content, expiryDate } = req.body;
-    const newNotice = new Announcement({ title, category, content, expiryDate });
+    const { title, category, content, expiryDate, subject, deadline } = req.body;
+    const newNotice = new Announcement({ title, category, content, expiryDate, subject, deadline });
     await newNotice.save();
     res.status(201).json({ message: "Announcement Published Successfully!" });
   } catch (error) {
@@ -14,7 +14,7 @@ export const createAnnouncement = async (req, res) => {
 export const getAnnouncements = async (req, res) => {
   try {
     // Latest announcements pehle dikhane ke liye sort kiya hai
-    const notices = await Announcement.find().sort({ createdAt: -1 });
+    const notices = await Announcement.find().populate('subject', 'subjectName subjectCode').sort({ createdAt: -1 });
     res.status(200).json(notices);
   } catch (error) {
     res.status(500).json({ message: "Error fetching announcements", error: error.message });
@@ -23,10 +23,10 @@ export const getAnnouncements = async (req, res) => {
 
 export const updateAnnouncement = async (req, res) => {
   try {
-    const { title, category, content, expiryDate } = req.body;
+    const { title, category, content, expiryDate, subject, deadline } = req.body;
     const updated = await Announcement.findByIdAndUpdate(
       req.params.id, 
-      { title, category, content, expiryDate },
+      { title, category, content, expiryDate, subject, deadline },
       { new: true, runValidators: true }
     );
     if (!updated) return res.status(404).json({ message: "Announcement not found" });

@@ -57,22 +57,28 @@ export default function Subjects() {
                     <div className="status-badge-applied" style={{ background: '#34c759', color: 'white', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>
                       Applied
                     </div>
+                  ) : sub.hasActiveNotice ? (
+                    <>
+                      <button
+                        className="form-btn"
+                        onClick={() => {
+                          const query = new URLSearchParams({ 
+                            subjectName: sub.name, 
+                            subjectId: sub.subjectObjectId,
+                            recordId: sub.id
+                          }).toString();
+                          router.push(`/dashboard/apply?${query}`);
+                        }}
+                      >
+                        Apply Now
+                      </button>
+                      {sub.noticeDeadline && <span className="date-text" style={{ fontSize: '12px', color: '#ff2600', fontWeight: 'bold' }}>Last date: {sub.noticeDeadline}</span>}
+                    </>
                   ) : (
-                    <button
-                      className="form-btn"
-                      onClick={() => {
-                        const query = new URLSearchParams({ 
-                          subjectName: sub.name, 
-                          subjectId: sub.subjectObjectId,
-                          recordId: sub.id
-                        }).toString();
-                        router.push(`/dashboard/apply?${query}`);
-                      }}
-                    >
-                      Apply Now
-                    </button>
+                    <span className="not-active-text" style={{ fontSize: '13px', color: '#888', fontStyle: 'italic' }}>
+                      Form Closed
+                    </span>
                   )}
-                  {sub.lastDateToApply && <span className="date-text" style={{ fontSize: '12px', color: '#ff2600', fontWeight: 'bold' }}>Last date: {sub.lastDateToApply}</span>}
                 </div>
               ) : (
                 <span className="status-badge-cleared">Verified ✓</span>

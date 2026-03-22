@@ -8,15 +8,28 @@ const NoticeForm = () => {
     title: '',
     category: 'Urgent',
     content: '',
-    expiryDate: ''
+    expiryDate: '',
+    subject: '',
+    deadline: ''
   });
   const [loading, setLoading] = useState(false);
   const [notices, setNotices] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [editId, setEditId] = useState(null);
 
   useEffect(() => {
     fetchNotices();
+    fetchSubjects();
   }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      const { data } = await api.get('/subjects');
+      setSubjects(data);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
+  };
 
   const fetchNotices = async () => {
     try {
@@ -43,7 +56,7 @@ const NoticeForm = () => {
         await api.post('/announcements', notice);
         alert("📢 Announcement Published Successfully!");
       }
-      setNotice({ title: '', category: 'Urgent', content: '', expiryDate: '' });
+      setNotice({ title: '', category: 'Urgent', content: '', expiryDate: '', subject: '', deadline: '' });
       fetchNotices();
     } catch (error) {
       alert("Error saving: " + (error.response?.data?.message || error.message));
@@ -58,7 +71,9 @@ const NoticeForm = () => {
       title: n.title,
       category: n.category,
       content: n.content,
-      expiryDate: n.expiryDate ? n.expiryDate.substring(0, 10) : ''
+      expiryDate: n.expiryDate ? n.expiryDate.substring(0, 10) : '',
+      subject: n.subject ? (n.subject._id || n.subject) : '',
+      deadline: n.deadline ? n.deadline.substring(0, 10) : ''
     });
   };
 
@@ -84,7 +99,7 @@ const NoticeForm = () => {
                 className="cancel-edit-btn"
                 onClick={() => {
                   setEditId(null);
-                  setNotice({ title: '', category: 'Urgent', content: '', expiryDate: '' });
+                  setNotice({ title: '', category: 'Urgent', content: '', expiryDate: '', subject: '', deadline: '' });
                 }}
               >
                 Cancel Edit
@@ -125,6 +140,31 @@ const NoticeForm = () => {
                 />
               </div>
             </div>
+
+            {notice.category === 'Academic' && (
+              <div className="input-row">
+                <div className="input-group">
+                  <label>Subject (Optional)</label>
+                  <select name="subject" value={notice.subject} onChange={handleChange}>
+                    <option value="">-- Select Subject --</option>
+                    {subjects.map(sub => (
+                      <option key={sub._id} value={sub._id}>
+                        {sub.subjectName} ({sub.subjectCode})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="input-group">
+                  <label>Deadline</label>
+                  <input 
+                    type="date" 
+                    name="deadline"
+                    value={notice.deadline}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="input-group">
               <label>Detailed Message</label>

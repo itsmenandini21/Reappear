@@ -9,7 +9,7 @@ import FacultyManagement from './Faculty/page.jsx';
 import  ScheduleExams  from './Exams/page.jsx';
 import  UploadResults  from './Results/page.jsx';
 import UploadPyqForm from './PYQs/page.jsx';
-
+import AdminOverview from './Overview/page.jsx';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -50,19 +50,8 @@ export default function AdminDashboard() {
 
       {/* 2. DYNAMIC CONTENT AREA */}
       <main className="admin-main">
-        <header className="admin-topbar">
-          <div className="status-badge">System Live 🟢</div>
-          <div className="admin-info">Welcome, Registrar</div>
-        </header>
-
         <section className="admin-content-box">
-          {activeTab === 'dashboard' && (
-            <div className="stats-grid fade-in">
-              <div className="mini-card"><h3>1,240</h3><p>Total Students</p></div>
-              <div className="mini-card"><h3>45</h3><p>Pending Reappears</p></div>
-              <div className="mini-card"><h3>12</h3><p>New Notices</p></div>
-            </div>
-          )}
+          {activeTab === 'dashboard' && <AdminOverview />}
           {activeTab === 'backlogs' && <BacklogForm />}
           {activeTab === 'notices' && <NoticeForm />}
           {activeTab === 'fees' && <FeeTracker />}

@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 import "./frontPage.css";
 
 export default function FrontPage() {
@@ -75,6 +76,9 @@ export default function FrontPage() {
           <p>Don't study alone. Connect with students who share the same backlog subjects.</p>
         </div>
       </section>
+
+      {/* FOOTER SECTION */}
+      <Footer />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import ReappearRecord from "../models/reappearRecord.js";
 import Subject from "../models/subject.js"; 
 import sendEmail from "../utils/sendEmail.js";
 import User from "../models/user.js";
+import Announcement from "../models/announcement.js"; // IMPORTED ANNOUNCEMENT
 import mongoose from "mongoose";
 // Note: 'User' import ki zaroorat nahi hai agar hum seedha req.user.id use kar rahe hain
 
@@ -27,6 +28,16 @@ export const getMyReappears = async (req, res) => {
     .populate("subject") 
     .exec();
 
+    // 2.5 Find all Active Academic Notices to see which subjects are currently open
+    // Fetch all academic notices that have a subject linked.
+    const activeNotices = await Announcement.find({ category: 'Academic', subject: { $exists: true, $ne: null } });
+    
+    // Create a fast lookup map: { subjectId: NoticeDocument }
+    const noticeMap = {};
+    activeNotices.forEach(notice => {
+      noticeMap[notice.subject.toString()] = notice;
+    });
+
     // 3. Grouping Logic (Safe approach)
     const groupedBySemester = reappears.reduce((acc, record) => {
       // Agar subject null hai (deleted subject), toh crash na ho
@@ -38,6 +49,9 @@ export const getMyReappears = async (req, res) => {
         acc[sem] = [];
       }
       
+      const subjectObjectIdStr = record.subject._id.toString();
+      const linkedNotice = noticeMap[subjectObjectIdStr];
+
       acc[sem].push({
         id: record._id,
         name: record.subject.subjectName || "Unknown Subject",
@@ -45,7 +59,8 @@ export const getMyReappears = async (req, res) => {
         subjectObjectId: record.subject._id,
         status: record.status || "pending",
         hasApplied: record.feesPaid,
-        lastDateToApply: record.subject.lastDateToApply ? new Date(record.subject.lastDateToApply).toLocaleDateString('en-GB') : null,
+        hasActiveNotice: !!linkedNotice, // NEW FIELD: true/false if notice exists
+        noticeDeadline: (linkedNotice && linkedNotice.deadline) ? new Date(linkedNotice.deadline).toLocaleDateString('en-GB') : null, // NEW FIELD
         credits: record.subject.credits || 0,
         semester: sem
       });

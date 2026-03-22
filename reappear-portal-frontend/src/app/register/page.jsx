@@ -12,9 +12,20 @@ function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '', email: '', password: '', rollNumber: '', branch: 'CSE', currentSemester: ''
   });
+  const [emailError, setEmailError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    
+    if (e.target.name === 'email') {
+        const val = e.target.value;
+        const emailRegex = /^\d+@nitkkr\.ac\.in$/;
+        if (val && !emailRegex.test(val)) {
+            setEmailError("Please enter only your valid college mail ID (rollnumber@nitkkr.ac.in)");
+        } else {
+            setEmailError("");
+        }
+    }
   };
 
   const [step, setStep] = useState(1);
@@ -32,6 +43,13 @@ function RegisterPage() {
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
+
+    const emailRegex = /^\d+@nitkkr\.ac\.in$/;
+    if (!emailRegex.test(formData.email)) {
+        toast.error("Email must be precisely rollnumber@nitkkr.ac.in");
+        return;
+    }
+
     try {
       setIsLoading(true);
       await api.post('auth/send-otp', { email: formData.email });
@@ -109,6 +127,7 @@ function RegisterPage() {
           <div className="reg-input-group full-row">
             <label>Email Address</label>
             <input type="email" name="email" placeholder="student@nitkkr.ac.in" value={formData.email} onChange={handleChange} required />
+            {emailError && <p style={{color: '#ff4d4d', fontSize: '13px', marginTop: '5px', textAlign: 'left'}}>{emailError}</p>}
           </div>
 
           <div className="reg-input-group">
@@ -131,7 +150,9 @@ function RegisterPage() {
             <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
           </div>
 
-          <button type="submit" className="reg-submit-btn" disabled={isLoading}>{isLoading ? "SENDING OTP..." : "REGISTER"}</button>
+          <button type="submit" className="reg-submit-btn" disabled={isLoading || !!emailError || !formData.email} style={{ opacity: (isLoading || !!emailError || !formData.email) ? 0.5 : 1, cursor: (isLoading || !!emailError || !formData.email) ? 'not-allowed' : 'pointer' }}>
+            {isLoading ? "SENDING OTP..." : "REGISTER"}
+          </button>
         </form>
         ) : (
         <form onSubmit={handleVerifyOtp} className="reg-grid">

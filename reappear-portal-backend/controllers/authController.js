@@ -15,6 +15,12 @@ const generateToken = (id) => {
 const sendOtp = async (req, res) => {
     const { email } = req.body;
     try {
+        // Enforce student email pattern
+        const emailRegex = /^\d+@nitkkr\.ac\.in$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Registration restricted to format: rollnumber@nitkkr.ac.in" });
+        }
+
         const userExists = await User.findOne({ email });
         if (userExists) return res.status(400).json({ message: "User already exists with this email" });
 
@@ -118,8 +124,20 @@ const resendOtp = async (req, res) => {
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
+        // Strict format validation during login
+        const studentEmailRegex = /^\d+@nitkkr\.ac\.in$/;
+        if (!studentEmailRegex.test(email) && email !== "admin.nitkkr@gmail.com") {
+             return res.status(400).json({ message: "Invalid email format. Use rollnumber@nitkkr.ac.in" });
+        }
+
         const user = await User.findOne({ email });
         if (user && (await bcrypt.compare(password, user.password))) {
+            // Force upgrade admin role on normal login just in case
+            if (user.email === "admin.nitkkr@gmail.com" && user.role !== "admin") {
+                user.role = "admin";
+                await user.save();
+            }
+
             res.status(200).json({
                 _id: user._id,
                 name: user.name,
@@ -166,8 +184,24 @@ const googleLogin = async (req, res) => {
 
         let user = await User.findOne({ email: payload.email });
 
+        // Auto-create Admin record if they Google Sign-In for the absolute first time
+        if (!user && payload.email === "admin.nitkkr@gmail.com") {
+            user = await User.create({
+                name: "System Administrator",
+                email: payload.email,
+                password: "GoogleAuthLoginOnly1234",
+                role: "admin",
+            });
+        }
+
         if (!user) {
             return res.status(404).json({ message: "Account not found! Please register normally first to provide your Roll Number and Academic Details." });
+        }
+
+        // Force upgrade role if Admin originally registered their email identically as a student by mistake
+        if (user.email === "admin.nitkkr@gmail.com" && user.role !== "admin") {
+            user.role = "admin";
+            await user.save();
         }
 
         res.status(200).json({
