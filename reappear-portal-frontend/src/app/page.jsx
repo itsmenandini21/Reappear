@@ -138,6 +138,10 @@ export default function FrontPage() {
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [loginLoading, setLoginLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1);
+  const [forgotData, setForgotData] = useState({ email: '', otp: '', newPassword: '' });
 
   const [joinStep, setJoinStep] = useState(1);
   const [joinLoading, setJoinLoading] = useState(false);
@@ -350,6 +354,9 @@ export default function FrontPage() {
     setJoinLoading(false);
     setOpenSelect(null);
     setLoginData({ email: '', password: '' });
+    setForgotPasswordMode(false);
+    setForgotStep(1);
+    setShowPassword(false);
   };
 
   const openJoin = () => {
@@ -369,6 +376,8 @@ export default function FrontPage() {
       currentSemester: '',
       password: ''
     });
+    setForgotPasswordMode(false);
+    setShowPassword(false);
   };
 
   const handleAuthSuccess = (response) => {
@@ -410,7 +419,46 @@ export default function FrontPage() {
       setLoginLoading(false);
     }
   };
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    try {
+      const scholarId = deriveRollNumberFromEmail(forgotData.email);
+      if (!scholarId) {
+         toast.error("Please enter a valid student email (rollnumber@nitkkr.ac.in)");
+         return;
+      }
+      setLoginLoading(true);
+      await api.post('/auth/forgot-password', { scholarId });
+      toast.success('OTP sent to your email for password reset.');
+      setForgotStep(2);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send OTP.');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    try {
+      setLoginLoading(true);
+      const scholarId = deriveRollNumberFromEmail(forgotData.email);
+      await api.post('/auth/reset-password', {
+         scholarId,
+         otp: forgotData.otp,
+         newPassword: forgotData.newPassword
+      });
+      toast.success('Password has been reset successfully!');
+      setForgotPasswordMode(false);
+      setForgotStep(1);
+      setForgotData({ email: '', otp: '', newPassword: '' });
+      setPanel('login');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to reset password.');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
   const handleSendOtp = async (e) => {
     e.preventDefault();
     const emailRegex = /^\d+@nitkkr\.ac\.in$/;
@@ -713,43 +761,116 @@ export default function FrontPage() {
                   <div className="success-text">All set.</div>
                 </div>
               ) : panel === 'login' ? (
-                <form className="panel-form" onSubmit={handleLogin}>
-                  <div className="field">
-                    <input
-                      type="email"
-                      value={loginData.email}
-                      onChange={(e) => setLoginData((p) => ({ ...p, email: e.target.value }))}
-                      placeholder=" "
-                      autoComplete="email"
-                      required
-                    />
-                    <label>Email</label>
-                  </div>
-                  <div className="field">
-                    <input
-                      type="password"
-                      value={loginData.password}
-                      onChange={(e) => setLoginData((p) => ({ ...p, password: e.target.value }))}
-                      placeholder=" "
-                      autoComplete="current-password"
-                      required
-                    />
-                    <label>Password</label>
-                  </div>
+                <form className="panel-form" onSubmit={forgotPasswordMode ? (forgotStep === 1 ? handleForgotPassword : handleResetPassword) : handleLogin}>
+                  {forgotPasswordMode ? (
+                    forgotStep === 1 ? (
+                      <>
+                        <div className="field">
+                          <input
+                            type="email"
+                            value={forgotData.email}
+                            onChange={(e) => setForgotData((p) => ({ ...p, email: e.target.value }))}
+                            placeholder=" "
+                            autoComplete="email"
+                            required
+                          />
+                          <label>Email (rollnumber@nitkkr.ac.in)</label>
+                        </div>
+                        <button className="panel-primary" type="submit" disabled={loginLoading}>
+                          <span className={loginLoading ? 'btn-dots' : ''}>
+                            {loginLoading ? 'Sending...' : 'Send OTP'}
+                          </span>
+                        </button>
+                        <div className="panel-switch">
+                          Remember your password?
+                          <button type="button" className="panel-link" onClick={() => setForgotPasswordMode(false)}>Back to Login</button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="field">
+                          <input
+                            type="text"
+                            value={forgotData.otp}
+                            onChange={(e) => setForgotData((p) => ({ ...p, otp: e.target.value }))}
+                            placeholder=" "
+                            maxLength={6}
+                            required
+                          />
+                          <label>Enter OTP</label>
+                        </div>
+                        <div className="field" style={{ position: 'relative' }}>
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            value={forgotData.newPassword}
+                            onChange={(e) => setForgotData((p) => ({ ...p, newPassword: e.target.value }))}
+                            placeholder=" "
+                            required
+                            style={{ paddingRight: '40px' }}
+                          />
+                          <label>New Password</label>
+                          <span className="eye-icon" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '14px', top: '15px', cursor: 'pointer', zIndex: 10, fontSize: '1.2rem', userSelect: 'none' }}>
+                            {showPassword ? '🙈' : '👁️'}
+                          </span>
+                        </div>
+                        <button className="panel-primary" type="submit" disabled={loginLoading}>
+                          <span className={loginLoading ? 'btn-dots' : ''}>
+                            {loginLoading ? 'Resetting...' : 'Reset Password'}
+                          </span>
+                        </button>
+                        <div className="panel-switch">
+                          <button type="button" className="panel-link" onClick={() => setForgotStep(1)}>Resend OTP?</button>
+                        </div>
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <div className="field">
+                        <input
+                          type="email"
+                          value={loginData.email}
+                          onChange={(e) => setLoginData((p) => ({ ...p, email: e.target.value }))}
+                          placeholder=" "
+                          autoComplete="email"
+                          required
+                        />
+                        <label>Email</label>
+                      </div>
+                      <div className="field" style={{ position: 'relative' }}>
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={loginData.password}
+                          onChange={(e) => setLoginData((p) => ({ ...p, password: e.target.value }))}
+                          placeholder=" "
+                          autoComplete="current-password"
+                          required
+                          style={{ paddingRight: '40px' }}
+                        />
+                        <label>Password</label>
+                        <span className="eye-icon" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '14px', top: '15px', cursor: 'pointer', zIndex: 10, fontSize: '1.2rem', userSelect: 'none' }}>
+                          {showPassword ? '🙈' : '👁️'}
+                        </span>
+                      </div>
+                      
+                      <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+                        <button type="button" className="panel-link" onClick={() => setForgotPasswordMode(true)}>Forgot Password?</button>
+                      </div>
 
-                  <button className="panel-primary" type="submit" disabled={loginLoading}>
-                    <span className={panelStage === 'loading' ? 'btn-dots' : ''}>
-                      {loginLoading ? 'Signing in' : 'Login'}
-                    </span>
-                  </button>
+                      <button className="panel-primary" type="submit" disabled={loginLoading}>
+                        <span className={panelStage === 'loading' ? 'btn-dots' : ''}>
+                          {loginLoading ? 'Signing in' : 'Login'}
+                        </span>
+                      </button>
 
-                  <div className="panel-sep"><span>or</span></div>
-                  <GoogleButton onAuthSuccess={handleAuthSuccess} />
+                      <div className="panel-sep"><span>or</span></div>
+                      <GoogleButton onAuthSuccess={handleAuthSuccess} />
 
-                  <div className="panel-switch">
-                    New here?
-                    <button type="button" className="panel-link" onClick={openJoin}>Join Portal</button>
-                  </div>
+                      <div className="panel-switch">
+                        New here?
+                        <button type="button" className="panel-link" onClick={openJoin}>Join Portal</button>
+                      </div>
+                    </>
+                  )}
                 </form>
               ) : (
                 <div className="panel-join">
@@ -918,16 +1039,20 @@ export default function FrontPage() {
                           <div className="panel-summary-row"><span>Semester</span><strong>{joinForm.currentSemester || '-'}</strong></div>
                         </div>
 
-                        <div className="field">
+                        <div className="field" style={{ position: 'relative' }}>
                           <input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={joinForm.password}
                             onChange={(e) => setJoinForm((p) => ({ ...p, password: e.target.value }))}
                             placeholder=" "
                             autoComplete="new-password"
                             required
+                            style={{ paddingRight: '40px' }}
                           />
                           <label>Password</label>
+                          <span className="eye-icon" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '14px', top: '15px', cursor: 'pointer', zIndex: 10, fontSize: '1.2rem', userSelect: 'none' }}>
+                            {showPassword ? '🙈' : '👁️'}
+                          </span>
                         </div>
 
                         <div className="panel-row">
