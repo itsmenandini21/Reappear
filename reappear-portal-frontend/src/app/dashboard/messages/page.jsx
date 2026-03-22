@@ -85,7 +85,7 @@ export default function MessagesPage() {
   }, [activeChatId, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages]);
 
   const displayList = tempChat 

@@ -51,6 +51,11 @@
 .nit-name { display: block; font-weight: 800; font-size: 1.35rem; color: var(--charcoal); letter-spacing: -0.03em; }
 .portal-name { font-size: 0.8rem; color: var(--nit-red); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
 
+.front-nav-links {
+  display: flex;
+  align-items: center;
+}
+
 .front-btn-text, .front-btn-filled { 
   text-decoration: none; 
   font-weight: 600; 
@@ -235,4 +240,21 @@
   .glass-preview-card { transform: none; }
   .front-features { grid-template-columns: 1fr; gap: 1.5rem; }
   .front-title { font-size: 3.5rem; }
+}
+
+@media (max-width: 600px) {
+  .front-container {
+    padding: 0 1rem;
+  }
+  .nit-name {
+    display: none; /* Hide 'NIT Kurukshetra' on tiny screens to make room for buttons */
+  }
+  .front-btn-text {
+    margin-right: 1rem; /* reduce gap */
+    font-size: 0.9rem;
+  }
+  .front-btn-filled {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
 }
