@@ -118,3 +118,68 @@
   font-weight: 800;
   letter-spacing: -0.05em;
 }
+
+/* ================================= */
+/* 📱 SMART MOBILE DASHBOARD (NEW)   */
+/* ================================= */
+
+@media (max-width: 900px) {
+  /* Stack Layout instead of Side-by-Side */
+  .admin-wrapper {
+    flex-direction: column;
+  }
+  
+  /* Convert Sidebar into a Swipeable Top-Bar */
+  .admin-sidebar {
+    width: 100%;
+    padding: 15px 0 10px 0;
+    border-right: none;
+    border-bottom: 2px solid var(--gray-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Center the Logo on Mobile */
+  .admin-logo {
+    padding: 0 0 15px 0;
+    text-align: center;
+  }
+
+  /* Make Navigation Links a Swipe Row */
+  .admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 15px 5px 15px;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch; /* Momentum scrolling */
+  }
+
+  /* Hide Scrollbar for clean UI */
+  .admin-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-btn {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    background: #f8f9fa;
+    border-radius: 50px;
+    border: 1px solid var(--gray-border);
+  }
+
+  .nav-btn.active {
+    background: var(--nit-red);
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 38, 0, 0.2);
+    border-color: var(--nit-red);
+  }
+
+  .nav-icon {
+    margin-right: 8px;
+  }
+
+  /* Adjust Main Content Area Padding */
+  .admin-content-box {
+    padding: 20px 15px;
+  }
+}
