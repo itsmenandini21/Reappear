@@ -271,8 +271,25 @@ body::before {
 /* ============================= */
 
 @media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0 1rem 1rem 1rem;
+    margin-top: 90px;
+  }
+  .dashboard-grid {
+    gap: 2rem;
+  }
   .folder-card {
     width: 100%;
+  }
+  .folder-wrapper {
+    height: 180px;
+  }
+  .announcement-section {
+    padding: 16px;
+    margin: 0 auto 2rem auto;
+  }
+  .announcement-title {
+    font-size: 1.2rem;
   }
 }
 
@@ -412,4 +429,21 @@ body::before {
 .notice-tag.general {
   background: #f1c40f; /* yellow */
   color: #000; /* better contrast */
+}
+
+@media (max-width: 500px) {
+  .notice-card {
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .notice-title {
+    font-size: 0.95rem;
+  }
+  .notice-content {
+    font-size: 0.85rem;
+    margin: 4px 0 8px 0;
+  }
+  .notice-action {
+    font-size: 0.85rem;
+  }
 }
