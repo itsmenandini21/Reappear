@@ -91,3 +91,16 @@
 @keyframes bounceIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 .modal-icon-info { font-size: 3rem; margin-bottom: 1rem; color: #3b82f6; }
 .modal-actions .btn-primary { box-shadow: 0 4px 12px rgba(227, 52, 47, 0.15); }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+    .admin-subjects-wrapper { padding: 15px; }
+    .form-card { padding: 20px; }
+    .grid-form { grid-template-columns: 1fr; }
+    .dashboard-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .btn-primary { width: 100%; text-align: center; }
+    .search-container { padding: 1rem; }
+    .search-box { max-width: 100%; }
+}

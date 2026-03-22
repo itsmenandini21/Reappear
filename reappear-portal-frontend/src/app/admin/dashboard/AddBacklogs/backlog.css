@@ -207,3 +207,16 @@
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+    .bl-main-container { padding: 15px; }
+    .bl-card { padding: 20px; }
+    .bl-filter-row-3 { grid-template-columns: 1fr; gap: 15px; }
+    .bl-roll-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+    .bl-area-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .bl-submit-row { flex-direction: column; align-items: stretch; gap: 15px; }
+    .bl-btn-primary { width: 100%; }
+}

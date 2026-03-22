@@ -291,3 +291,16 @@
     align-items: center;
     gap: 4px;
 }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+    .admin-portal-container { padding: 1rem; }
+    .form-container { padding: 20px; }
+    .form-grid-horizontal { grid-template-columns: 1fr; }
+    .subject-grid { grid-template-columns: 1fr; }
+    .sem-selection-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .form-footer { flex-direction: column; gap: 10px; }
+    .confirm-reg-btn, .discard-btn { width: 100%; }
+}

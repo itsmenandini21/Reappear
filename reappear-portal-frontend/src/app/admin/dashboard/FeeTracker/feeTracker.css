@@ -40,3 +40,13 @@
 .ft-sub-entry { background: var(--charcoal); color: var(--white); font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 100px; display: flex; align-items: center; gap: 8px; transition: var(--transition); }
 .ft-sub-entry:hover { transform: scale(1.05); background: var(--nit-red); box-shadow: var(--shadow-sm); }
 .ft-sub-bullet { width: 5px; height: 5px; background: var(--white); border-radius: 50%; }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+    .ft-main-wrapper { padding: 15px; }
+    .ft-card-header { padding: 15px; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .ft-mail-action { align-self: flex-start; }
+    .ft-sem-indicator { flex-direction: column; align-items: flex-start; }
+}

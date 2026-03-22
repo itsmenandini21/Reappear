@@ -53,3 +53,16 @@
 .res-btn-primary:hover { background: #c82320; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+    .res-main-container { padding: 15px; }
+    .res-card { padding: 20px; }
+    .res-form-row-4, .res-form-row-3 { grid-template-columns: 1fr; gap: 15px; }
+    .res-area-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .res-submit-row { flex-direction: column; align-items: stretch; gap: 15px; text-align: center; }
+    .res-btn-primary { width: 100%; }
+    .res-roll-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+}

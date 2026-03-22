@@ -362,3 +362,16 @@
     height:30px;
     padding-left:5px;
 }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+    .admin-portal-container { padding: 15px; }
+    .portal-header-wrapper { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .search-container-modern { width: 100%; }
+    .data-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .staff-table { min-width: 600px; /* guarantees table shape remains intact, scrolls instead */ }
+    .primary-action-btn { width: 100%; justify-content: center; }
+    .table-controls-row { display: flex; flex-direction: column; gap: 10px; }
+}

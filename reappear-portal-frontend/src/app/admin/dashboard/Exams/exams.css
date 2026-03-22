@@ -92,3 +92,14 @@
 .ex-loading { color: var(--gray-muted); font-size: 0.95rem; font-style: italic; text-align: center; padding: 20px; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 .ex-no-data { color: var(--gray-muted); font-size: 0.95rem; font-style: italic; text-align: center; padding: 20px; }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+    .ex-main-container { padding: 15px; }
+    .ex-card { padding: 20px; }
+    .ex-form-row-3 { grid-template-columns: 1fr; gap: 15px; }
+    .ex-list-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .ex-btn-delete { width: 100%; }
+}

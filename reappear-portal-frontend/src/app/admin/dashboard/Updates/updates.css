@@ -190,3 +190,14 @@
 }
 
 .cancel-edit-btn:hover { background: #ffd6d6; }
+
+/* ============================= */
+/* 📱 MOBILE RESPONSIVENESS */
+/* ============================= */
+@media (max-width: 768px) {
+  .notice-container { padding: 20px; }
+  .notice-flex { flex-direction: column; gap: 20px; }
+  .recent-notices-section { padding: 20px; }
+  .recent-notice-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+  .recent-notice-actions { width: 100%; justify-content: flex-end; }
+}

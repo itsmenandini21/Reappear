@@ -131,7 +131,9 @@
   box-shadow: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .pyq-container { padding: 15px; }
+  .pyq-card { padding: 20px; }
   .pyq-grid { grid-template-columns: 1fr; }
 }
 .error-text {
