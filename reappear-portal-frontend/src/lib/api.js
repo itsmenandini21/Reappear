@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  // Changed 5000 to 5001!
-  baseURL: 'http://localhost:5001/api', 
+  // Dynamically points to Render in production, but localhost in development!
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api', 
 });
 
 api.interceptors.request.use(
