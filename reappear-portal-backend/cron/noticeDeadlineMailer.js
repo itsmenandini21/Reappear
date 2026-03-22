@@ -13,9 +13,10 @@ export const checkNoticeDeadlinesAndEmail = async () => {
         const currentDayStart = new Date(now);
         currentDayStart.setHours(0, 0, 0, 0);
 
-        // Find Academic announcements where deadline falls exactly within tomorrow
+        // Find Academic announcements where deadline falls exactly within tomorrow and haven't been emailed yet!
         const endingNotices = await Announcement.find({
             category: 'Academic',
+            reminderSent: false,
             deadline: {
                 $gte: currentDayStart,
                 $lte: tomorrow
@@ -52,13 +53,17 @@ export const checkNoticeDeadlinesAndEmail = async () => {
                         <p>You have not yet completed the reappear application or fee payment for <b>${notice.subject.subjectName} (${notice.subject.subjectCode})</b>.</p>
                         <p style="color: #ff2600; font-weight: bold;">The final date to apply is: ${new Date(notice.deadline).toLocaleDateString()}</p>
                         <p>If you fail to submit by the deadline, you will not be allowed to sit for the examination.</p>
-                        <a href="http://localhost:3000/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">Login to Portal</a>
+                        <a href="https://reappear.vercel.app/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">Login to Portal</a>
                     </div>
                 </div>`;
 
                 await sendEmail(record.student.email, `URGENT: Reappear Application Deadline Tomorrow - ${notice.subject.subjectCode}`, htmlMessage);
                 console.log(`Sent auto reminder email to: ${record.student.email} for subject ${notice.subject.subjectCode}`);
             }
+            
+            // Mark the notice as officially sent so it NEVER repeats regardless of server restarts
+            notice.reminderSent = true;
+            await notice.save();
         }
         console.log("Notice Deadline Cron job complete.");
     } catch (error) {

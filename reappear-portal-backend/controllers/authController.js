@@ -107,7 +107,6 @@ const verifyOtpAndRegister = async (req, res) => {
                 rollNumber: user.rollNumber,
                 branch: user.branch,
                 currentSemester: user.currentSemester,
-                profileImage: user.profileImage,
                 token: generateToken(user._id)
             });
         }
@@ -146,7 +145,6 @@ const loginUser = async (req, res) => {
                 rollNumber: user.rollNumber,
                 branch: user.branch,
                 currentSemester: user.currentSemester,
-                profileImage: user.profileImage,
                 token: generateToken(user._id)
             });
         }
@@ -212,7 +210,6 @@ const googleLogin = async (req, res) => {
             rollNumber: user.rollNumber,
             branch: user.branch,
             currentSemester: user.currentSemester,
-            profileImage: user.profileImage,
             token: generateToken(user._id)
         });
 

@@ -7,6 +7,7 @@ const announcementSchema = new mongoose.Schema({
   expiryDate: { type: Date },
   subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject' },
   deadline: { type: Date },
+  reminderSent: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now, expires: '30d' }
 });
 

@@ -109,7 +109,7 @@ export const addReappear = async (req, res) => {
                 <p>You have been marked for reappears in specific subjects by the Exam Cell.</p>
                 <p>Please log in to your NIT KKR Reappear Portal to view your assigned subjects.</p>
                 <br/>
-                <a href="http://localhost:3000/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Portal</a>
+                <a href="https://reappear.vercel.app/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Portal</a>
                 <br/><br/>
                 <p>- Exam Cell, NIT Kurukshetra</p>
             </div>
@@ -194,7 +194,7 @@ export const sendAdminEmail = async (req, res) => {
                 <p style="font-size: 15px; color: #333; line-height: 1.5;">${message.replace(/\n/g, '<br/>')}</p>
                 <br/>
                 <p>Please log in to your NIT KKR Reappear Portal and complete the required actions to avoid penalties.</p>
-                <a href="http://localhost:3000/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">Login to Portal</a>
+                <a href="https://reappear.vercel.app/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">Login to Portal</a>
                 <br/><br/>
                 <p style="color: #888; font-size: 13px;">- Exam Cell, NIT Kurukshetra</p>
             </div>
