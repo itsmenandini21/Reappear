@@ -13,10 +13,45 @@ const SubjectUpdates = () => {
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [subjects, setSubjects] = useState([]); 
   const [loading, setLoading] = useState(true);
-  const [pendingData, setPendingData] = useState(null); // Temporary store form data
+  const [pendingData, setPendingData] = useState(null); 
 
   const [notifyData, setNotifyData] = useState({ rollNumbers: '', title: '', message: '' });
   const [isSending, setIsSending] = useState(false);
+
+  // Dynamic Datalist States
+  const [departments, setDepartments] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [selectedDept, setSelectedDept] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
+
+  // Pre-fill states for Edits
+  useEffect(() => {
+    if (view === 'update' && selectedSubject) {
+      setSelectedDept(selectedSubject.department || "");
+      setSelectedBranch(selectedSubject.branch || "");
+    } else if (view === 'add') {
+      setSelectedDept("");
+      setSelectedBranch("");
+    }
+  }, [view, selectedSubject]);
+
+  // Fetch unique Departments on mount
+  useEffect(() => {
+    api.get('/subjects/departments')
+      .then(res => setDepartments(res.data))
+      .catch(() => {});
+  }, []);
+
+  // Fetch unique Branches when Department is selected or typed
+  useEffect(() => {
+    if (selectedDept) {
+      api.get(`/subjects/branches?department=${selectedDept}`)
+        .then(res => setBranches(res.data))
+        .catch(() => {});
+    } else {
+      setBranches([]);
+    }
+  }, [selectedDept]);
 
   // 1. Fetch Data
   useEffect(() => {
@@ -217,12 +252,18 @@ const SubjectUpdates = () => {
             </div>
             <div className="input-group">
               <label>Department</label>
-              <input name="dept" type="text" defaultValue={selectedSubject?.department} placeholder="e.g. Computer Applications" required />
+              <select name="dept" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} required>
+                <option value="">Select Department</option>
+                {departments.map((d, i) => <option key={i} value={d}>{d}</option>)}
+              </select>
             </div>
 
             <div className="input-group">
               <label>Branch</label>
-              <input name="branch" type="text" defaultValue={selectedSubject?.branch} placeholder="e.g. MCA" required />
+              <select name="branch" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)} required disabled={!selectedDept || branches.length === 0}>
+                <option value="">{branches.length === 0 ? "No Branches" : "Select Branch"}</option>
+                {branches.map((b, i) => <option key={i} value={b}>{b}</option>)}
+              </select>
             </div>
             
             <div className="input-group">

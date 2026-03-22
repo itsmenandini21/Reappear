@@ -3,7 +3,6 @@ import { useState } from 'react';
 import './dashboard.css';
 import BacklogForm from './AddBacklogs/page.jsx';
 import NoticeForm from './Updates/page.jsx';
-import FeeTracker from './FeeTracker/page.jsx';
 import SubjectUpdates from './Subjects/page.jsx';
 import FacultyManagement from './Faculty/page.jsx';
 import  ScheduleExams  from './Exams/page.jsx';
@@ -21,7 +20,6 @@ export default function AdminDashboard() {
     { id: 'exams', label: 'Exams', icon: '📅' },        // <-- ADDED THIS
     { id: 'results', label: 'Results', icon: '📊' },
     { id: 'notices', label: 'Post Notices', icon: '📢' },
-    { id: 'fees', label: 'Fee Tracker', icon: '💰' },
     { id:'faculty',label:'Faculty',icon:'👨‍🏫'},
     {id:'pyqs',label:'Upload PYQs',icon:"📤"}
   ];
@@ -54,7 +52,6 @@ export default function AdminDashboard() {
           {activeTab === 'dashboard' && <AdminOverview />}
           {activeTab === 'backlogs' && <BacklogForm />}
           {activeTab === 'notices' && <NoticeForm />}
-          {activeTab === 'fees' && <FeeTracker />}
           {activeTab === 'subjects' && <SubjectUpdates />}
           {activeTab === 'faculty' && <FacultyManagement />}
           {activeTab === 'exams' && <ScheduleExams />}

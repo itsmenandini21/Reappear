@@ -13,9 +13,10 @@ const reappearRecordSchema = new mongoose.Schema({
     attemptCount: { type: Number, default: 1 },
     feesPaid: {
         type: Boolean,
-        default: false // FIXED TYPO: deafault -> default
+        default: false 
     },
-    transactionID:{type:String, required:false}
+    transactionID:{type:String, required:false},
+    lastDate: { type: Object, required: false } // Custom form deadline override value
 }, { timestamps: true });
 
 const ReappearRecord = mongoose.model("ReappearRecord", reappearRecordSchema);

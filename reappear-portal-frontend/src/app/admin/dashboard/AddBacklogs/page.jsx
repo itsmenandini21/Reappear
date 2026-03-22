@@ -148,7 +148,8 @@ const AddBacklogs = () => {
                      promises.push(
                         api.post('/reappear/add', {
                             rollNumber: rollNumber,
-                            subjectId: subjectDoc._id
+                            subjectId: subjectDoc._id,
+                            lastDate: lastDate // Attach dynamic constraint to Reappear document
                         })
                      );
                 }

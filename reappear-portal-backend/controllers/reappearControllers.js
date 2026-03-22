@@ -51,6 +51,24 @@ export const getMyReappears = async (req, res) => {
       
       const subjectObjectIdStr = record.subject._id.toString();
       const linkedNotice = noticeMap[subjectObjectIdStr];
+      
+      const actualDeadlineDate = record.lastDate ? new Date(record.lastDate) : (linkedNotice ? new Date(linkedNotice.deadline) : null);
+      
+      let _hasActiveNotice = false;
+      let _formattedDeadline = null;
+      
+      if (actualDeadlineDate) {
+           const today = new Date();
+           today.setHours(0, 0, 0, 0); // Normalize time so deadline matching is fair to end-of-day
+           
+           if (actualDeadlineDate >= today) {
+                _hasActiveNotice = true;
+                const d = actualDeadlineDate.getDate().toString().padStart(2, '0');
+                const m = (actualDeadlineDate.getMonth()+1).toString().padStart(2, '0');
+                const y = actualDeadlineDate.getFullYear();
+                _formattedDeadline = `${d}/${m}/${y}`;
+           }
+      }
 
       acc[sem].push({
         id: record._id,
@@ -59,8 +77,8 @@ export const getMyReappears = async (req, res) => {
         subjectObjectId: record.subject._id,
         status: record.status || "pending",
         hasApplied: record.feesPaid,
-        hasActiveNotice: !!linkedNotice, // NEW FIELD: true/false if notice exists
-        noticeDeadline: (linkedNotice && linkedNotice.deadline) ? new Date(linkedNotice.deadline).toLocaleDateString('en-GB') : null, // NEW FIELD
+        hasActiveNotice: _hasActiveNotice, // Evaluate boolean reliably against modern logic
+        noticeDeadline: _formattedDeadline, // Feed strict exact string back to frontend
         credits: record.subject.credits || 0,
         semester: sem
       });
@@ -81,7 +99,7 @@ export const getMyReappears = async (req, res) => {
 
 export const addReappear = async (req, res) => {
     try {
-        const { rollNumber, subjectId } = req.body;
+        const { rollNumber, subjectId, lastDate } = req.body;
 
         if (!rollNumber || !subjectId) {
             return res.status(400).json({ message: "rollNumber and subjectId are required" });
@@ -95,7 +113,8 @@ export const addReappear = async (req, res) => {
             subject: subjectId,
             status: "pending",
             feesPaid: false,
-            attemptCount: 1
+            attemptCount: 1,
+            lastDate: lastDate || null // Bind parameter to DB
         });
 
         const recipientEmail = (existingStudent && existingStudent.email) ? existingStudent.email : `${rollNumber}@nitkkr.ac.in`;
@@ -194,7 +213,7 @@ export const sendAdminEmail = async (req, res) => {
                 <p style="font-size: 15px; color: #333; line-height: 1.5;">${message.replace(/\n/g, '<br/>')}</p>
                 <br/>
                 <p>Please log in to your NIT KKR Reappear Portal and complete the required actions to avoid penalties.</p>
-                <a href="https://reappear.vercel.app/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">Login to Portal</a>
+                <a href="http://localhost:3000/login" style="background-color: #4a90e2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 10px;">Login to Portal</a>
                 <br/><br/>
                 <p style="color: #888; font-size: 13px;">- Exam Cell, NIT Kurukshetra</p>
             </div>

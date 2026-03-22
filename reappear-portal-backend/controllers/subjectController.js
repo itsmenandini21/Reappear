@@ -49,8 +49,21 @@ const getSubjectsByDept = async (req, res) => {
 // @route   GET /api/subjects/departments
 const getUniqueDepartments = async (req, res) => {
     try {
-        const departments = await Subject.distinct("department");
-        res.status(200).json(departments);
+        const dbDepartments = await Subject.distinct("department");
+        
+        const predefined = [
+            "Computer Engineering",
+            "Electronics and Communication Engineering",
+            "Mechanical Engineering",
+            "Electrical Engineering",
+            "Civil Engineering",
+            "Energy Science and Engineering"
+        ];
+        
+        // Merge without duplicates
+        const allDepts = Array.from(new Set([...predefined, ...dbDepartments]));
+        
+        res.status(200).json(allDepts.sort());
     } catch (error) {
         res.status(500).json({ message: "Failed to query Schema Departments", error: error.message });
     }
@@ -67,8 +80,45 @@ const getBranchesByDepartment = async (req, res) => {
             queryArgs.department = department;
         }
         
-        const branches = await Subject.distinct("branch", queryArgs);
-        res.status(200).json(branches);
+        const dbBranches = await Subject.distinct("branch", queryArgs);
+        
+        const branchMap = {
+            "Computer Engineering": [
+                "Computer Science",
+                "Information Technology",
+                "Artificial Intelligence and Machine Learning",
+                "Artificial Intelligence and Data Science",
+                "Mathematics and Computing"
+            ],
+            "Electronics and Communication Engineering": [
+                "Electronics & Communication Engineering (ECE)",
+                "Industrial Internet of Things (IIoT)",
+                "Microelectronics and VLSI Engineering"
+            ],
+            "Mechanical Engineering": [
+                "Mechanical Engineering",
+                "Production & Industrial Engineering",
+                "Robotics & Automation"
+            ],
+            "Electrical Engineering": [
+                "Electrical Engineering"
+            ],
+            "Civil Engineering": [
+                "Civil Engineering"
+            ],
+            "Energy Science and Engineering": [
+                "Sustainable Energy Technologies"
+            ]
+        };
+        
+        let predefined = [];
+        if (department && branchMap[department]) {
+            predefined = branchMap[department];
+        }
+        
+        const allBranches = Array.from(new Set([...predefined, ...dbBranches]));
+        
+        res.status(200).json(allBranches.sort());
     } catch (error) {
         res.status(500).json({ message: "Failed to query Schema Branches", error: error.message });
     }

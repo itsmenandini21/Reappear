@@ -1,13 +1,10 @@
-import { getMyReappears,addReappear,updateReappearStatus,checkExistingBacklogs, getFeeTrackerData, sendAdminEmail, getEligibleStudentsForResults } from "../controllers/reappearControllers.js";
+import { getMyReappears,addReappear,updateReappearStatus,checkExistingBacklogs, getEligibleStudentsForResults } from "../controllers/reappearControllers.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import express from "express"
 const router=express.Router();
 router.get("/my-reappears",protect,getMyReappears);
 // Admin Routes: Allows Admin to add new backlogs or change status to 'cleared'
 router.post('/add', addReappear);
-router.put('/update/:id', updateReappearStatus);
 router.get('/check/:rollNumber', checkExistingBacklogs);
-router.get('/admin/fee-tracker', protect, getFeeTrackerData); // Protect admin endpoints
-router.post('/admin/send-email', protect, sendAdminEmail);
 router.get('/admin/eligible-students', getEligibleStudentsForResults);
 export default router;
