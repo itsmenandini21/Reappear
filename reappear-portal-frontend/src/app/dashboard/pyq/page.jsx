@@ -5,8 +5,10 @@ import api from '@/lib/api';
 import './PYQ.css';
 
 export default function PYQDirectory() {
-  // 1. Backend ka Base URL define karein
-  const BACKEND_URL = "http://localhost:5001"; 
+  // 1. Backend ka Base URL dynamically resolve karein
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') 
+    : "http://localhost:5001";
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDept, setSelectedDept] = useState('All');

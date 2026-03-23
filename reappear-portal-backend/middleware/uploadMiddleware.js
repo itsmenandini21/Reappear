@@ -15,6 +15,7 @@ if (!fs.existsSync(uploadFolder)) {
 // Configure where and how to save the file
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
+        console.log("MULTER DESTINATION:", uploadFolder);
         cb(null, uploadFolder); // Saves it securely using absolute paths
     },
     filename: function (req, file, cb) {

@@ -48,7 +48,12 @@ export const getPyqs = async (req, res) => {
 
 export const uploadPyq = async (req, res) => {
     try {
+        console.log("== UPLOAD TRACE ==");
+        console.log("Req Body:", req.body);
+        console.log("Req File:", req.file);
+
         if (!req.file) {
+            console.log("Error: No file detected!");
             return res.status(400).json({ message: "PDF missing" });
         }
         

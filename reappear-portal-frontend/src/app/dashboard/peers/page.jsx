@@ -12,6 +12,11 @@ export default function Peers() {
     const [selectedSemester, setSelectedSemester] = useState('All');
     const [selectedSubject, setSelectedSubject] = useState('All');
 
+    // Environment-agnostic backend base URL for images
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL 
+        ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api$/, '') 
+        : "http://localhost:5001";
+
     // State for backend data
     const [peersData, setPeersData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -111,7 +116,7 @@ export default function Peers() {
                                 <div key={peer.id} className="peer-card">
                                     <div className="peer-avatar-wrapper">
                                         {peer.profileImage ? (
-                                            <img src={`http://localhost:5001${peer.profileImage}`} alt={peer.name} className="peer-avatar-img" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                            <img src={`${BACKEND_URL}${peer.profileImage}`} alt={peer.name} className="peer-avatar-img" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                                         ) : (
                                             <span className="peer-avatar-emoji">🎓</span>
                                         )}
