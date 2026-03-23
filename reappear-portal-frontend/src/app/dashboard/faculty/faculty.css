@@ -1,5 +1,6 @@
 :root {
-  --primary-red: #ff2600;
+  --primary-red: #e11d48;
+  --primary-red-glow: rgba(225, 29, 72, 0.15);
   --dark-bg: #0a0a0a;
   --glass-white: rgba(255, 255, 255, 0.8);
   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -188,7 +189,7 @@
 
 .modern-contact-btn:hover {
   background: var(--primary-red);
-  box-shadow: 0 8px 20px rgba(255, 38, 0, 0.3);
+  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3);
 }
 
 @media (max-width: 600px) {

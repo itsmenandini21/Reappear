@@ -17,7 +17,7 @@ const dashboardData = [
 ];
 
 export default function Dashboard() {
-  const folderColor = "#ff2600";
+  const folderColor = "#e11d48";
   const router = useRouter();
 
   const [announcements, setAnnouncements] = useState([]);

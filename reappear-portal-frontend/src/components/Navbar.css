@@ -32,7 +32,7 @@
 .nav-brand {
   font-size: 1.5rem;
   font-weight: 900;
-  color: #ff2600;
+  color: #e11d48;
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -53,7 +53,7 @@
 
 .message-btn {
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 38, 0, 0.18);
+  border: 1px solid rgba(225, 29, 72, 0.18);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -61,17 +61,17 @@
   transition: all 0.3s ease-in-out;
   color: #e11d48;
   border-radius: 999px;
-  box-shadow: 0 8px 24px -18px rgba(255, 38, 0, 0.45);
+  box-shadow: 0 8px 24px -18px rgba(225, 29, 72, 0.45);
   height: 45px;
   width: 45px;
   padding: 0;
 }
 
 .message-btn:hover {
-  color: #ff2600;
-  border-color: rgba(255, 38, 0, 0.35);
+  color: #e11d48;
+  border-color: rgba(225, 29, 72, 0.35);
   transform: scale(1.1);
-  box-shadow: 0 16px 28px -14px rgba(255, 38, 0, 0.35);
+  box-shadow: 0 16px 28px -14px rgba(225, 29, 72, 0.35);
   filter: brightness(1.08);
 }
 
@@ -83,7 +83,7 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  background: #ff2600;
+  background: #e11d48;
   color: white;
   font-size: 0.65rem;
   font-weight: 800;
@@ -131,7 +131,7 @@
 .new-chat-btn {
   background: none;
   border: none;
-  color: #ff2600;
+  color: #e11d48;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -210,7 +210,7 @@
   width: 42px;
   height: 42px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 38, 0, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.12);
   background: rgba(255, 255, 255, 0.9);
   display: inline-flex;
   align-items: center;
@@ -224,7 +224,7 @@
 
 .profile-btn:hover {
   transform: scale(1.08);
-  box-shadow: 0 14px 28px -18px rgba(255, 38, 0, 0.32);
+  box-shadow: 0 14px 28px -18px rgba(225, 29, 72, 0.32);
   filter: brightness(1.05);
 }
 
@@ -311,7 +311,7 @@
 }
 
 .logout-btn:hover {
-  background: rgba(255, 38, 0, 0.1);
+  background: rgba(225, 29, 72, 0.1);
 }
 
 .logout-btn:hover .logout-emoji-default {

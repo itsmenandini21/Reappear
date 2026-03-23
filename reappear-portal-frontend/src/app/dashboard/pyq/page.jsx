@@ -115,8 +115,8 @@ export default function PYQDirectory() {
               .map(item => (
                 // 3. openPDF function call karein
                 <div key={item._id} className="pyq-folder-card" onClick={() => openPDF(item.pdfUrl)}>
-                  <div className="pyq-folder-wrapper">
-                    <Folder color="#ff2600" size={1} />
+                  <div className="pdf-icon">
+                    <Folder color="#e11d48" size={1} />
                   </div>
                   <h3 className="pyq-card-title">{item.subject?.subjectName || "Subject"}</h3>
                   <div className="pyq-card-tags">
