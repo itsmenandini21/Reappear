@@ -12,40 +12,53 @@ const UploadResults = () => {
 
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [availableEvaluators, setAvailableEvaluators] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [branches, setBranches] = useState([]);
-  const [dynamicSemesters, setDynamicSemesters] = useState([]);
 
-  // Dynamically fetch Departments on mount
-  useEffect(() => {
-    api.get('/subjects/departments')
-      .then(res => setDepartments(res.data))
-      .catch(() => toast.error("Failed to fetch Schema Departments"));
-  }, []);
+  const dummyData = {
+    'Computer Engineering': [
+      'Computer Science',
+      'Information Technology',
+      'Artificial Intelligence and Machine Learning',
+      'Artificial Intelligence and Data Science',
+      'Mathematics and Computing'
+    ],
+    'Electronics and Communication Engineering': [
+      'Electronics & Communication Engineering (ECE)',
+      'Industrial Internet of Things (IIoT)',
+      'Microelectronics and VLSI Engineering'
+    ],
+    'Mechanical Engineering': [
+      'Mechanical Engineering',
+      'Production & Industrial Engineering',
+      'Robotics & Automation'
+    ],
+    'Electrical Engineering': ['Electrical Engineering'],
+    'Civil Engineering': ['Civil Engineering'],
+    'Energy Science and Engineering': ['Sustainable Energy Technologies'],
+    'Computer Applications': ['MCA']
+  };
 
-  // Dynamically fetch Branches whenever Department changes
+  const departments = Object.keys(dummyData);
+  const branches = resFilters.dept ? dummyData[resFilters.dept] || [] : [];
+  const dynamicSemesters = ['1', '2', '3', '4', '5', '6', '7', '8'];
+
+  // Clear dependent filters when dept changes to an invalid one for current branch
   useEffect(() => {
     if (resFilters.dept) {
-      api.get(`/subjects/branches?department=${resFilters.dept}`)
-        .then(res => setBranches(res.data))
-        .catch(() => toast.error("Failed to fetch Official Branches"));
+      const validBranches = dummyData[resFilters.dept] || [];
+      if (!validBranches.includes(resFilters.branch)) {
+        setResFilters(prev => ({ ...prev, branch: '', sem: '', subject: '', evaluator: '' })); 
+      }
     } else {
-      setBranches([]);
       setResFilters(prev => ({ ...prev, branch: '', sem: '', subject: '', evaluator: '' })); 
     }
   }, [resFilters.dept]);
 
-  // Dynamically fetch Semesters when Branch is locked in
+  // Handle branch changes
   useEffect(() => {
-     if (resFilters.dept && resFilters.branch) {
-        api.get(`/subjects/semesters/distinct?department=${resFilters.dept}&branch=${resFilters.branch}`)
-          .then(res => setDynamicSemesters(res.data))
-          .catch(() => toast.error("Failed to fetch Branch Semesters"));
-     } else {
-        setDynamicSemesters([]);
-        setResFilters(prev => ({ ...prev, sem: '', subject: '', evaluator: '' }));
-     }
-  }, [resFilters.branch, resFilters.dept]);
+    if (!resFilters.branch) {
+      setResFilters(prev => ({ ...prev, sem: '', subject: '', evaluator: '' })); 
+    }
+  }, [resFilters.branch]);
 
   // Dynamically fetch Evaluators
   useEffect(() => {
