@@ -32,6 +32,7 @@ function ApplyFormContent() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [success, setSuccess] = useState(false);
+  const [receiptFile, setReceiptFile] = useState(null);
 
   useEffect(() => {
     // 1. URL parameters fetch karein
@@ -78,10 +79,19 @@ function ApplyFormContent() {
 
     setLoading(true);
     try {
-      await api.post('/applications/apply', {
-        subjectId: formData.subjectId,
-        reappearRecordId: formData.reappearRecordId,
-        transactionId: formData.transactionId
+      const payload = new FormData();
+      payload.append('subjectId', formData.subjectId);
+      payload.append('reappearRecordId', formData.reappearRecordId);
+      payload.append('transactionId', formData.transactionId.trim());
+
+      if (receiptFile) {
+        payload.append('receipt', receiptFile);
+      }
+
+      await api.post('/applications/apply', payload, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       setSuccess(true);
     } catch (error) {
@@ -171,7 +181,12 @@ function ApplyFormContent() {
               </div>
               <div className="input-group full-width">
                 <label>Upload Fee Receipt (PDF/JPG)</label>
-                <input type="file" className="form-input" accept=".pdf,.jpg,.jpeg,.png" />
+                <input
+                  type="file"
+                  className="form-input"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                />
               </div>
             </div>
 

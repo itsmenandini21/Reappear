@@ -9,6 +9,7 @@ import  ScheduleExams  from './Exams/page.jsx';
 import  UploadResults  from './Results/page.jsx';
 import UploadPyqForm from './PYQs/page.jsx';
 import AdminOverview from './Overview/page.jsx';
+import FeeTracker from './FeeTracker/page.jsx';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -19,6 +20,7 @@ export default function AdminDashboard() {
     { id: 'subjects', label: 'Subjects', icon: '📚' },
     { id: 'exams', label: 'Exams', icon: '📅' },        // <-- ADDED THIS
     { id: 'results', label: 'Results', icon: '📊' },
+    { id: 'fees', label: 'Fee Tracker', icon: '💳' },
     { id: 'notices', label: 'Post Notices', icon: '📢' },
     { id:'faculty',label:'Faculty',icon:'👨‍🏫'},
     {id:'pyqs',label:'Upload PYQs',icon:"📤"}
@@ -56,6 +58,7 @@ export default function AdminDashboard() {
           {activeTab === 'faculty' && <FacultyManagement />}
           {activeTab === 'exams' && <ScheduleExams />}
           {activeTab === 'results' && <UploadResults />}
+          {activeTab === 'fees' && <FeeTracker />}
           {activeTab === 'pyqs' && <UploadPyqForm />}
         </section>
       </main>
