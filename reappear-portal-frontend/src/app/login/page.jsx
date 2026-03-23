@@ -32,6 +32,10 @@ function GoogleCustomButton({ handleAuthSuccess, setisNotSuccess }) {
 function LoginPage() {
     const [isSuccess, setIsSuccess] = useState(false);
     const [isNotSuccess, setisNotSuccess] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+    const [forgotStep, setForgotStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
+    const [forgotData, setForgotData] = useState({ email: "", otp: "", newPassword: "", confirmPassword: "" });
     const router = useRouter();
     const [loginData, setLoginData] = useState({ email: "", password: "" })
     const [emailError, setEmailError] = useState("");
@@ -112,10 +116,16 @@ function LoginPage() {
             </div>
             <div className="input-box">
               <label>Password</label>
-              <input 
-                type="password" name="password" placeholder="••••••••" 
-                value={loginData.password} onChange={handleChange} required 
-              />
+              <div className="password-input-wrapper">
+                <input 
+                  type={showPassword ? "text" : "password"} name="password" placeholder="••••••••" 
+                  value={loginData.password} onChange={handleChange} required 
+                />
+                <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? "🙈" : "👁️"}
+                </span>
+              </div>
+              <span className="forgot-password-link" onClick={() => setForgotPasswordMode(true)}>Forgot Password?</span>
             </div>
             <button type="submit" className="login-submit-btn" disabled={!!emailError || !loginData.email} style={{ opacity: (!!emailError || !loginData.email) ? 0.5 : 1, cursor: (!!emailError || !loginData.email) ? 'not-allowed' : 'pointer' }}>LOGIN</button>
           </form>

@@ -14,12 +14,14 @@
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
   cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
 .nav-logo {
@@ -39,66 +41,7 @@
 .nav-right-side {
   display: flex;
   align-items: center;
-  gap: 20px; /* Space between links and the chat button */
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  background: #ffffff;
-  padding: 6px 8px;
-  border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-  gap: 5px;
-}
-
-/* --- THE DYNAMIC HOVER EFFECT --- */
-.nav-item {
-  position: relative;
-  padding: 8px 24px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #333;
-  background: transparent;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  overflow: hidden; /* Contains the sliding background */
-  transition: color 0.3s ease;
-  z-index: 1;
-}
-
-/* The sliding red background */
-.nav-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ff2600;
-  z-index: -1;
-  border-radius: 50px;
-  transform: scaleX(0); /* Starts hidden */
-  transform-origin: right;
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.nav-item:hover {
-  color: #ffffff;
-}
-
-/* Triggers the slide-in on hover */
-.nav-item:hover::before {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
-/* Active Page State */
-.nav-item.active {
-  background: #ff2600;
-  color: white;
-  box-shadow: 0 4px 15px rgba(255, 38, 0, 0.2);
+  gap: 12px;
 }
 
 /* --- MESSAGE CENTER UI --- */
@@ -109,16 +52,16 @@
 }
 
 .message-btn {
-  background: #ffffff;
-  border: 1px solid #eaeaea;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 38, 0, 0.18);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  color: #333;
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease-in-out;
+  color: #e11d48;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -18px rgba(255, 38, 0, 0.45);
   height: 45px;
   width: 45px;
   padding: 0;
@@ -126,9 +69,14 @@
 
 .message-btn:hover {
   color: #ff2600;
-  border-color: #ff2600;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 38, 0, 0.15);
+  border-color: rgba(255, 38, 0, 0.35);
+  transform: scale(1.1);
+  box-shadow: 0 16px 28px -14px rgba(255, 38, 0, 0.35);
+  filter: brightness(1.08);
+}
+
+.message-btn:active {
+  transform: scale(0.95);
 }
 
 .message-badge {
@@ -161,6 +109,7 @@
   overflow: hidden;
   transform-origin: top right;
   z-index: 1001;
+  transition: all 0.3s ease-in-out;
 }
 
 .dropdown-header {
@@ -199,11 +148,11 @@
   display: flex;
   gap: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease-in-out;
 }
 
 .message-item:hover {
-  background: #fcfcfc;
+  background: #fff6f5;
 }
 
 .sender-avatar {
@@ -253,6 +202,134 @@
   font-weight: 700;
 }
 
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 38, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 8px 20px -16px rgba(15, 23, 42, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 14px 28px -18px rgba(255, 38, 0, 0.32);
+  filter: brightness(1.05);
+}
+
+.profile-btn:active {
+  transform: scale(0.95);
+}
+
+.profile-emoji {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease-in-out;
+}
+
+.profile-emoji-default {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.profile-emoji-hover {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.profile-btn:hover .profile-emoji-default {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.profile-btn:hover .profile-emoji-hover {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  min-width: 130px;
+  background: #ffffff;
+  border: 1px solid #ffe2de;
+  border-radius: 12px;
+  box-shadow: 0 18px 30px -20px rgba(15, 23, 42, 0.28);
+  padding: 6px;
+  z-index: 1002;
+}
+
+.logout-btn {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 700;
+  transition: all 0.25s ease-in-out;
+  position: relative;
+}
+
+.logout-emoji {
+  display: inline-flex;
+  width: 16px;
+  justify-content: center;
+  transition: all 0.25s ease-in-out;
+}
+
+.logout-emoji-default {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.logout-emoji-hover {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transform: translateY(6px);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 38, 0, 0.1);
+}
+
+.logout-btn:hover .logout-emoji-default {
+  opacity: 0;
+  width: 0;
+  transform: translateY(-6px);
+}
+
+.logout-btn:hover .logout-emoji-hover {
+  opacity: 1;
+  width: 16px;
+  transform: translateY(0);
+}
+
+.logout-btn:active {
+  transform: scale(0.98);
+}
+
 /* ============================= */
 /* 📱 MOBILE RESPONSIVENESS */
 /* ============================= */
@@ -272,22 +349,7 @@
   }
   
   .nav-right-side {
-    gap: 8px; /* Tighter spacing */
-  }
-
-  .nav-links {
-    padding: 2px 4px;
-    gap: 2px;
-    background: transparent;
-    box-shadow: none;
-  }
-  
-  .nav-item {
-    font-size: 0.8rem;
-    padding: 8px 10px;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    gap: 8px;
   }
 
   .messages-dropdown {
@@ -302,10 +364,6 @@
 }
 
 @media (max-width: 400px) {
-  .nav-item {
-    font-size: 0.7rem;
-    padding: 6px 8px;
-  }
   .nav-right-side {
     gap: 4px;
   }

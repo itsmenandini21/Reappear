@@ -4,11 +4,16 @@ dotenv.config();
 
 const transporter = nodemailer.createTransport({
     // You can swap these out for your real production SMTP service (SendGrid, Mailgun, AWS SES)
-    service: 'gmail', 
+    service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, 
+        user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+    },
+    // Connection pooling for better performance
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    rateLimit: 10 // 10 emails per second
 });
 
 const sendEmail = async (to, subject, htmlContent) => {
@@ -25,7 +30,7 @@ const sendEmail = async (to, subject, htmlContent) => {
         return true;
     } catch (error) {
         console.error('Error sending email:', error);
-        return false;
+        throw error; // Re-throw to allow caller to handle
     }
 };
 

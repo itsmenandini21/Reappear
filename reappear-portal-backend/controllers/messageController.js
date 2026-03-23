@@ -1,5 +1,5 @@
 import Message from '../models/Message.js';
-import User from '../models/user.js'; // 👈 Ye import zaroori hai existence check ke liye
+import User from '../models/user.js'; // Ye import zaroori hai existence check ke liye
 
 // 1. SEND MESSAGE (Same as before)
 export const sendMessage = async (req, res) => {

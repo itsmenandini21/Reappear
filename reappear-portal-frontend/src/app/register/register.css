@@ -59,3 +59,28 @@
 
 @keyframes progress { from { width: 0%; } to { width: 100%; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  padding-right: 45px !important;
+  width: 100%;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 15px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  user-select: none;
+  transition: opacity 0.2s;
+  opacity: 0.6;
+}
+
+.eye-icon:hover {
+  opacity: 1;
+}
