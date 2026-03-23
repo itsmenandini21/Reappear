@@ -40,7 +40,7 @@ const ScheduleExams = () => {
   };
 
   const departments = Object.keys(dummyData);
-  const [formData, setFormData] = useState({ dept: '', branch: '', sem: '', subject: '' });
+  const [formData, setFormData] = useState({ dept: '', branch: '', sem: '', subject: '', examType: '', component: '' });
 
   const branches = formData.dept ? dummyData[formData.dept] || [] : [];
   const dynamicSemesters = ['1', '2', '3', '4', '5', '6', '7', '8'];
@@ -91,6 +91,8 @@ const ScheduleExams = () => {
       branch: formData.get("branch"),
       sem: formData.get("sem"),
       subject: formData.get("subject"),
+      examType: formData.get("examType"),
+      component: formData.get("component"),
       date: formData.get("date"),
       time: formData.get("time"),
       room: formData.get("room"),
@@ -123,7 +125,14 @@ const ScheduleExams = () => {
     setSelectedExam(exam);
     setHasSyllabus(!!exam.syllabus);
     // Preload the specific data into the dynamic states to establish the mappings instantly
-    setFormData({ dept: exam.department || '', branch: exam.branch || '', sem: exam.semester || '', subject: exam.subjectCode || '' });
+    setFormData({ 
+      dept: exam.department || '', 
+      branch: exam.branch || '', 
+      sem: exam.semester || '', 
+      subject: exam.subjectCode || '',
+      examType: exam.examType || '',
+      component: exam.examComponent || ''
+    });
     setView('update');
   };
 
@@ -131,7 +140,7 @@ const ScheduleExams = () => {
     setSelectedExam(null); 
     setView('add'); 
     setHasSyllabus(false);
-    setFormData({ dept: '', branch: '', sem: '', subject: '' });
+    setFormData({ dept: '', branch: '', sem: '', subject: '', examType: '', component: '' });
   };
 
   const getSubName = (code) => {
@@ -225,6 +234,10 @@ const ScheduleExams = () => {
                         <div className="subject-info">
                           <span className="sub-code">{exam.subjectCode}</span>
                           <span className="sub-name">{getSubName(exam.subjectCode)}</span>
+                          <div style={{marginTop: '4px'}}>
+                            <span className="pill" style={{background: '#f1f5f9', color: '#475569', fontSize: '0.75rem', padding: '2px 6px', marginRight: '4px'}}>{exam.examType || 'End-Sem'}</span>
+                            <span className="pill" style={{background: '#f1f5f9', color: '#475569', fontSize: '0.75rem', padding: '2px 6px'}}>{exam.examComponent || 'Theory'}</span>
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -306,6 +319,25 @@ const ScheduleExams = () => {
                 {subjects.map(sub => (
                   <option key={sub.subjectCode} value={sub.subjectCode}>{sub.subjectCode} - {sub.subjectName}</option>
                 ))}
+              </select>
+            </div>
+
+            <div className="input-group">
+              <label>Exam Type</label>
+              <select name="examType" value={formData.examType} onChange={e => setFormData({ ...formData, examType: e.target.value })} required>
+                <option value="">Select Type</option>
+                <option value="Mid-Sem-1">Mid Sem 1</option>
+                <option value="Mid-Sem-2">Mid Sem 2</option>
+                <option value="End-Sem">End Sem</option>
+              </select>
+            </div>
+            
+            <div className="input-group">
+              <label>Component</label>
+              <select name="component" value={formData.component} onChange={e => setFormData({ ...formData, component: e.target.value })} required>
+                <option value="">Select Component</option>
+                <option value="Theory">Theory</option>
+                <option value="Practical">Practical</option>
               </select>
             </div>
 

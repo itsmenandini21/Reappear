@@ -16,6 +16,10 @@ const ExamCard = ({ data, activeTab }) => {
         <div className="exam-left">
           <span className="exam-tag">{data.examName}</span>
           <h3 className="exam-subject">{data.subject}</h3>
+          <div style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {data.examType && <span className="detail-pill" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569', padding: '4px 10px', fontSize: '0.8rem' }}>{data.examType}</span>}
+            {data.examComponent && <span className="detail-pill" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569', padding: '4px 10px', fontSize: '0.8rem' }}>{data.examComponent}</span>}
+          </div>
         </div>
 
         <div className="exam-right">
@@ -123,12 +127,20 @@ export default function ExamDates() {
         
         const promises = [
             api.get('/exams').catch(() => ({ data: { upcoming: [] } })), // Gracefully handle if exams API doesn't exist yet
-            api.get(`/results/${userId}`)
+            api.get(`/results/${userId}`),
+            api.get('/subjects').catch(() => ({ data: [] }))
         ];
         
-        const [examsResponse, resultsResponse] = await Promise.all(promises);
-        
-        let fetchedUpcoming = examsResponse.data.upcoming || [];
+        const [examsResponse, resultsResponse, subjectsResponse] = await Promise.all(promises);
+        const allSubjects = subjectsResponse.data || [];
+
+        let fetchedUpcoming = (examsResponse.data.upcoming || []).map(exam => {
+            const matchedSub = allSubjects.find(s => s.subjectCode === exam.subject);
+            return {
+                ...exam,
+                subject: matchedSub ? `${matchedSub.subjectCode} - ${matchedSub.subjectName}` : exam.subject
+            };
+        });
         
         // Remap strictly from MongoDB Results Protocol
         let fetchedResults = resultsResponse.data.map((res, index) => ({

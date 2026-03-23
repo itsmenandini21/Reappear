@@ -7,7 +7,6 @@ import './subjects.css';
 
 export default function Subjects() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('pending');
   const [groupedSubjects, setGroupedSubjects] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -35,8 +34,7 @@ export default function Subjects() {
     
     return semesters.map(sem => {
       const filteredInSem = groupedSubjects[sem].filter(sub => {
-        if (activeTab === 'pending') return sub.status === 'pending' || sub.status === 'unfilled' || sub.status === 'in-progress' || sub.status === 'failed';
-        return sub.status === 'cleared';
+        return sub.status === 'pending' || sub.status === 'unfilled' || sub.status === 'in-progress' || sub.status === 'failed';
       });
 
       if (filteredInSem.length === 0) return null;
@@ -111,20 +109,7 @@ export default function Subjects() {
         <p className="page-subtext">View and manage your reappear examinations</p>
       </div>
 
-      <div className="tab-container">
-        <button
-          className={`tab-button ${activeTab === 'pending' ? 'active-tab' : ''}`}
-          onClick={() => setActiveTab('pending')}
-        >
-          Active Reappears
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'cleared' ? 'active-tab' : ''}`}
-          onClick={() => setActiveTab('cleared')}
-        >
-          Cleared / History
-        </button>
-      </div>
+
 
       <div className="list-wrapper">
         {loading ? (
