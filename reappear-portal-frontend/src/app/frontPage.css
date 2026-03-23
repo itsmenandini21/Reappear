@@ -366,6 +366,10 @@
   position: relative;
 }
 
+.fselect.open {
+  z-index: 50;
+}
+
 .fselect-trigger {
   position: relative;
   border: 1px solid #cbd5e1;

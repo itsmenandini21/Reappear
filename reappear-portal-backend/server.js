@@ -1,4 +1,5 @@
 import express from 'express';
+import "./workers/emailWorker.js";
 import dotenv from 'dotenv';
 import connectDb from './config/db.js';
 import cors from 'cors'; 
@@ -36,7 +37,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //     origin: 'http://localhost:3000', 
 //     credentials: true
 // }));
-app.use(cors()); // Allow all origins for development. Adjust in production!
+app.use(cors());
 
 app.use(express.json()); 
 

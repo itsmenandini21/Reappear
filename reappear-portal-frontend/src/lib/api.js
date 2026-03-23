@@ -8,8 +8,22 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
+      const requestPath = String(config.url || '');
+      const isPublicEndpoint = [
+        'auth/login',
+        'auth/google',
+        'auth/send-otp',
+        'auth/verify-otp',
+        'auth/resend-otp',
+        '/auth/forgot-password',
+        '/auth/reset-password',
+        'subjects/departments',
+        'subjects/branches',
+        'subjects/semesters/distinct',
+      ].some((p) => requestPath.startsWith(p));
+
       const token = localStorage.getItem('token');
-      if (token) {
+      if (token && !isPublicEndpoint) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
