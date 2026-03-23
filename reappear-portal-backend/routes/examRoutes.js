@@ -73,6 +73,8 @@ router.get('/', async (req, res) => {
                 examName: `${exam.semester} Sem - ${exam.department.substring(0, 3)}`,
                 subject: exam.subjectCode,
                 faculty: "TBA",
+                examType: exam.examType || "End-Sem",
+                examComponent: exam.examComponent || "Theory",
                 date: formatDate(exam.examDate),
                 time: exam.examTime,
                 room: exam.roomAllocation || "TBA",
@@ -113,11 +115,11 @@ router.get('/all', protect, async (req, res) => {
 // POST: Admin schedules a new exam
 router.post('/', async (req, res) => {
     try {
-        const { dept, branch, sem, subject, date, time, room, syllabus } = req.body;
+        const { dept, branch, sem, subject, date, time, room, examType, component, syllabus } = req.body;
 
         // Backend validation
-        if (!dept || !branch || !sem || !subject || !date || !time || !room) {
-            return res.status(400).json({ message: "Please fill all required exam details, including Branch." });
+        if (!dept || !branch || !sem || !subject || !date || !time || !room || !examType || !component) {
+            return res.status(400).json({ message: "Please fill all required exam details, including Type and Component." });
         }
 
         // Map frontend payload to mongoose schema
@@ -128,6 +130,8 @@ router.post('/', async (req, res) => {
             subjectCode: subject,
             examDate: new Date(date),
             examTime: time,
+            examType: examType,
+            examComponent: component,
             roomAllocation: room,
             syllabus: syllabus || "",
             status: "upcoming"
@@ -162,10 +166,10 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { dept, branch, sem, subject, date, time, room, syllabus } = req.body;
+        const { dept, branch, sem, subject, date, time, room, examType, component, syllabus } = req.body;
 
-        if (!dept || !branch || !sem || !subject || !date || !time || !room) {
-            return res.status(400).json({ message: "Please fill all required exam details, including Branch." });
+        if (!dept || !branch || !sem || !subject || !date || !time || !room || !examType || !component) {
+            return res.status(400).json({ message: "Please fill all required exam details, including Type and Component." });
         }
 
         const updatedExam = await Exam.findByIdAndUpdate(
@@ -177,6 +181,8 @@ router.put('/:id', async (req, res) => {
                 subjectCode: subject,
                 examDate: new Date(date),
                 examTime: time,
+                examType: examType,
+                examComponent: component,
                 roomAllocation: room,
                 syllabus: syllabus || "",
             },

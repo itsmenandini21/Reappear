@@ -4,7 +4,7 @@ import Result from '../models/result.js';
 export const scheduleExam = async (req, res) => {
     try {
         // Look for 'syllabus' instead of 'syllabusLink'
-        const { dept, branch, sem, subject, date, time, room, syllabus } = req.body;
+        const { dept, branch, sem, subject, date, time, room, examType, component, syllabus } = req.body;
 
         const newExam = await Exam.create({
             department: dept,
@@ -13,6 +13,8 @@ export const scheduleExam = async (req, res) => {
             subjectCode: subject,
             examDate: date,
             examTime: time,
+            examType: examType || 'End-Sem',
+            examComponent: component || 'Theory',
             roomAllocation: room,
             syllabus: syllabus || "" // Saves the typed text
         });
@@ -32,6 +34,8 @@ export const getStudentExamsAndResults = async (req, res) => {
             examName: 'Reappear Exam', 
             subject: exam.subjectCode,
             faculty: 'Exam Cell', 
+            examType: exam.examType || 'End-Sem',
+            examComponent: exam.examComponent || 'Theory',
             date: new Date(exam.examDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
             time: exam.examTime,
             room: exam.roomAllocation,

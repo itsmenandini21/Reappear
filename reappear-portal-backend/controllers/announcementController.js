@@ -3,7 +3,14 @@ import Announcement from '../models/announcement.js';
 export const createAnnouncement = async (req, res) => {
   try {
     const { title, category, content, expiryDate, subject, deadline } = req.body;
-    const newNotice = new Announcement({ title, category, content, expiryDate, subject, deadline });
+    
+    // Prevent Mongoose CastErrors by converting "" to undefined
+    const noticeData = { title, category, content };
+    if (expiryDate) noticeData.expiryDate = expiryDate;
+    if (subject) noticeData.subject = subject;
+    if (deadline) noticeData.deadline = deadline;
+
+    const newNotice = new Announcement(noticeData);
     await newNotice.save();
     res.status(201).json({ message: "Announcement Published Successfully!" });
   } catch (error) {
@@ -24,9 +31,16 @@ export const getAnnouncements = async (req, res) => {
 export const updateAnnouncement = async (req, res) => {
   try {
     const { title, category, content, expiryDate, subject, deadline } = req.body;
+    
+    // Prevent Mongoose CastErrors for updates
+    const updateData = { title, category, content };
+    updateData.expiryDate = expiryDate || null;
+    updateData.subject = subject || null;
+    updateData.deadline = deadline || null;
+
     const updated = await Announcement.findByIdAndUpdate(
       req.params.id, 
-      { title, category, content, expiryDate, subject, deadline },
+      updateData,
       { new: true, runValidators: true }
     );
     if (!updated) return res.status(404).json({ message: "Announcement not found" });

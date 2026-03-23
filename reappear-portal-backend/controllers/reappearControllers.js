@@ -99,7 +99,7 @@ export const getMyReappears = async (req, res) => {
 
 export const addBulkReappears = async (req, res) => {
     try {
-        const { assignments, lastDate } = req.body;
+        const { assignments } = req.body;
 
         if (!assignments || !Array.isArray(assignments) || assignments.length === 0) {
             return res.status(400).json({ message: "assignments array is required" });
@@ -127,7 +127,7 @@ export const addBulkReappears = async (req, res) => {
                 status: "pending",
                 feesPaid: false,
                 attemptCount: 1,
-                lastDate: lastDate || null
+                lastDate: null
             });
 
             results.push(newRecord);

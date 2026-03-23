@@ -7,7 +7,7 @@ export const getOverviewStats = async (req, res) => {
   try {
     const totalStudents = await User.countDocuments({ role: 'student' });
     const totalApplications = await Application.countDocuments();
-    const pendingReappears = await ReappearRecord.countDocuments({ isCleared: false });
+    const pendingReappears = await ReappearRecord.countDocuments();
     const totalNotices = await Announcement.countDocuments();
 
     res.status(200).json({
