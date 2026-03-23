@@ -252,13 +252,13 @@ export default function FrontPage() {
         name: '',
         email: '',
         otp: ['', '', '', '', '', ''],
-        department: '',
-        branch: '',
+        department: fallbackDepartments[0] || '',
+        branch: fallbackBranchMap[fallbackDepartments[0]]?.[0] || '',
         currentSemester: '',
         password: ''
       });
     }
-  }, [isOpen]);
+  }, [isOpen, fallbackDepartments, fallbackBranchMap]);
 
   useEffect(() => {
     if (!openSelect) return;
@@ -371,8 +371,8 @@ export default function FrontPage() {
       name: '',
       email: '',
       otp: ['', '', '', '', '', ''],
-      department: '',
-      branch: '',
+      department: fallbackDepartments[0] || '',
+      branch: fallbackBranchMap[fallbackDepartments[0]]?.[0] || '',
       currentSemester: '',
       password: ''
     });
@@ -923,7 +923,7 @@ export default function FrontPage() {
                           value={joinForm.department}
                           options={departmentSelectOptions}
                           placeholder="No departments found"
-                          disabled={deptLoading}
+                          disabled={false}
                           openSelect={openSelect}
                           setOpenSelect={setOpenSelect}
                           onChange={(val) => setJoinForm((p) => ({ ...p, department: val, branch: '' }))}
@@ -935,7 +935,7 @@ export default function FrontPage() {
                           value={joinForm.branch}
                           options={branchSelectOptions}
                           placeholder="No branches found"
-                          disabled={!joinForm.department || branchLoading}
+                          disabled={false}
                           openSelect={openSelect}
                           setOpenSelect={setOpenSelect}
                           onChange={(val) => setJoinForm((p) => ({ ...p, branch: val }))}

@@ -15,13 +15,16 @@ const generateToken = (id) => {
 const sendOtp = async (req, res) => {
     const { email } = req.body;
     try {
+        // Normalize email
+        const normalizedEmail = email.trim().toLowerCase();
+        
         // Enforce student email pattern
         const emailRegex = /^\d+@nitkkr\.ac\.in$/;
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test(normalizedEmail)) {
             return res.status(400).json({ message: "Registration restricted to format: rollnumber@nitkkr.ac.in" });
         }
 
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ email: normalizedEmail });
         if (userExists) return res.status(400).json({ message: "User already exists with this email" });
 
         // Generate 6 digit OTP
@@ -32,10 +35,10 @@ const sendOtp = async (req, res) => {
         const hashedOtp = await bcrypt.hash(otp, salt);
 
         // Delete any existing OTP for this email to prevent spam conflicts
-        await OTPVerification.deleteMany({ email });
+        await OTPVerification.deleteMany({ email: normalizedEmail });
 
         // Save new OTP with native 5-minute MongoDB TTL
-        await OTPVerification.create({ email, otp: hashedOtp });
+        await OTPVerification.create({ email: normalizedEmail, otp: hashedOtp });
 
         // Send Email Payload
         const htmlMessage = `
@@ -62,19 +65,26 @@ const sendOtp = async (req, res) => {
 const verifyOtpAndRegister = async (req, res) => {
     const { email, otp, name, password, role, rollNumber, department, branch, currentSemester } = req.body;
     try {
+        // Normalize email: trim and lowercase to match storage
+        const normalizedEmail = email.trim().toLowerCase();
+        
         // Find latest OTP record
-        const otpRecord = await OTPVerification.findOne({ email }).sort({ createdAt: -1 });
-        if (!otpRecord) return res.status(400).json({ message: "OTP has Expired or is Invalid" });
+        const otpRecord = await OTPVerification.findOne({ email: normalizedEmail }).sort({ createdAt: -1 });
+        if (!otpRecord) {
+            return res.status(400).json({ message: "OTP has Expired or is Invalid" });
+        }
 
         // Compare inputted plain OTP against Bcrypt Hash
-        const isValid = await bcrypt.compare(otp, otpRecord.otp);
-        if (!isValid) return res.status(400).json({ message: "Incorrect OTP" });
+        const isValid = await bcrypt.compare(otp.trim(), otpRecord.otp);
+        if (!isValid) {
+            return res.status(400).json({ message: "Incorrect OTP" });
+        }
 
         // OTP Verified -> Execute classic registration
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ email: normalizedEmail });
         if (userExists) return res.status(400).json({ message: "User already exists" });
 
-        const user = await User.create({ name, email, password, role, rollNumber, department, branch, currentSemester });
+        const user = await User.create({ name, email: normalizedEmail, password, role, rollNumber, department, branch, currentSemester });
 
         await ReappearRecord.updateMany(
             { rollNumber: user.rollNumber },
@@ -97,7 +107,7 @@ const verifyOtpAndRegister = async (req, res) => {
             }
 
             // Clean up OTP Document
-            await OTPVerification.deleteMany({ email });
+            await OTPVerification.deleteMany({ email: normalizedEmail });
 
             res.status(201).json({
                 _id: user._id,
