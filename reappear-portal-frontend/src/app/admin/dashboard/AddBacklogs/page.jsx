@@ -16,38 +16,31 @@ const AddBacklogs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableSubjects, setAvailableSubjects] = useState([]);
 
-  // Database Selectors
-  const [departments, setDepartments] = useState([]);
-  const [branches, setBranches] = useState([]);
-  const [dynamicSemesters, setDynamicSemesters] = useState([]);
+  // Dummy Data for Selectors
+  const dummyData = {
+    "Computer Applications": ["MCA"],
+    "Technology": [
+      "Computer Science Engineering", 
+      "Information Technology", 
+      "Electronics and Communication Engineering", 
+      "Mechanical Engineering",
+      "Civil Engineering",
+      "Electrical Engineering"
+    ]
+  };
 
-  useEffect(() => {
-    api.get('/subjects/departments')
-      .then(res => setDepartments(res.data))
-      .catch(() => toast.error("Failed to fetch Schema Departments"));
-  }, []);
+  const departments = Object.keys(dummyData);
+  const branches = filters.dept ? dummyData[filters.dept] || [] : [];
+  const dynamicSemesters = [1, 2, 3, 4, 5, 6, 7, 8];
 
+  // Reset dependent filters when parent filter changes
   useEffect(() => {
-    if (filters.dept) {
-      api.get(`/subjects/branches?department=${filters.dept}`)
-        .then(res => setBranches(res.data))
-        .catch(() => {});
-    } else {
-      setBranches([]);
-      setFilters(prev => ({ ...prev, branch: '', sem: '' }));
-    }
+    setFilters(prev => ({ ...prev, branch: '', sem: '' }));
   }, [filters.dept]);
 
   useEffect(() => {
-     if (filters.dept && filters.branch) {
-        api.get(`/subjects/semesters/distinct?department=${filters.dept}&branch=${filters.branch}`)
-          .then(res => setDynamicSemesters(res.data))
-          .catch(() => {});
-     } else {
-        setDynamicSemesters([]);
-        setFilters(prev => ({ ...prev, sem: '' }));
-     }
-  }, [filters.branch, filters.dept]);
+    setFilters(prev => ({ ...prev, sem: '' }));
+  }, [filters.branch]);
 
   // Load active subjects for the selected matrix
   useEffect(() => {
