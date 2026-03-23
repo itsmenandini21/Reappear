@@ -17,32 +17,20 @@ const AddBacklogs = () => {
   const [availableSubjects, setAvailableSubjects] = useState([]);
 
   const dummyData = {
-    'Computer Engineering': [
-      'Computer Science',
-      'Information Technology',
-      'Artificial Intelligence and Machine Learning',
-      'Artificial Intelligence and Data Science',
-      'Mathematics and Computing'
-    ],
-    'Electronics and Communication Engineering': [
-      'Electronics & Communication Engineering (ECE)',
-      'Industrial Internet of Things (IIoT)',
-      'Microelectronics and VLSI Engineering'
-    ],
-    'Mechanical Engineering': [
-      'Mechanical Engineering',
-      'Production & Industrial Engineering',
-      'Robotics & Automation'
-    ],
-    'Electrical Engineering': ['Electrical Engineering'],
-    'Civil Engineering': ['Civil Engineering'],
-    'Energy Science and Engineering': ['Sustainable Energy Technologies'],
-    'Computer Applications': ['MCA']
+    "Computer Applications": ["MCA"],
+    "Technology": [
+      "Computer Science Engineering", 
+      "Information Technology", 
+      "Electronics and Communication Engineering", 
+      "Mechanical Engineering",
+      "Civil Engineering",
+      "Electrical Engineering"
+    ]
   };
 
   const departments = Object.keys(dummyData);
   const branches = filters.dept ? dummyData[filters.dept] || [] : [];
-  const dynamicSemesters = [1, 2, 3, 4, 5, 6, 7, 8];
+  const dynamicSemesters = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
   // Reset dependent filters when parent filter changes
   useEffect(() => {
