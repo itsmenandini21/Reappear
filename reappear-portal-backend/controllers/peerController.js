@@ -35,7 +35,7 @@ export const getPeers = async (req, res) => {
             student: { $exists: true, $ne: null }, // Sirf unhe lo jinka account hai
             status: { $in: ["pending", "in-progress"] } 
         })
-        .populate('student', 'name rollNumber branch currentSemester profileImage') 
+        .populate('student', 'name rollNumber branch currentSemester') 
         .populate('subject', 'subjectCode subjectName semester');
 
         // --- STEP 4: GROUPING LOGIC (With Safety Checks) ---

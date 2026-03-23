@@ -16,17 +16,23 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'reappear-pyqs', // The folder name in your Cloudinary account
-        format: async (req, file) => 'pdf', // strictly save as pdf
+        // Dynamically get format from mimetype
+        format: async (req, file) => {
+            if (file.mimetype === 'image/png') return 'png';
+            if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') return 'jpg';
+            return 'pdf'; // Default fallback
+        },
         public_id: (req, file) => `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}`
     },
 });
 
 // Security: Only allow PDF files
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Only PDF files are allowed!'), false);
+        cb(new Error('Only PDF, PNG, and JPEG files are allowed!'), false);
     }
 };
 
