@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-import { getMyReappears,addReappear,checkExistingBacklogs, getEligibleStudentsForResults } from "../controllers/reappearControllers.js";
-=======
-import { getMyReappears,addReappear,addBulkReappears,updateReappearStatus,checkExistingBacklogs, getEligibleStudentsForResults } from "../controllers/reappearControllers.js";
->>>>>>> ab21fdc0283ea295c996207406e098063ed32eb3
+
+import { getMyReappears,addReappear,addBulkReappears,checkExistingBacklogs, getEligibleStudentsForResults } from "../controllers/reappearControllers.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import express from "express"
 const router=express.Router();

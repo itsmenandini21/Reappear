@@ -21,7 +21,6 @@ import {protect,admin} from "./middleware/authMiddleware.js"
 import reappearRoutes from "./routes/reappearRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js"; // New Admin API
 import { startNoticeCronJob } from "./cron/noticeDeadlineMailer.js";
-import estimatorRoutes from './routes/estimatorRoutes.js';
 
 dotenv.config();
 connectDb();
