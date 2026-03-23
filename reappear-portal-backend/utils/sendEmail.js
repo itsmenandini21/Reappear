@@ -1,25 +1,26 @@
-import { emailQueue } from "../config/queue.js";
+import sgMail from "@sendgrid/mail";
 
 const sendEmail = async (to, subject, htmlContent) => {
   try {
-    await emailQueue.add("sendEmail", {
+    const sendgridApiKey = process.env.SENDGRID_API_KEY;
+    if (!sendgridApiKey) {
+      console.error("Missing SENDGRID_API_KEY in backend .env");
+      return false; // Silently fail or handle later
+    }
+    sgMail.setApiKey(sendgridApiKey);
+
+    const msg = {
       to,
+      from: process.env.SENDGRID_FROM_EMAIL,
       subject,
       html: htmlContent,
-    }, {
-      attempts: 2,
-      backoff: {
-        type: "exponential",
-        delay: 500,
-      },
-      removeOnComplete: true,
-      removeOnFail: false,
-    });
+    };
 
-    console.log("Email job added to queue for:", to);
-    return true;
+    const response = await sgMail.send(msg);
+    console.log(`[sendEmail] Successfully sent email natively to ${to}`);
+    return response;
   } catch (error) {
-    console.error("Error adding email to queue:", error);
+    console.error("[sendEmail] SendGrid error:", error.response?.body || error);
     throw error;
   }
 };

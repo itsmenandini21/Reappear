@@ -1,5 +1,4 @@
 import express from 'express';
-import "./workers/emailWorker.js";
 import dotenv from 'dotenv';
 import connectDb from './config/db.js';
 import cors from 'cors'; 
