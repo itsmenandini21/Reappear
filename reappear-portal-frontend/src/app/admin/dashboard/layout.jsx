@@ -11,7 +11,7 @@ export default function AdminDashboardLayout({ children }) {
     const userStr = localStorage.getItem("user");
     
     if (!token || !userStr) {
-      router.replace("/login");
+      router.replace("/");
       return;
     }
 
@@ -23,7 +23,7 @@ export default function AdminDashboardLayout({ children }) {
         setIsAuthorized(true);
       }
     } catch(e) {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [router]);
 

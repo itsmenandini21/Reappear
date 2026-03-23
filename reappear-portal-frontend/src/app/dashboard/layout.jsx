@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.replace("/login");
+      router.replace("/");
     } else {
       setIsAuthenticated(true);
     }

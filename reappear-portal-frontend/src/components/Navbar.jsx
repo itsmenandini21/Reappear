@@ -39,7 +39,7 @@ export default function Navbar() {
       localStorage.removeItem('name');
       localStorage.removeItem('userId');
     }
-    router.replace('/login');
+    router.replace('/');
   };
 
   useEffect(() => {

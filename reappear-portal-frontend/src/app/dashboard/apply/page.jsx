@@ -59,7 +59,7 @@ function ApplyFormContent() {
         console.error("Failed to load student info:", error);
         if (error.response?.status === 401) {
           alert("Session expired. Please Login again.");
-          router.push('/login');
+          router.push('/');
         }
       } finally {
         setFetching(false);
