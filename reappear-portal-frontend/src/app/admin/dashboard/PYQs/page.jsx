@@ -9,35 +9,53 @@ export default function UploadPyqForm() {
     const [formData, setFormData] = useState({ dept: '', branch: '', semester: '', subjectId: '', year: '' });
     const [loading, setLoading] = useState(false);
 
-    // Dynamic selectors
-    const [departments, setDepartments] = useState([]);
-    const [branches, setBranches] = useState([]);
-    const [dynamicSemesters, setDynamicSemesters] = useState([]);
     const [subjects, setSubjects] = useState([]);
 
-    useEffect(() => {
-        api.get('/subjects/departments').then(res => setDepartments(res.data));
-    }, []);
+    const dummyData = {
+        'Computer Engineering': [
+            'Computer Science',
+            'Information Technology',
+            'Artificial Intelligence and Machine Learning',
+            'Artificial Intelligence and Data Science',
+            'Mathematics and Computing'
+        ],
+        'Electronics and Communication Engineering': [
+            'Electronics & Communication Engineering (ECE)',
+            'Industrial Internet of Things (IIoT)',
+            'Microelectronics and VLSI Engineering'
+        ],
+        'Mechanical Engineering': [
+            'Mechanical Engineering',
+            'Production & Industrial Engineering',
+            'Robotics & Automation'
+        ],
+        'Electrical Engineering': ['Electrical Engineering'],
+        'Civil Engineering': ['Civil Engineering'],
+        'Energy Science and Engineering': ['Sustainable Energy Technologies'],
+        'Computer Applications': ['MCA']
+    };
 
+    const departments = Object.keys(dummyData);
+    const branches = formData.dept ? dummyData[formData.dept] || [] : [];
+    const dynamicSemesters = ['1', '2', '3', '4', '5', '6', '7', '8'];
+
+    // Reset trailing options dynamically
     useEffect(() => {
         if (formData.dept) {
-            api.get(`/subjects/branches?department=${formData.dept}`)
-               .then(res => setBranches(res.data));
+            const validBranches = dummyData[formData.dept] || [];
+            if (!validBranches.includes(formData.branch)) {
+                setFormData(prev => ({ ...prev, branch: '', semester: '', subjectId: '' }));
+            }
         } else {
-            setBranches([]);
             setFormData(prev => ({ ...prev, branch: '', semester: '', subjectId: '' }));
         }
     }, [formData.dept]);
 
     useEffect(() => {
-        if (formData.dept && formData.branch) {
-            api.get(`/subjects/semesters/distinct?department=${formData.dept}&branch=${formData.branch}`)
-               .then(res => setDynamicSemesters(res.data));
-        } else {
-            setDynamicSemesters([]);
+        if (!formData.branch) {
             setFormData(prev => ({ ...prev, semester: '', subjectId: '' }));
         }
-    }, [formData.branch, formData.dept]);
+    }, [formData.branch]);
 
     useEffect(() => {
         if (formData.dept && formData.branch && formData.semester) {
