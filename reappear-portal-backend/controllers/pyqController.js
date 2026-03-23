@@ -64,7 +64,8 @@ export const uploadPyq = async (req, res) => {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
-        const pdfUrl = `/uploads/${req.file.filename}`;
+        // Cloudinary dynamically attaches the secure permanent URL to `req.file.path`!
+        const pdfUrl = req.file.path;
 
         const newPyq = await Pyq.create({ 
             subject: subjectId, 

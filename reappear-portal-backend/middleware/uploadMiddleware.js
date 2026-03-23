@@ -1,27 +1,24 @@
 import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import dotenv from 'dotenv';
+dotenv.config();
 
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadFolder = path.join(__dirname, '../uploads');
-
-if (!fs.existsSync(uploadFolder)) {
-    fs.mkdirSync(uploadFolder, { recursive: true });
-}
+// Configure Cloudinary with keys
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // Configure where and how to save the file
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        console.log("MULTER DESTINATION:", uploadFolder);
-        cb(null, uploadFolder); // Saves it securely using absolute paths
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'reappear-pyqs', // The folder name in your Cloudinary account
+        format: async (req, file) => 'pdf', // strictly save as pdf
+        public_id: (req, file) => `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}`
     },
-    filename: function (req, file, cb) {
-        // Adds a timestamp so every filename is 100% unique
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
 });
 
 // Security: Only allow PDF files

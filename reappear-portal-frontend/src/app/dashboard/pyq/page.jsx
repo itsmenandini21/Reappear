@@ -64,7 +64,14 @@ export default function PYQDirectory() {
   // Helper function to handle opening PDF
   const openPDF = (pdfPath) => {
     if (!pdfPath || pdfPath === "#") return;
-    // 2. Full URL banayein: Backend URL + PDF Path
+    
+    // Check if it's already an absolute Cloudinary URL!
+    if (pdfPath.startsWith('http')) {
+        window.open(pdfPath, '_blank');
+        return;
+    }
+
+    // 2. Fallback for older legacy PYQs uploaded locally
     const fullUrl = `${BACKEND_URL}${pdfPath}`;
     window.open(fullUrl, '_blank');
   };
