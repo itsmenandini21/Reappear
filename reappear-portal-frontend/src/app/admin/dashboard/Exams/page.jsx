@@ -16,35 +16,40 @@ const ScheduleExams = () => {
   const [loading, setLoading] = useState(true);
   const [pendingData, setPendingData] = useState(null); 
   const [hasSyllabus, setHasSyllabus] = useState(false);
+  // Frontend Dummy Mappings
+  const dummyData = {
+    'Computer Engineering': [
+      'Information Technology',
+      'Artificial Intelligence and Machine Learning',
+      'Artificial Intelligence and Data Science',
+      'Mathematics and Computing'
+    ],
+    'Electronics and Communication Engineering': [
+      'Electronics & Communication Engineering (ECE)',
+      'Industrial Internet of Things (IIoT)',
+      'Microelectronics and VLSI Engineering'
+    ],
+    'Mechanical Engineering': [
+      'Mechanical Engineering',
+      'Production & Industrial Engineering',
+      'Robotics & Automation'
+    ],
+    'Electrical Engineering': ['Electrical Engineering'],
+    'Civil Engineering': ['Civil Engineering'],
+    'Energy Science and Engineering': ['Sustainable Energy Technologies']
+  };
 
-  // Dynamic MongoDB Mappings
-  const [departments, setDepartments] = useState([]);
-  const [branches, setBranches] = useState([]);
-  const [dynamicSemesters, setDynamicSemesters] = useState([]);
+  const departments = Object.keys(dummyData);
   const [formData, setFormData] = useState({ dept: '', branch: '', sem: '', subject: '' });
+
+  const branches = formData.dept ? dummyData[formData.dept] || [] : [];
+  const dynamicSemesters = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
   useEffect(() => {
     fetchExams();
-    api.get('/subjects/departments').then(res => setDepartments(res.data)).catch(() => {});
   }, []);
 
-  // Update backend dynamic mappings whenever Admin uses filters
-  useEffect(() => {
-    const deptQuery = formData.dept && formData.dept !== 'All' ? `?department=${formData.dept}` : '';
-    api.get(`/subjects/branches${deptQuery}`).then(res => setBranches(res.data)).catch(() => {});
-  }, [formData.dept]);
 
-  useEffect(() => {
-    if ((!formData.dept || formData.dept === 'All') && (!formData.branch || formData.branch === 'All')) {
-       setDynamicSemesters([1, 2, 3, 4, 5, 6, 7, 8]);
-       return;
-    }
-    let queryArgs = [];
-    if (formData.dept && formData.dept !== 'All') queryArgs.push(`department=${formData.dept}`);
-    if (formData.branch && formData.branch !== 'All') queryArgs.push(`branch=${formData.branch}`);
-    const qs = `?${queryArgs.join('&')}`;
-    api.get(`/subjects/semesters/distinct${qs}`).then(res => setDynamicSemesters(res.data)).catch(() => {});
-  }, [formData.dept, formData.branch]);
 
   useEffect(() => {
     if (formData.sem && formData.dept && formData.branch && formData.dept !== 'All' && formData.branch !== 'All') {
@@ -258,34 +263,46 @@ const ScheduleExams = () => {
           <form onSubmit={handleFormSubmit} className="grid-form">
             <div className="input-group">
               <label>Department</label>
-              <select name="dept" value={formData.dept} onChange={e => setFormData({ ...formData, dept: e.target.value })} required>
+              <select name="dept" value={formData.dept} onChange={e => setFormData({ ...formData, dept: e.target.value, branch: '', sem: '', subject: '' })} required>
                 <option value="">Select Dept</option>
+                {formData.dept && !departments.includes(formData.dept) && (
+                  <option value={formData.dept}>{formData.dept}</option>
+                )}
                 {departments.map((d, i) => <option key={i} value={d}>{d}</option>)}
               </select>
             </div>
             
             <div className="input-group">
               <label>Branch</label>
-              <select name="branch" value={formData.branch} onChange={e => setFormData({ ...formData, branch: e.target.value })} required>
-                <option value="">{branches.length === 0 && formData.dept ? "No Branches" : "Select Branch"}</option>
+              <select name="branch" value={formData.branch} onChange={e => setFormData({ ...formData, branch: e.target.value, sem: '', subject: '' })} required disabled={!formData.dept || (branches.length === 0 && !formData.branch)}>
+                <option value="">{(branches.length === 0 && !formData.branch) ? "No Branches" : "Select Branch"}</option>
+                {formData.branch && !branches.includes(formData.branch) && (
+                  <option value={formData.branch}>{formData.branch}</option>
+                )}
                 {branches.map((b, i) => <option key={i} value={b}>{b}</option>)}
               </select>
             </div>
 
             <div className="input-group">
               <label>Semester</label>
-              <select name="sem" value={formData.sem} onChange={e => setFormData({ ...formData, sem: e.target.value })} required>
+              <select name="sem" value={formData.sem} onChange={e => setFormData({ ...formData, sem: e.target.value, subject: '' })} required>
                 <option value="">Select Sem</option>
+                {formData.sem && !dynamicSemesters.includes(String(formData.sem)) && (
+                  <option value={formData.sem}>{formData.sem}{formData.sem == 1 ? 'st' : formData.sem == 2 ? 'nd' : formData.sem == 3 ? 'rd' : 'th'} Semester</option>
+                )}
                 {dynamicSemesters.map(num => (
-                  <option key={num} value={num}>{num}{num === 1 ? 'st' : num === 2 ? 'nd' : num === 3 ? 'rd' : 'th'} Semester</option>
+                  <option key={num} value={num}>{num}{num == 1 ? 'st' : num == 2 ? 'nd' : num == 3 ? 'rd' : 'th'} Semester</option>
                 ))}
               </select>
             </div>
 
             <div className="input-group">
               <label>Subject</label>
-              <select name="subject" value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })} required>
-                <option value="">{subjects.length === 0 ? "No mapped subjects" : "Select Subject"}</option>
+              <select name="subject" value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })} required disabled={!formData.sem || (subjects.length === 0 && !formData.subject)}>
+                <option value="">{(subjects.length === 0 && !formData.subject) ? "No mapped subjects" : "Select Subject"}</option>
+                {formData.subject && !subjects.some(s => s.subjectCode === formData.subject) && (
+                  <option value={formData.subject}>{getSubName(formData.subject) ? `${formData.subject} - ${getSubName(formData.subject)}` : formData.subject}</option>
+                )}
                 {subjects.map(sub => (
                   <option key={sub.subjectCode} value={sub.subjectCode}>{sub.subjectCode} - {sub.subjectName}</option>
                 ))}

@@ -37,8 +37,7 @@ const SubjectUpdates = () => {
     ],
     'Electrical Engineering': ['Electrical Engineering'],
     'Civil Engineering': ['Civil Engineering'],
-    'Energy Science and Engineering': ['Sustainable Energy Technologies'],
-    'Computer Applications': ['MCA']
+    'Energy Science and Engineering': ['Sustainable Energy Technologies']
   };
 
   const departments = Object.keys(dummyData);
@@ -57,16 +56,6 @@ const SubjectUpdates = () => {
   }, [view, selectedSubject]);
 
   const branches = selectedDept ? dummyData[selectedDept] || [] : [];
-
-  // Handle department changes during edits/adds
-  useEffect(() => {
-    if (selectedDept) {
-      const validBranches = dummyData[selectedDept] || [];
-      if (!validBranches.includes(selectedBranch)) {
-        setSelectedBranch("");
-      }
-    }
-  }, [selectedDept]);
 
   // 1. Fetch Data
   useEffect(() => {
@@ -267,16 +256,25 @@ const SubjectUpdates = () => {
             </div>
             <div className="input-group">
               <label>Department</label>
-              <select name="dept" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} required>
+              <select name="dept" value={selectedDept} onChange={(e) => {
+                setSelectedDept(e.target.value);
+                setSelectedBranch(""); // Reset branch only on manual manual change
+              }} required>
                 <option value="">Select Department</option>
+                {selectedDept && !departments.includes(selectedDept) && (
+                  <option value={selectedDept}>{selectedDept}</option>
+                )}
                 {departments.map((d, i) => <option key={i} value={d}>{d}</option>)}
               </select>
             </div>
 
             <div className="input-group">
               <label>Branch</label>
-              <select name="branch" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)} required disabled={!selectedDept || branches.length === 0}>
-                <option value="">{branches.length === 0 ? "No Branches" : "Select Branch"}</option>
+              <select name="branch" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)} required disabled={!selectedDept || (branches.length === 0 && !selectedBranch)}>
+                <option value="">{(branches.length === 0 && !selectedBranch) ? "No Branches" : "Select Branch"}</option>
+                {selectedBranch && !branches.includes(selectedBranch) && (
+                  <option value={selectedBranch}>{selectedBranch}</option>
+                )}
                 {branches.map((b, i) => <option key={i} value={b}>{b}</option>)}
               </select>
             </div>

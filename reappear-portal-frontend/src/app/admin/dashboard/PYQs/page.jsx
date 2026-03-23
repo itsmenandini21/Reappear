@@ -30,8 +30,7 @@ export default function UploadPyqForm() {
         ],
         'Electrical Engineering': ['Electrical Engineering'],
         'Civil Engineering': ['Civil Engineering'],
-        'Energy Science and Engineering': ['Sustainable Energy Technologies'],
-        'Computer Applications': ['MCA']
+        'Energy Science and Engineering': ['Sustainable Energy Technologies']
     };
 
     const departments = Object.keys(dummyData);
