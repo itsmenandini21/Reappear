@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import api from '@/lib/api'; // Ensure path is correct
+import toast from 'react-hot-toast';
 import './updates.css';
 
 const NoticeForm = () => {
@@ -50,16 +51,16 @@ const NoticeForm = () => {
     try {
       if (editId) {
         await api.put(`/announcements/${editId}`, notice);
-        alert("📢 Announcement Updated Successfully!");
+        toast.success("📢 Announcement Updated Successfully!", { position: 'top-center' });
         setEditId(null);
       } else {
         await api.post('/announcements', notice);
-        alert("📢 Announcement Published Successfully!");
+        toast.success("📢 Announcement Published Successfully!", { position: 'top-center' });
       }
       setNotice({ title: '', category: 'Urgent', content: '', expiryDate: '', subject: '', deadline: '' });
       fetchNotices();
     } catch (error) {
-      alert("Error saving: " + (error.response?.data?.message || error.message));
+      toast.error("Error saving: " + (error.response?.data?.message || error.message), { position: 'top-center' });
     } finally {
       setLoading(false);
     }
@@ -82,8 +83,9 @@ const NoticeForm = () => {
     try {
       await api.delete(`/announcements/${id}`);
       fetchNotices();
+      toast.success("📢 Announcement Removed Successfully!", { position: 'top-center' });
     } catch (error) {
-      alert("Error deleting: " + (error.response?.data?.message || error.message));
+      toast.error("Error deleting: " + (error.response?.data?.message || error.message), { position: 'top-center' });
     }
   };
 
