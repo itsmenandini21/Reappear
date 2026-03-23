@@ -1,5 +1,5 @@
 import Exam from '../models/exam.js';
-import Result from '../models/result.js'; 
+import Result from '../models/result.js';
 
 export const scheduleExam = async (req, res) => {
     try {
@@ -28,12 +28,12 @@ export const scheduleExam = async (req, res) => {
 export const getStudentExamsAndResults = async (req, res) => {
     try {
         const upcomingExams = await Exam.find({ status: 'upcoming' }).sort({ examDate: 1 });
-        
+
         const formattedUpcoming = upcomingExams.map(exam => ({
             id: exam._id,
-            examName: 'Reappear Exam', 
+            examName: 'Reappear Exam',
             subject: exam.subjectCode,
-            faculty: 'Exam Cell', 
+            faculty: 'Exam Cell',
             examType: exam.examType || 'End-Sem',
             examComponent: exam.examComponent || 'Theory',
             date: new Date(exam.examDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
@@ -44,10 +44,10 @@ export const getStudentExamsAndResults = async (req, res) => {
         }));
 
         const studentResults = await Result.find({}).populate('subject', 'name');
-        
+
         const formattedResults = studentResults.map(result => ({
             id: result._id,
-            examName: 'Reappear Result', 
+            examName: 'Reappear Result',
             subject: result.subject ? result.subject.name : 'Unknown Subject',
             faculty: 'Exam Cell',
             marks: result.marksObtained,

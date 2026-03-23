@@ -126,8 +126,7 @@ export const addBulkReappears = async (req, res) => {
                 subject: subjectId,
                 status: "pending",
                 feesPaid: false,
-                attemptCount: 1,
-                lastDate: null
+                attemptCount: 1
             });
 
             results.push(newRecord);
@@ -208,8 +207,7 @@ export const addReappear = async (req, res) => {
             subject: subjectId,
             status: "pending",
             feesPaid: false,
-            attemptCount: 1,
-            lastDate: lastDate || null // Bind parameter to DB
+            attemptCount: 1
         });
 
         // Send email asynchronously (don't await) to avoid blocking the response
