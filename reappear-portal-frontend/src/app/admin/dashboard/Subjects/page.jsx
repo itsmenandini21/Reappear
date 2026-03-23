@@ -18,9 +18,31 @@ const SubjectUpdates = () => {
   const [notifyData, setNotifyData] = useState({ rollNumbers: '', title: '', message: '' });
   const [isSending, setIsSending] = useState(false);
 
-  // Dynamic Datalist States
-  const [departments, setDepartments] = useState([]);
-  const [branches, setBranches] = useState([]);
+  const dummyData = {
+    'Computer Engineering': [
+      'Computer Science',
+      'Information Technology',
+      'Artificial Intelligence and Machine Learning',
+      'Artificial Intelligence and Data Science',
+      'Mathematics and Computing'
+    ],
+    'Electronics and Communication Engineering': [
+      'Electronics & Communication Engineering (ECE)',
+      'Industrial Internet of Things (IIoT)',
+      'Microelectronics and VLSI Engineering'
+    ],
+    'Mechanical Engineering': [
+      'Mechanical Engineering',
+      'Production & Industrial Engineering',
+      'Robotics & Automation'
+    ],
+    'Electrical Engineering': ['Electrical Engineering'],
+    'Civil Engineering': ['Civil Engineering'],
+    'Energy Science and Engineering': ['Sustainable Energy Technologies'],
+    'Computer Applications': ['MCA']
+  };
+
+  const departments = Object.keys(dummyData);
   const [selectedDept, setSelectedDept] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
 
@@ -35,21 +57,15 @@ const SubjectUpdates = () => {
     }
   }, [view, selectedSubject]);
 
-  // Fetch unique Departments on mount
-  useEffect(() => {
-    api.get('/subjects/departments')
-      .then(res => setDepartments(res.data))
-      .catch(() => {});
-  }, []);
+  const branches = selectedDept ? dummyData[selectedDept] || [] : [];
 
-  // Fetch unique Branches when Department is selected or typed
+  // Handle department changes during edits/adds
   useEffect(() => {
     if (selectedDept) {
-      api.get(`/subjects/branches?department=${selectedDept}`)
-        .then(res => setBranches(res.data))
-        .catch(() => {});
-    } else {
-      setBranches([]);
+      const validBranches = dummyData[selectedDept] || [];
+      if (!validBranches.includes(selectedBranch)) {
+        setSelectedBranch("");
+      }
     }
   }, [selectedDept]);
 
