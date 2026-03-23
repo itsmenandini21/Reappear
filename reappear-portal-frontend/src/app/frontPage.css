@@ -939,3 +939,74 @@
     font-size: 0.9rem;
   }
 }
+
+.btn-submit {
+  width: 100%;
+  background: var(--nit-red);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 1rem;
+}
+
+.btn-submit:hover {
+  background: #c51a4a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.25);
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper .form-control {
+  padding-right: 40px;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.2rem;
+  color: var(--gray-muted);
+  transition: color 0.2s;
+}
+
+.eye-icon:hover {
+  color: var(--charcoal);
+}
+
+.form-links {
+  text-align: right;
+  margin-top: 0.75rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--gray-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.btn-link:hover {
+  color: var(--nit-red);
+}
+
+.panel-intro {
+  font-size: 0.95rem;
+  color: var(--gray-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
