@@ -6,7 +6,6 @@ import './backlog.css';
 
 const AddBacklogs = () => {
   const [filters, setFilters] = useState({ dept: '', branch: '', sem: '' });
-  const [lastDate, setLastDate] = useState('');
   const [rollNumbers, setRollNumbers] = useState([]); 
   const [studentSelections, setStudentSelections] = useState({}); 
   const [activeDropdown, setActiveDropdown] = useState(null); 
@@ -125,7 +124,6 @@ const AddBacklogs = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (selectedStudentCount === 0) return toast.error("Please assign subjects to at least one student!");
-    if (!lastDate) return toast.error("Please provide the last date for the form!");
     setShowModal(true);
   };
 
@@ -148,8 +146,7 @@ const AddBacklogs = () => {
 
         // Send all assignments in one bulk request
         await api.post('/reappear/add-bulk', {
-            assignments: assignments,
-            lastDate: lastDate
+            assignments: assignments
         });
 
         setIsSubmitting(false);
@@ -158,7 +155,6 @@ const AddBacklogs = () => {
         setFilters({ dept: '', branch: '', sem: '' });
         setRollNumbers([]);
         setStudentSelections({});
-        setLastDate('');
     } catch (error) {
         setIsSubmitting(false);
         console.error("Failed to assign backlogs", error);
@@ -175,7 +171,7 @@ const AddBacklogs = () => {
             <div className="bl-modal-icon">📨</div>
             <h2>Confirm & Notify</h2>
             <p>You are assigning custom backlogs to <b>{selectedStudentCount} students</b>.</p>
-            <p className="bl-modal-subtext">Students will receive an official email notifying them to check their dashboard and fill the form by <b>{lastDate}</b>.</p>
+            <p className="bl-modal-subtext">Students will receive an official email notifying them to check their dashboard and fill the form.</p>
             <div className="bl-modal-actions">
               <button className="bl-btn-cancel" onClick={() => setShowModal(false)} disabled={isSubmitting}>Cancel</button>
               <button className="bl-btn-confirm" onClick={confirmAndNotify} disabled={isSubmitting}>
@@ -275,22 +271,12 @@ const AddBacklogs = () => {
             </div>
 
             <div className="bl-bottom-section">
-              <div className="bl-date-input">
-                <label>Last Date to Fill Form <span style={{color: '#E3342F'}}>*</span></label>
-                <input 
-                  type="date" 
-                  value={lastDate} 
-                  onChange={(e) => setLastDate(e.target.value)} 
-                  required 
-                />
-              </div>
-
               <div className="bl-notification-preview">
                 <label>Automated Email Preview</label>
                 <div className="bl-email-box">
                   <p><b>Subject:</b> Action Required: Reappear Form Updates</p>
                   <p>Dear Student,</p>
-                  <p>You have been marked for reappears in specific subjects by the Exam Cell. Please log in to your NIT KKR Reappear Portal to view your assigned subjects and complete your form submission by <b>{lastDate || '[Selected Date]'}</b> to avoid late fees.</p>
+                  <p>You have been marked for reappears in specific subjects by the Exam Cell. Please log in to your NIT KKR Reappear Portal to view your assigned subjects and complete your form submission at the earliest to avoid late fees.</p>
                   <p>- Exam Cell, NIT Kurukshetra</p>
                 </div>
               </div>
