@@ -20,7 +20,6 @@ const SubjectUpdates = () => {
 
   const dummyData = {
     'Computer Engineering': [
-      'Computer Science',
       'Information Technology',
       'Artificial Intelligence and Machine Learning',
       'Artificial Intelligence and Data Science',
