@@ -16,15 +16,27 @@ const AddBacklogs = () => {
   const [availableSubjects, setAvailableSubjects] = useState([]);
 
   const dummyData = {
-    "Computer Applications": ["MCA"],
-    "Technology": [
-      "Computer Science Engineering", 
-      "Information Technology", 
-      "Electronics and Communication Engineering", 
-      "Mechanical Engineering",
-      "Civil Engineering",
-      "Electrical Engineering"
-    ]
+    'Computer Engineering': [
+      'Computer Science',
+      'Information Technology',
+      'Artificial Intelligence and Machine Learning',
+      'Artificial Intelligence and Data Science',
+      'Mathematics and Computing'
+    ],
+    'Electronics and Communication Engineering': [
+      'Electronics & Communication Engineering (ECE)',
+      'Industrial Internet of Things (IIoT)',
+      'Microelectronics and VLSI Engineering'
+    ],
+    'Mechanical Engineering': [
+      'Mechanical Engineering',
+      'Production & Industrial Engineering',
+      'Robotics & Automation'
+    ],
+    'Electrical Engineering': ['Electrical Engineering'],
+    'Civil Engineering': ['Civil Engineering'],
+    'Energy Science and Engineering': ['Sustainable Energy Technologies'],
+    'Computer Applications': ['MCA']
   };
 
   const departments = Object.keys(dummyData);
