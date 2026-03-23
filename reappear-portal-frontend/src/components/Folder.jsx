@@ -1,5 +1,6 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import './Folder.css';
 
 const darkenColor = (hex, percent) => {
@@ -27,6 +28,14 @@ const Folder = ({ color = '#ff2600', size = 1, items = [], className = '' }) => 
 
   const [open, setOpen] = useState(false);
   const [paperOffsets, setPaperOffsets] = useState(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
+  
+  const pathname = usePathname();
+
+  // Instantly reset the folder to closed whenever the URL route changes
+  useEffect(() => {
+    setOpen(false);
+    setPaperOffsets(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
+  }, [pathname]);
 
   const folderBackColor = darkenColor(color, 0.08);
   

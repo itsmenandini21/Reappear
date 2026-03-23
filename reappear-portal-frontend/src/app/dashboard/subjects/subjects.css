@@ -81,16 +81,14 @@
 
 /* Card Styling */
 .custom-subject-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 241, 242, 0.95));
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  background-color: var(--white);
   padding: 24px;
   border-radius: 16px;
-  border: 1px solid rgba(225, 29, 72, 0.15);
+  border: 1px solid var(--gray-border);
   border-left: 6px solid transparent;
   margin-bottom: 16px;
   transition: var(--transition);
-  box-shadow: 0 8px 30px -5px rgba(225, 29, 72, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .custom-subject-card:hover {
