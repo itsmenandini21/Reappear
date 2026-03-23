@@ -61,9 +61,10 @@
 .form-header .subtitle { color: var(--gray-muted); margin-top: 5px; font-size: 0.95rem; }
 
 .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-.input-group { display: flex; flex-direction: column; gap: 8px; }
+.input-group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .input-group label { font-size: 0.85rem; font-weight: 700; color: var(--gray-muted); }
-.input-group input, .input-group select, .message-textarea, .code-textarea { padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--gray-border); background: var(--white); outline: none; font-family: inherit; transition: var(--transition); font-size: 0.95rem; color: var(--charcoal); }
+.input-group input, .input-group select, .message-textarea, .code-textarea { padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--gray-border); background: var(--white); outline: none; font-family: inherit; transition: var(--transition); font-size: 0.95rem; color: var(--charcoal); width: 100%; max-width: 100%; box-sizing: border-box; }
+.input-group select { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .input-group input:focus, .input-group select:focus, .message-textarea:focus, .code-textarea:focus { background: var(--white); border-color: var(--nit-red); box-shadow: 0 0 0 4px var(--nit-red-glow); }
 .message-textarea { min-height: 120px; resize: vertical; }
 .code-textarea { min-height: 70px; font-family: monospace; letter-spacing: 1px; }
