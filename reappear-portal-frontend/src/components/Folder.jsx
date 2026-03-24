@@ -18,7 +18,6 @@ const darkenColor = (hex, percent) => {
   return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).padStart(6, '0').toUpperCase();
 };
 
-// Changed the default color to your theme red (#ff2600)
 const Folder = ({ color = '#ff2600', size = 1, items = [], className = '' }) => {
   const maxItems = 3;
   const papers = items.slice(0, maxItems);
@@ -28,21 +27,41 @@ const Folder = ({ color = '#ff2600', size = 1, items = [], className = '' }) => 
 
   const [open, setOpen] = useState(false);
   const [paperOffsets, setPaperOffsets] = useState(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
-  
+
   const pathname = usePathname();
 
-  // Instantly reset the folder to closed whenever the URL route changes
   useEffect(() => {
     setOpen(false);
     setPaperOffsets(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
   }, [pathname]);
 
+  useEffect(() => {
+    const resetFolder = () => {
+      setOpen(false);
+      setPaperOffsets(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        resetFolder();
+      }
+    };
+
+    window.addEventListener('focus', resetFolder);
+    window.addEventListener('pageshow', resetFolder);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', resetFolder);
+      window.removeEventListener('pageshow', resetFolder);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const folderBackColor = darkenColor(color, 0.08);
-  
-  // Create a professional "parchment/cream" base color for the floating papers
-  const paperBaseColor = '#c42645'; 
-  
-  // The darkenColor function automatically creates the realistic shadows for the stacked papers
+
+  const paperBaseColor = '#c42645';
+
   const paper1 = darkenColor(paperBaseColor, 0.08);
   const paper2 = darkenColor(paperBaseColor, 0.04);
   const paper3 = paperBaseColor;
