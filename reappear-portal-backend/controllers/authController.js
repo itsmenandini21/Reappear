@@ -235,7 +235,10 @@ const googleLogin = async (req, res) => {
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedEmail = email?.trim().toLowerCase();
+        if (!normalizedEmail) {
+            return res.status(400).json({ message: "Email is required" });
+        }
         const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(404).json({ message: "No user found with this email" });
@@ -271,8 +274,11 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
     try {
         const { email, otp, newPassword } = req.body;
-        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedEmail = email?.trim().toLowerCase();
 
+        if (!normalizedEmail || !otp || !newPassword) {
+            return res.status(400).json({ message: "Email, OTP, and new password are required" });
+        }
         const otpRecord = await OTPVerification.findOne({ email: normalizedEmail }).sort({ createdAt: -1 });
         if (!otpRecord) return res.status(400).json({ message: "OTP expired or not found" });
 
@@ -282,10 +288,7 @@ export const resetPassword = async (req, res) => {
         const user = await User.findOne({ email: normalizedEmail });
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        user.password = hashedPassword;
+        user.password = newPassword;
         await user.save();
 
         await OTPVerification.deleteMany({ email: normalizedEmail });

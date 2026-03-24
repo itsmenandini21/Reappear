@@ -23,7 +23,11 @@ export const getMyReappears = async (req, res) => {
     })
     .populate("subject") 
     .exec();
-    const activeNotices = await Announcement.find({ category: 'Academic', subject: { $exists: true, $ne: null } });
+    const activeNotices = await Announcement.find({
+      category: { $in: ['Academic', 'Fees'] },
+      subject: { $exists: true, $ne: null },
+      deadline: { $exists: true, $ne: null }
+    });
     const noticeMap = {};
     activeNotices.forEach(notice => {
       noticeMap[notice.subject.toString()] = notice;
@@ -66,6 +70,7 @@ export const getMyReappears = async (req, res) => {
         status: record.status || "pending",
         hasApplied: record.feesPaid,
         hasActiveNotice: _hasActiveNotice, 
+        noticeDeadline: _formattedDeadline,
         credits: record.subject.credits || 0,
         semester: sem
       });

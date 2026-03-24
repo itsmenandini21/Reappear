@@ -70,9 +70,11 @@ export default function Subjects() {
                       >
                         Apply Now
                       </button>
-                      <div className="notice-footer">
-                      {sub.noticeDeadline && <span className="date-text" style={{ fontSize: '12px', color: '#e11d48', fontWeight: 'bold' }}>Last date: {sub.noticeDeadline}</span>}
-                    </div>
+                      {sub.noticeDeadline && (
+                        <div className="notice-footer">
+                          <span className="date-text">Last date to apply: {sub.noticeDeadline}</span>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <span className="not-active-text" style={{ fontSize: '13px', color: '#888', fontStyle: 'italic' }}>
