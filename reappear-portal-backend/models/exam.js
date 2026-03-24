@@ -10,7 +10,6 @@ const examSchema = new mongoose.Schema({
     examType: { type: String, enum: ['Mid-Sem-1', 'Mid-Sem-2', 'End-Sem'], default: 'End-Sem' },
     examComponent: { type: String, enum: ['Theory', 'Practical'], default: 'Theory' },
     roomAllocation: { type: String, required: true },
-    // Changed this line to just store standard text instead of a link
     syllabus: { type: String, default: "" }, 
     status: { type: String, enum: ['upcoming', 'completed'], default: 'upcoming' }
 }, { timestamps: true });

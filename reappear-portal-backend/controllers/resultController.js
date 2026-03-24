@@ -2,11 +2,9 @@ import Result from '../models/result.js';
 import ReappearRecord from '../models/reappearRecord.js';
 import User from '../models/user.js';
 import Subject from '../models/subject.js';
-// @desc    Get results for a specific student (For the Student Dashboard)
-// @route   GET /api/results/:studentId
+//GET /api/results/:studentId
 export const getStudentResults = async (req, res) => {
     try {
-        // Fetches the results and populates the correct subject schema properties
         const results = await Result.find({ student: req.params.studentId })
             .populate('subject', 'subjectCode subjectName credits semester department branch');
             
@@ -15,14 +13,10 @@ export const getStudentResults = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch results", error: error.message });
     }
 };
-
-// @desc    Admin uploads a result for a student
-// @route   POST /api/results
+//POST /api/results
 export const addResult = async (req, res) => {
     try {
         const { studentId, subjectId, marksObtained, grade, remarks } = req.body;
-
-        // 1. Create the official result card
         const newResult = await Result.create({
             student: studentId,
             subject: subjectId,
@@ -31,7 +25,7 @@ export const addResult = async (req, res) => {
             remarks
         });
 
-        // 2. AUTOMATION: If passing, completely delete the Reappear Record. If failing, update status.
+        
         if (grade !== 'F' && grade !== 'Fail') {
             await ReappearRecord.findOneAndDelete({ student: studentId, subject: subjectId });
         } else {
@@ -47,8 +41,8 @@ export const addResult = async (req, res) => {
     }
 };
 
-// @desc    Admin uploads bulk results for a specific subject
-// @route   POST /api/results/bulk
+
+// POST /api/results/bulk
 export const addBulkResults = async (req, res) => {
     try {
         const { subjectCode, totalMarks, evaluatedBy, results } = req.body;
@@ -73,7 +67,6 @@ export const addBulkResults = async (req, res) => {
 
             const grade = r.status === 'Pass' ? 'A' : 'F';
 
-            // Create result logic
             await Result.create({
                 student: studentId,
                 subject: subjectDoc._id,
@@ -84,7 +77,7 @@ export const addBulkResults = async (req, res) => {
                 remarks: r.status
             });
 
-            // Completely destroy ReappearRecord if the student passes, otherwise keep it as 'failed'
+           
             if (r.status.toLowerCase() === 'pass') {
                 await ReappearRecord.findOneAndDelete({ student: studentId, subject: subjectDoc._id });
             } else {

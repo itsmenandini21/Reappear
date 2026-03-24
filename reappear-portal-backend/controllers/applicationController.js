@@ -112,8 +112,7 @@ export const getStudentInfo = async (req, res) => {
   }
 };
 
-// @desc    Report an issue from the portal (Footer Modal)
-// @route   POST /api/applications/report-issue
+// POST /api/applications/report-issue
 export const reportIssue = async (req, res) => {
   try {
     const { issue } = req.body;
@@ -156,8 +155,6 @@ export const reportIssue = async (req, res) => {
   }
 };
 
-// @desc    Admin gets all fee tracker submissions
-// @route   GET /api/applications/admin/fee-tracker
 export const getFeeTrackerApplications = async (req, res) => {
   try {
     const applications = await Application.find()
@@ -205,7 +202,6 @@ export const getFeeTrackerApplications = async (req, res) => {
   }
 };
 
-// @desc    Admin updates fee tracker submission status
 // @route   PATCH /api/applications/admin/fee-tracker/:id
 export const updateFeeTrackerStatus = async (req, res) => {
   try {

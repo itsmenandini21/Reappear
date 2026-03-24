@@ -4,20 +4,16 @@ import ReappearRecord from '../models/reappearRecord.js';
 export const getPyqs = async (req, res) => {
     try {
         const { semester, branch, search } = req.query;
-        const studentId = req.user?._id; // User check for safety
+        const studentId = req.user?._id;
 
         let query = {};
-        // Convert to Number to avoid casting issues
         if (semester) query.semester = Number(semester);
         if (branch && branch !== 'All') query.branch = branch;
-
-        // Fetch all PYQs based on filters
         let pyqs = await Pyq.find(query)
             .populate('subject')
             .sort({ year: -1 })
-            .lean(); // lean() improves performance and makes it a JS object
+            .lean(); 
 
-        // Priority Logic: Reappear subjects top par
         if (!semester && (!branch || branch === 'All') && !search && studentId) {
             const studentReappears = await ReappearRecord.find({ 
                 student: studentId, 
@@ -27,14 +23,14 @@ export const getPyqs = async (req, res) => {
             const reappearSubjectIds = studentReappears.map(r => r.subject?.toString());
 
             pyqs.sort((a, b) => {
-                // Safety check for null subjects
+
                 const isA = a.subject && reappearSubjectIds.includes(a.subject._id.toString()) ? 1 : 0;
                 const isB = b.subject && reappearSubjectIds.includes(b.subject._id.toString()) ? 1 : 0;
                 return isB - isA; 
             });
         }
 
-        // Pass pure empty array to frontend so they can render a sleek Empty State
+       
         if (pyqs.length === 0) {
             return res.status(200).json([]);
         }
@@ -58,20 +54,17 @@ export const uploadPyq = async (req, res) => {
         }
         
         const { subjectId, semester, branch, year } = req.body;
-
-        // Input validation
         if (!subjectId || !semester || !branch || !year) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
-        // Cloudinary dynamically attaches the secure permanent URL to `req.file.path`!
         const pdfUrl = req.file.path;
 
         const newPyq = await Pyq.create({ 
             subject: subjectId, 
-            semester: Number(semester), // Convert to Number
+            semester: Number(semester), 
             branch, 
-            year: Number(year), // Convert to Number
+            year: Number(year),
             pdfUrl 
         });
 

@@ -5,7 +5,7 @@ const sendEmail = async (to, subject, htmlContent) => {
     const sendgridApiKey = process.env.SENDGRID_API_KEY;
     if (!sendgridApiKey) {
       console.error("Missing SENDGRID_API_KEY in backend .env");
-      return false; // Silently fail or handle later
+      return false; 
     }
     sgMail.setApiKey(sendgridApiKey);
 

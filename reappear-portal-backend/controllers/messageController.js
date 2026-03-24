@@ -1,7 +1,6 @@
 import Message from '../models/Message.js';
-import User from '../models/user.js'; // Ye import zaroori hai existence check ke liye
+import User from '../models/user.js'; 
 
-// 1. SEND MESSAGE (Same as before)
 export const sendMessage = async (req, res) => {
     try {
         const { sender, receiver, content, chatType } = req.body;
@@ -20,12 +19,12 @@ export const sendMessage = async (req, res) => {
     }
 };
 
-// 2. GET CHAT HISTORY (Updated with isUserActive check)
+
 export const getChatHistory = async (req, res) => {
     try {
         const { user1, user2 } = req.params; 
 
-        // 👈 Check karo ki user2 (jisse baat ho rahi hai) database mein hai ya nahi
+
         const otherUser = await User.findOne({ name: user2 });
 
         const messages = await Message.find({
@@ -40,17 +39,17 @@ export const getChatHistory = async (req, res) => {
             { $set: { isRead: true } }
         );
 
-        // 👈 Response mein messages ke saath status bhi bhejo
+    
         res.status(200).json({
             messages: messages,
-            isUserActive: !!otherUser // Agar user mil gaya toh true, warna false
+            isUserActive: !!otherUser 
         });
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch chat history", error: error.message });
     }
 };
 
-// 3. GET UNREAD STATS (Same as before)
+
 export const getUnreadStats = async (req, res) => {
     try {
         const { userName } = req.params;
@@ -64,7 +63,7 @@ export const getUnreadStats = async (req, res) => {
     }
 };
 
-// 4. GET ACTIVE CONVERSATIONS (Same as before)
+
 export const getActiveConversations = async (req, res) => {
     try {
         const { userName } = req.params;
@@ -72,7 +71,6 @@ export const getActiveConversations = async (req, res) => {
         const receivedFrom = await Message.distinct('sender', { receiver: userName });
         let allContacts = [...new Set([...sentTo, ...receivedFrom])];
 
-        // Ensure "Exam Cell Bot" actively existing in old database chunks is filtered out
         allContacts = allContacts.filter(c => c !== "Exam Cell Bot");
 
         if (allContacts.length === 0) {

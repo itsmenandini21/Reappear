@@ -235,7 +235,8 @@ const googleLogin = async (req, res) => {
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await User.findOne({ email });
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(404).json({ message: "No user found with this email" });
         }
@@ -244,8 +245,8 @@ export const forgotPassword = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedOtp = await bcrypt.hash(otp, salt);
 
-        await OTPVerification.deleteMany({ email });
-        await OTPVerification.create({ email, otp: hashedOtp });
+        await OTPVerification.deleteMany({ email: normalizedEmail });
+        await OTPVerification.create({ email: normalizedEmail, otp: hashedOtp });
 
         const htmlMessage = `
         <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
@@ -259,7 +260,7 @@ export const forgotPassword = async (req, res) => {
             </div>
         </div>`;
 
-        await sendEmail(email, "Password Reset OTP", htmlMessage);
+        await sendEmail(normalizedEmail, "Password Reset OTP", htmlMessage);
         res.status(200).json({ message: "OTP sent successfully" });
     } catch (error) {
         console.error("Forgot Password Error:", error);
@@ -270,14 +271,15 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
     try {
         const { email, otp, newPassword } = req.body;
+        const normalizedEmail = email.trim().toLowerCase();
 
-        const otpRecord = await OTPVerification.findOne({ email }).sort({ createdAt: -1 });
+        const otpRecord = await OTPVerification.findOne({ email: normalizedEmail }).sort({ createdAt: -1 });
         if (!otpRecord) return res.status(400).json({ message: "OTP expired or not found" });
 
         const validOtp = await bcrypt.compare(otp.toString(), otpRecord.otp);
         if (!validOtp) return res.status(400).json({ message: "Invalid OTP" });
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) return res.status(404).json({ message: "User not found" });
 
         const salt = await bcrypt.genSalt(10);
@@ -286,7 +288,7 @@ export const resetPassword = async (req, res) => {
         user.password = hashedPassword;
         await user.save();
 
-        await OTPVerification.deleteMany({ email });
+        await OTPVerification.deleteMany({ email: normalizedEmail });
 
         res.status(200).json({ message: "Password updated successfully" });
     } catch (error) {

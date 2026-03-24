@@ -1,11 +1,9 @@
 import Faculty from '../models/faculty.js';
 import Subject from '../models/subject.js';
 
-// @desc    Get all faculty members (For Students to view)
-// @route   GET /api/faculty
+//GET /api/faculty
 export const getFaculty = async (req, res) => {
     try {
-        // Fetches all faculty from the database and officially hydrates the Subject Arrays
         const faculty = await Faculty.find({}).populate('subjects');
         res.status(200).json(faculty);
     } catch (error) {
@@ -13,10 +11,17 @@ export const getFaculty = async (req, res) => {
     }
 };
 
-// @desc    Add a new faculty member (For Admin)
-// @route   POST /api/faculty
+
+// POST /api/faculty
 export const addFaculty = async (req, res) => {
     try {
+        const { email } = req.body;
+        // Check if faculty already exists
+        const existingFaculty = await Faculty.findOne({ email });
+        if (existingFaculty) {
+            return res.status(400).json({ message: "Faculty with this email already exists" });
+        }
+
         const newFaculty = await Faculty.create(req.body);
         res.status(201).json({ message: "Faculty added successfully", faculty: newFaculty });
     } catch (error) {
@@ -38,8 +43,8 @@ export const updateFaculty = async (req, res) => {
     }
 };
 
-// @desc    Delete a faculty member (For Admin)
-// @route   DELETE /api/faculty/:id
+
+//  DELETE /api/faculty/:id
 export const deleteFaculty = async (req, res) => {
     try {
         const faculty = await Faculty.findByIdAndDelete(req.params.id);
@@ -51,8 +56,8 @@ export const deleteFaculty = async (req, res) => {
     }
 };
 
-// @desc    Get faculty mapped exactly to a Subject Code
-// @route   GET /api/faculty/subject?subjectCode=X
+
+//GET /api/faculty/subject?subjectCode=X
 export const getFacultyBySubject = async (req, res) => {
     try {
         const { subjectCode } = req.query;

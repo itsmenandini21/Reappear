@@ -39,7 +39,6 @@ export const getStudentExamsAndResults = async (req, res) => {
             date: new Date(exam.examDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
             time: exam.examTime,
             room: exam.roomAllocation,
-            // If text exists, show it. Otherwise, show the default warning.
             syllabus: exam.syllabus ? exam.syllabus : 'Syllabus has not been released.'
         }));
 

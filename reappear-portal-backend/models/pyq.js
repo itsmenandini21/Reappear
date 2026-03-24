@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 const pyqSchema = new mongoose.Schema({
-    // Subject model se link kar diya taaki data fetch ho sake
     subject: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Subject', 
@@ -11,7 +10,7 @@ const pyqSchema = new mongoose.Schema({
     branch: { type: String, required: true },
     year: { type: Number, required: true },
     pdfUrl: { type: String, required: true },
-    fileSize: { type: String } // Optional: size dikhane ke liye
+    fileSize: { type: String }
 }, { timestamps: true });
 
 export default mongoose.model('Pyq', pyqSchema);

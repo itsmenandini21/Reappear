@@ -26,15 +26,13 @@ const getSubjectsBySemestersAndDept = async (req, res) => {
     }
 };
 
-// subjectController.js
-
 const getSubjectsByDept = async (req, res) => {
     try {
-        const { department } = req.query; // URL se department uthayega
+        const { department } = req.query; 
 
         let filter = {};
         if (department) {
-            filter.department = department; // Agar dept aaya hai toh filter lagao
+            filter.department = department;
         }
 
         const subjects = await Subject.find(filter).sort({ semester: 1 });
@@ -45,8 +43,8 @@ const getSubjectsByDept = async (req, res) => {
     }
 };
 
-// @desc    Get an array of unique Departments mapped within the Subject Schema
-// @route   GET /api/subjects/departments
+
+// GET /api/subjects/departments
 const getUniqueDepartments = async (req, res) => {
     try {
         const dbDepartments = await Subject.distinct("department");
@@ -69,8 +67,8 @@ const getUniqueDepartments = async (req, res) => {
     }
 };
 
-// @desc    Get an array of unique Branches bound to a specific Department
-// @route   GET /api/subjects/branches?department=X
+
+// GET /api/subjects/branches?department=X
 const getBranchesByDepartment = async (req, res) => {
     try {
         const { department } = req.query;
@@ -124,8 +122,7 @@ const getBranchesByDepartment = async (req, res) => {
     }
 };
 
-// @desc    Get an array of distinct active semesters bound to a Dept + Branch
-// @route   GET /api/subjects/semesters/distinct?department=X&branch=Y
+// GET /api/subjects/semesters/distinct?department=X&branch=Y
 const getSemestersByDeptAndBranch = async (req, res) => {
     try {
         const { department, branch } = req.query;
@@ -177,7 +174,7 @@ const updateSubject=async (req,res)=>{
     }
 }
 
-//by student
+
 const getAllSubjects= async (req,res)=>{
     try {
         const subjects = await Subject.find();

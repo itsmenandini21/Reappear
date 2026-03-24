@@ -6,7 +6,6 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Helper to format date nicely for frontend (e.g. "20 March 2026")
 const formatDate = (dateString) => {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
@@ -16,19 +15,16 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 import ReappearRecord from '../models/reappearRecord.js';
 
-// GET: Fetch all upcoming exams & past dynamic results for Student Dashboard
-// Note: Frontend hits `/api/exams` without token logic originally, so protect is optional fallback for public viewing, but strict if they want grades.
+
 router.get('/', async (req, res) => {
     try {
         let userId = null;
 
-        // 1. Manually extract the user from the Bearer token (since 'protect' will block admins if misconfigured)
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             try {
                 const token = req.headers.authorization.split(' ')[1];
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 const user = await User.findById(decoded.id);
-                // If not admin, set userId to filter. Admins see everything.
                 if (user && user.role !== 'admin') {
                     userId = decoded.id;
                 }
@@ -37,13 +33,10 @@ router.get('/', async (req, res) => {
             }
         }
 
-        // 2. Fetch ALL exams sorted chronologically
         const allExams = await Exam.find().sort({ examDate: 1 });
         
-        // 3. If it's a student, fetch their specific allowed subjects
         let allowedSubjects = new Set();
         if (userId) {
-            // Find records mapping this student, populate the 'subject' to get the subjectCode
             const records = await ReappearRecord.find({ student: userId }).populate('subject');
             records.forEach(record => {
                 if (record.subject && record.subject.subjectCode) {
@@ -59,15 +52,14 @@ router.get('/', async (req, res) => {
         for (let i = 0; i < allExams.length; i++) {
             const exam = allExams[i];
 
-            // 4. FILTER: If a user isn't logged in, or they aren't assigned to this subject, skip it.
-            // (Unless it's an admin bypass, but this route is primarily meant for the student dashboard display)
+            
             if (userId && !allowedSubjects.has(exam.subjectCode)) {
                 continue;
             }
 
             const examDate = new Date(exam.examDate);
             
-            // Format base exam details
+           
             const baseExam = {
                 id: exam._id || i,
                 examName: `${exam.semester} Sem - ${exam.department.substring(0, 3)}`,
@@ -83,7 +75,7 @@ router.get('/', async (req, res) => {
                 total: "Pending"
             };
 
-            // If exam is strictly in the past, it moves to Results
+            
             if (examDate < now || exam.status === 'completed') {
                 formattedResults.push(baseExam);
             } else {
@@ -100,8 +92,6 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: "Server Error while fetching exams." });
     }
 });
-
-// GET: Fetch all raw exams strictly for admin consumption
 router.get('/all', protect, async (req, res) => {
     try {
         const exams = await Exam.find().sort({ examDate: -1 });
@@ -111,18 +101,25 @@ router.get('/all', protect, async (req, res) => {
         res.status(500).json({ message: "Server Error while fetching all exams." });
     }
 });
-
-// POST: Admin schedules a new exam
 router.post('/', async (req, res) => {
     try {
         const { dept, branch, sem, subject, date, time, room, examType, component, syllabus } = req.body;
 
-        // Backend validation
         if (!dept || !branch || !sem || !subject || !date || !time || !room || !examType || !component) {
             return res.status(400).json({ message: "Please fill all required exam details, including Type and Component." });
         }
 
-        // Map frontend payload to mongoose schema
+        // Prevent duplicate exam scheduling for the same subject, type, and component
+        const existingExam = await Exam.findOne({ 
+            subjectCode: subject, 
+            examType: examType,
+            examComponent: component 
+        });
+        
+        if (existingExam) {
+            return res.status(400).json({ message: `A ${examType} (${component}) exam has already been scheduled for this subject.` });
+        }
+
         const newExam = new Exam({
             department: dept,
             branch: branch,
@@ -145,7 +142,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// DELETE: Admin removes an exam
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -162,7 +158,6 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// PUT: Admin updates an existing exam
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;

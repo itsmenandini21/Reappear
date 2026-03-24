@@ -2,14 +2,11 @@ import ReappearRecord from "../models/reappearRecord.js";
 import Subject from "../models/subject.js"; 
 import sendEmail from "../utils/sendEmail.js";
 import User from "../models/user.js";
-import Announcement from "../models/announcement.js"; // IMPORTED ANNOUNCEMENT
-import mongoose from "mongoose";
-// Note: 'User' import ki zaroorat nahi hai agar hum seedha req.user.id use kar rahe hain
+import Announcement from "../models/announcement.js"; 
+
 
 export const getMyReappears = async (req, res) => {
   try {
-    // 1. Token se User details nikalna
-    // req.user humein protect middleware se milta hai
     const studentId = req.user._id || req.user.id;
     const rollNumber = req.user.rollNumber;
 
@@ -17,8 +14,7 @@ export const getMyReappears = async (req, res) => {
       return res.status(401).json({ message: "Not authorized, user details missing" });
     }
 
-    // 2. Dual Search: ID se dhoondo YA Roll Number se 
-    // Isse aapka 500 error khatam ho jayega agar ID mismatch hui toh
+    
     const reappears = await ReappearRecord.find({
       $or: [
         { student: studentId },
@@ -27,20 +23,13 @@ export const getMyReappears = async (req, res) => {
     })
     .populate("subject") 
     .exec();
-
-    // 2.5 Find all Active Academic Notices to see which subjects are currently open
-    // Fetch all academic notices that have a subject linked.
     const activeNotices = await Announcement.find({ category: 'Academic', subject: { $exists: true, $ne: null } });
-    
-    // Create a fast lookup map: { subjectId: NoticeDocument }
     const noticeMap = {};
     activeNotices.forEach(notice => {
       noticeMap[notice.subject.toString()] = notice;
     });
 
-    // 3. Grouping Logic (Safe approach)
     const groupedBySemester = reappears.reduce((acc, record) => {
-      // Agar subject null hai (deleted subject), toh crash na ho
       if (!record.subject) return acc;
 
       const sem = record.subject.semester || "Other";
@@ -59,8 +48,7 @@ export const getMyReappears = async (req, res) => {
       
       if (actualDeadlineDate) {
            const today = new Date();
-           today.setHours(0, 0, 0, 0); // Normalize time so deadline matching is fair to end-of-day
-           
+           today.setHours(0, 0, 0, 0); 
            if (actualDeadlineDate >= today) {
                 _hasActiveNotice = true;
                 const d = actualDeadlineDate.getDate().toString().padStart(2, '0');
@@ -77,8 +65,7 @@ export const getMyReappears = async (req, res) => {
         subjectObjectId: record.subject._id,
         status: record.status || "pending",
         hasApplied: record.feesPaid,
-        hasActiveNotice: _hasActiveNotice, // Evaluate boolean reliably against modern logic
-        noticeDeadline: _formattedDeadline, // Feed strict exact string back to frontend
+        hasActiveNotice: _hasActiveNotice, 
         credits: record.subject.credits || 0,
         semester: sem
       });
@@ -107,15 +94,13 @@ export const addBulkReappears = async (req, res) => {
 
         const results = [];
         const emailPromises = [];
-
-        // Group assignments by roll number for consolidated emails
         const studentGroups = {};
 
         for (const assignment of assignments) {
             const { rollNumber, subjectId } = assignment;
 
             if (!rollNumber || !subjectId) {
-                continue; // Skip invalid assignments
+                continue; 
             }
 
             const existingStudent = await User.findOne({ rollNumber });
@@ -130,8 +115,6 @@ export const addBulkReappears = async (req, res) => {
             });
 
             results.push(newRecord);
-
-            // Group by roll number for email consolidation
             if (!studentGroups[rollNumber]) {
                 studentGroups[rollNumber] = {
                     student: existingStudent,
@@ -140,13 +123,9 @@ export const addBulkReappears = async (req, res) => {
             }
             studentGroups[rollNumber].subjects.push(subjectId);
         }
-
-        // Send consolidated emails asynchronously
         for (const [rollNumber, data] of Object.entries(studentGroups)) {
             const recipientEmail = (data.student && data.student.email) ? data.student.email : `${rollNumber}@nitkkr.ac.in`;
             const studentName = (data.student && data.student.name) ? data.student.name : rollNumber;
-
-            // Get subject details
             const subjects = await Subject.find({ _id: { $in: data.subjects } });
 
             const subjectListHtml = subjects.map(sub =>
@@ -170,14 +149,12 @@ export const addBulkReappears = async (req, res) => {
                 </div>
             </div>`;
 
-            // Send email asynchronously without awaiting
             emailPromises.push(
                 sendEmail(recipientEmail, "Action Required: Reappear Form Updates", emailHtml)
                     .catch(error => console.error(`Failed to send email to ${recipientEmail}:`, error))
             );
         }
 
-        // Don't await email sending - let it happen in background
         Promise.all(emailPromises).catch(error => {
             console.error('Bulk email sending failed:', error);
         });
@@ -210,11 +187,8 @@ export const addReappear = async (req, res) => {
             attemptCount: 1
         });
 
-        // Send email asynchronously (don't await) to avoid blocking the response
         const recipientEmail = (existingStudent && existingStudent.email) ? existingStudent.email : `${rollNumber}@nitkkr.ac.in`;
         const studentName = (existingStudent && existingStudent.name) ? existingStudent.name : rollNumber;
-
-        // Get subject details for better email content
         const subject = await Subject.findById(subjectId);
 
         const emailHtml = `
@@ -234,7 +208,6 @@ export const addReappear = async (req, res) => {
             </div>
         </div>`;
 
-        // Send email without awaiting to prevent blocking
         sendEmail(recipientEmail, "Action Required: Reappear Form Updates", emailHtml).catch(error => {
             console.error('Failed to send email notification:', error);
         });
@@ -244,17 +217,14 @@ export const addReappear = async (req, res) => {
         res.status(400).json({ message: "Failed to add record", error: error.message });
     }
 };
-// @desc    Check existing backlogs for a student by roll number
-// @route   GET /api/reappear/check/:rollNumber
+//  GET /api/reappear/check/:rollNumber
 export const checkExistingBacklogs = async (req, res) => {
     try {
         const { rollNumber } = req.params;
-        // Sirf pending ya in-progress wale records check karenge
-        // Kyunki agar 'cleared' hai toh admin dobara add kar sakta hai
         const existingRecords = await ReappearRecord.find({ 
             rollNumber: rollNumber,
             status: { $in: ["pending", "in-progress"] }
-        }).populate('subject', 'subjectCode'); // Sirf subjectCode populate karo fast response ke liye
+        }).populate('subject', 'subjectCode');
 
         res.status(200).json(existingRecords);
     } catch (error) {
@@ -265,8 +235,7 @@ export const checkExistingBacklogs = async (req, res) => {
 
 
 
-// @desc    Admin sends an email dynamically to a student
-// @route   POST /api/reappear/admin/send-email
+//POST /api/reappear/admin/send-email
 export const sendAdminEmail = async (req, res) => {
     try {
         const { email, subject, message } = req.body;
@@ -295,8 +264,7 @@ export const sendAdminEmail = async (req, res) => {
     }
 };
 
-// @desc    Admin fetches eligible students for a specific subject
-// @route   GET /api/reappear/admin/eligible-students
+// GET /api/reappear/admin/eligible-students
 export const getEligibleStudentsForResults = async (req, res) => {
     try {
         const { subjectCode } = req.query; 
