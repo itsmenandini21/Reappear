@@ -152,7 +152,6 @@ const UpdateFaculty = ({ facultyData, onBack }) => {
 
             <div className="update-content-container fade-in">
                 <header className="update-page-header">
-                    <div className="badge-edit">Resource Modification Mode</div>
                     <h1>Update Faculty Profile</h1>
                     <p>You are modifying the official records for <strong>{facultyData?.name}</strong></p>
                 </header>

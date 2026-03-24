@@ -15,8 +15,7 @@ const SubjectUpdates = () => {
   const [loading, setLoading] = useState(true);
   const [pendingData, setPendingData] = useState(null); 
 
-  const [notifyData, setNotifyData] = useState({ rollNumbers: '', title: '', message: '' });
-  const [isSending, setIsSending] = useState(false);
+
 
   const dummyData = {
     'Computer Engineering': [
@@ -122,15 +121,7 @@ const SubjectUpdates = () => {
     }
   };
 
-  const handleNotifySubmit = (e) => {
-    e.preventDefault();
-    setIsSending(true);
-    setTimeout(() => {
-      toast.success(`Notices sent!`, { icon: '📢' });
-      setIsSending(false);
-      setView('list');
-    }, 1500);
-  };
+
 
   return (
     <div className="admin-subjects-wrapper">
@@ -225,7 +216,6 @@ const SubjectUpdates = () => {
                       <td><span className="text-muted">{sub.credits} Credits</span></td>
                       <td><span className="pill pill-sem">{sub.semester} Sem</span></td>
                       <td className="action-cell">
-                        <button className="action-btn btn-notify" onClick={() => { setSelectedSubject(sub); setView('notify'); }}>📢 Notify</button>
                         <button className="action-btn btn-edit" onClick={() => { setSelectedSubject(sub); setView('update'); }}>Edit</button>
                         <button className="action-btn btn-delete" onClick={() => { setSubjectToDelete(sub); setShowDeleteModal(true); }}>Remove</button>
                       </td>
