@@ -23,7 +23,7 @@
 .ex-mt { margin-top: 30px; }
 .ex-mt-small { margin-top: 15px; }
 
-.ex-form-row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.ex-form-row-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
 .ex-input-group { display: flex; flex-direction: column; gap: 8px; }
 .ex-input-group label { font-size: 0.85rem; font-weight: 700; color: var(--gray-muted); }
 .ex-input-group select, .ex-input-group input, .ex-input-group textarea { 
