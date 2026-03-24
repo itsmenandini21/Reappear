@@ -80,7 +80,6 @@ export default function PYQDirectory() {
     <div className="page-container" style={{ marginTop: '100px' }}>
       <div className="page-header" style={{ textAlign: 'center' }}>
         <h1 className="page-title">Previous Year Questions</h1>
-        <p>Prioritized by your re-appear subjects.</p>
       </div>
 
       <div className="controls-container">
