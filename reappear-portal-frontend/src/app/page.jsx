@@ -422,13 +422,14 @@ export default function FrontPage() {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      const scholarId = deriveRollNumberFromEmail(forgotData.email);
+      const normalizedEmail = forgotData.email.trim().toLowerCase();
+      const scholarId = deriveRollNumberFromEmail(normalizedEmail);
       if (!scholarId) {
          toast.error("Please enter a valid student email (rollnumber@nitkkr.ac.in)");
          return;
       }
       setLoginLoading(true);
-      await api.post('/auth/forgot-password', { scholarId });
+      await api.post('/auth/forgot-password', { email: normalizedEmail });
       toast.success('OTP sent to your email for password reset.');
       setForgotStep(2);
     } catch (error) {
@@ -442,9 +443,14 @@ export default function FrontPage() {
     e.preventDefault();
     try {
       setLoginLoading(true);
-      const scholarId = deriveRollNumberFromEmail(forgotData.email);
+      const normalizedEmail = forgotData.email.trim().toLowerCase();
+      const scholarId = deriveRollNumberFromEmail(normalizedEmail);
+      if (!scholarId) {
+        toast.error("Please enter a valid student email (rollnumber@nitkkr.ac.in)");
+        return;
+      }
       await api.post('/auth/reset-password', {
-         scholarId,
+         email: normalizedEmail,
          otp: forgotData.otp,
          newPassword: forgotData.newPassword
       });
