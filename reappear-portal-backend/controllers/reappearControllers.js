@@ -1,87 +1,87 @@
 import ReappearRecord from "../models/reappearRecord.js";
-import Subject from "../models/subject.js"; 
+import Subject from "../models/subject.js";
 import sendEmail from "../utils/sendEmail.js";
 import User from "../models/user.js";
-import Announcement from "../models/announcement.js"; 
+import Announcement from "../models/announcement.js";
 
 
 export const getMyReappears = async (req, res) => {
-  try {
-    const studentId = req.user._id || req.user.id;
-    const rollNumber = req.user.rollNumber;
+    try {
+        const studentId = req.user._id || req.user.id;
+        const rollNumber = req.user.rollNumber;
 
-    if (!studentId && !rollNumber) {
-      return res.status(401).json({ message: "Not authorized, user details missing" });
+        if (!studentId && !rollNumber) {
+            return res.status(401).json({ message: "Not authorized, user details missing" });
+        }
+
+
+        const reappears = await ReappearRecord.find({
+            $or: [
+                { student: studentId },
+                { rollNumber: rollNumber }
+            ]
+        })
+            .populate("subject")
+            .exec();
+        const activeNotices = await Announcement.find({ category: 'Academic', subject: { $exists: true, $ne: null } });
+        const noticeMap = {};
+        activeNotices.forEach(notice => {
+            noticeMap[notice.subject.toString()] = notice;
+        });
+
+        const groupedBySemester = reappears.reduce((acc, record) => {
+            if (!record.subject) return acc;
+
+            const sem = record.subject.semester || "Other";
+
+            if (!acc[sem]) {
+                acc[sem] = [];
+            }
+
+            const subjectObjectIdStr = record.subject._id.toString();
+            const linkedNotice = noticeMap[subjectObjectIdStr];
+
+            const actualDeadlineDate = record.lastDate ? new Date(record.lastDate) : (linkedNotice ? new Date(linkedNotice.deadline) : null);
+
+            let _hasActiveNotice = false;
+            let _formattedDeadline = null;
+
+            if (actualDeadlineDate) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (actualDeadlineDate >= today) {
+                    _hasActiveNotice = true;
+                    const d = actualDeadlineDate.getDate().toString().padStart(2, '0');
+                    const m = (actualDeadlineDate.getMonth() + 1).toString().padStart(2, '0');
+                    const y = actualDeadlineDate.getFullYear();
+                    _formattedDeadline = `${d}/${m}/${y}`;
+                }
+            }
+
+            acc[sem].push({
+                id: record._id,
+                name: record.subject.subjectName || "Unknown Subject",
+                code: record.subject.subjectCode || "N/A",
+                subjectObjectId: record.subject._id,
+                status: record.status || "pending",
+                hasApplied: record.feesPaid,
+                hasActiveNotice: _hasActiveNotice,
+                credits: record.subject.credits || 0,
+                semester: sem
+            });
+
+            return acc;
+        }, {});
+
+        res.status(200).json(groupedBySemester);
+
+    } catch (error) {
+        console.error("Error fetching reappears:", error);
+        res.status(500).json({
+            message: "Server Error",
+            error: error.message
+        });
     }
-
-    
-    const reappears = await ReappearRecord.find({
-      $or: [
-        { student: studentId },
-        { rollNumber: rollNumber }
-      ]
-    })
-    .populate("subject") 
-    .exec();
-    const activeNotices = await Announcement.find({ category: 'Academic', subject: { $exists: true, $ne: null } });
-    const noticeMap = {};
-    activeNotices.forEach(notice => {
-      noticeMap[notice.subject.toString()] = notice;
-    });
-
-    const groupedBySemester = reappears.reduce((acc, record) => {
-      if (!record.subject) return acc;
-
-      const sem = record.subject.semester || "Other";
-      
-      if (!acc[sem]) {
-        acc[sem] = [];
-      }
-      
-      const subjectObjectIdStr = record.subject._id.toString();
-      const linkedNotice = noticeMap[subjectObjectIdStr];
-      
-      const actualDeadlineDate = record.lastDate ? new Date(record.lastDate) : (linkedNotice ? new Date(linkedNotice.deadline) : null);
-      
-      let _hasActiveNotice = false;
-      let _formattedDeadline = null;
-      
-      if (actualDeadlineDate) {
-           const today = new Date();
-           today.setHours(0, 0, 0, 0); 
-           if (actualDeadlineDate >= today) {
-                _hasActiveNotice = true;
-                const d = actualDeadlineDate.getDate().toString().padStart(2, '0');
-                const m = (actualDeadlineDate.getMonth()+1).toString().padStart(2, '0');
-                const y = actualDeadlineDate.getFullYear();
-                _formattedDeadline = `${d}/${m}/${y}`;
-           }
-      }
-
-      acc[sem].push({
-        id: record._id,
-        name: record.subject.subjectName || "Unknown Subject",
-        code: record.subject.subjectCode || "N/A",
-        subjectObjectId: record.subject._id,
-        status: record.status || "pending",
-        hasApplied: record.feesPaid,
-        hasActiveNotice: _hasActiveNotice, 
-        credits: record.subject.credits || 0,
-        semester: sem
-      });
-
-      return acc;
-    }, {});
-
-    res.status(200).json(groupedBySemester);
-
-  } catch (error) {
-    console.error("Error fetching reappears:", error);
-    res.status(500).json({ 
-      message: "Server Error", 
-      error: error.message 
-    });
-  }
 };
 
 export const addBulkReappears = async (req, res) => {
@@ -100,7 +100,7 @@ export const addBulkReappears = async (req, res) => {
             const { rollNumber, subjectId } = assignment;
 
             if (!rollNumber || !subjectId) {
-                continue; 
+                continue;
             }
 
             const existingStudent = await User.findOne({ rollNumber });
@@ -221,7 +221,7 @@ export const addReappear = async (req, res) => {
 export const checkExistingBacklogs = async (req, res) => {
     try {
         const { rollNumber } = req.params;
-        const existingRecords = await ReappearRecord.find({ 
+        const existingRecords = await ReappearRecord.find({
             rollNumber: rollNumber,
             status: { $in: ["pending", "in-progress"] }
         }).populate('subject', 'subjectCode');
@@ -242,7 +242,7 @@ export const sendAdminEmail = async (req, res) => {
         if (!email || !subject || !message) {
             return res.status(400).json({ message: "Please provide email, subject, and message" });
         }
-        
+
         const htmlMessage = `
         <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
             <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto;">
@@ -255,7 +255,7 @@ export const sendAdminEmail = async (req, res) => {
                 <p style="color: #888; font-size: 13px;">- Exam Cell, NIT Kurukshetra</p>
             </div>
         </div>`;
-        
+
         await sendEmail(email, subject, htmlMessage);
         res.status(200).json({ message: "Email sent successfully to " + email });
     } catch (error) {
@@ -267,7 +267,7 @@ export const sendAdminEmail = async (req, res) => {
 // GET /api/reappear/admin/eligible-students
 export const getEligibleStudentsForResults = async (req, res) => {
     try {
-        const { subjectCode } = req.query; 
+        const { subjectCode } = req.query;
         if (!subjectCode) return res.status(400).json({ message: "Subject Code is required" });
 
         // Retrieve all reappear records and populate subject and student fields
@@ -277,10 +277,10 @@ export const getEligibleStudentsForResults = async (req, res) => {
 
         // Filter purely to the targeted subject code 
         const filtered = records.filter(r => r.subject && r.subject.subjectCode === subjectCode);
-        
+
         // Extract roll numbers and prune any nullish definitions
         const rollNumbers = filtered.map(r => r.rollNumber).filter(Boolean);
-        
+
         // Return absolutely unique Array of students so admins don't mark duplicates
         res.status(200).json([...new Set(rollNumbers)]);
     } catch (error) {
