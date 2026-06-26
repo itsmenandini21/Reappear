@@ -7,8 +7,6 @@
     <strong>A simple and easy-to-use platform for students to apply for reappear exams, access PYQs, and connect with faculty.</strong>
   </p>
   
-  [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://reappear.vercel.app/)
-  
   <p>
     <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
     <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
