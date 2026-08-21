@@ -23,7 +23,11 @@ export const getMyReappears = async (req, res) => {
         })
             .populate("subject")
             .exec();
-        const activeNotices = await Announcement.find({ category: 'Academic', subject: { $exists: true, $ne: null } });
+        const activeNotices = await Announcement.find({
+            category: { $in: ['Academic', 'Fees'] },
+            subject: { $exists: true, $ne: null },
+            deadline: { $exists: true, $ne: null }
+        });
         const noticeMap = {};
         activeNotices.forEach(notice => {
             noticeMap[notice.subject.toString()] = notice;
@@ -66,6 +70,7 @@ export const getMyReappears = async (req, res) => {
                 status: record.status || "pending",
                 hasApplied: record.feesPaid,
                 hasActiveNotice: _hasActiveNotice,
+                noticeDeadline: _formattedDeadline,
                 credits: record.subject.credits || 0,
                 semester: sem
             });
@@ -82,83 +87,6 @@ export const getMyReappears = async (req, res) => {
             error: error.message
         });
     }
-<<<<<<< HEAD
-=======
-
-    
-    const reappears = await ReappearRecord.find({
-      $or: [
-        { student: studentId },
-        { rollNumber: rollNumber }
-      ]
-    })
-    .populate("subject") 
-    .exec();
-    const activeNotices = await Announcement.find({
-      category: { $in: ['Academic', 'Fees'] },
-      subject: { $exists: true, $ne: null },
-      deadline: { $exists: true, $ne: null }
-    });
-    const noticeMap = {};
-    activeNotices.forEach(notice => {
-      noticeMap[notice.subject.toString()] = notice;
-    });
-
-    const groupedBySemester = reappears.reduce((acc, record) => {
-      if (!record.subject) return acc;
-
-      const sem = record.subject.semester || "Other";
-      
-      if (!acc[sem]) {
-        acc[sem] = [];
-      }
-      
-      const subjectObjectIdStr = record.subject._id.toString();
-      const linkedNotice = noticeMap[subjectObjectIdStr];
-      
-      const actualDeadlineDate = record.lastDate ? new Date(record.lastDate) : (linkedNotice ? new Date(linkedNotice.deadline) : null);
-      
-      let _hasActiveNotice = false;
-      let _formattedDeadline = null;
-      
-      if (actualDeadlineDate) {
-           const today = new Date();
-           today.setHours(0, 0, 0, 0); 
-           if (actualDeadlineDate >= today) {
-                _hasActiveNotice = true;
-                const d = actualDeadlineDate.getDate().toString().padStart(2, '0');
-                const m = (actualDeadlineDate.getMonth()+1).toString().padStart(2, '0');
-                const y = actualDeadlineDate.getFullYear();
-                _formattedDeadline = `${d}/${m}/${y}`;
-           }
-      }
-
-      acc[sem].push({
-        id: record._id,
-        name: record.subject.subjectName || "Unknown Subject",
-        code: record.subject.subjectCode || "N/A",
-        subjectObjectId: record.subject._id,
-        status: record.status || "pending",
-        hasApplied: record.feesPaid,
-        hasActiveNotice: _hasActiveNotice, 
-        noticeDeadline: _formattedDeadline,
-        credits: record.subject.credits || 0,
-        semester: sem
-      });
-
-      return acc;
-    }, {});
-
-    res.status(200).json(groupedBySemester);
-
-  } catch (error) {
-    console.error("Error fetching reappears:", error);
-    res.status(500).json({ 
-      message: "Server Error", 
-      error: error.message 
-    });
-  }
->>>>>>> 1b4d0588396f0f966cbd5f6a54518998a8b05a7f
 };
 
 export const addBulkReappears = async (req, res) => {
