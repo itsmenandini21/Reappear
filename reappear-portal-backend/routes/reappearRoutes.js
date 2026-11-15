@@ -5,8 +5,8 @@ import express from "express"
 const router=express.Router();
 router.get("/my-reappears",protect,getMyReappears);
 // Admin Routes: Allows Admin to add new backlogs or change status to 'cleared'
-router.post('/add', addReappear);
-router.post('/add-bulk', addBulkReappears);
-router.get('/check/:rollNumber', checkExistingBacklogs);
-router.get('/admin/eligible-students', getEligibleStudentsForResults);
+router.post('/add', protect, admin, addReappear);
+router.post('/add-bulk', protect, admin, addBulkReappears);
+router.get('/check/:rollNumber', protect, admin, checkExistingBacklogs);
+router.get('/admin/eligible-students', protect, admin, getEligibleStudentsForResults);
 export default router;
